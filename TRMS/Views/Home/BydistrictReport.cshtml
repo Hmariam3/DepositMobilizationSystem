@@ -1,0 +1,103 @@
+﻿@model TRMS.Models.DistrictCombinedReportViewModel
+
+
+<h3>Deposit Plan by District</h3>
+<canvas id="planChart" height="100"></canvas>
+
+<h3>Merchant Agent by District</h3>
+<canvas id="agentChart" height="100"></canvas>
+
+<h3>FCY by District</h3>
+<canvas id="fcyChart" height="100"></canvas>
+<script src="~/Content/graph/chart.js"></script>
+<script>
+    // Plan Chart
+    const planLabels = @Html.Raw(Json.Encode(Model.DepositPlanData.Select(x => x.District)));
+    const planCollected = @Html.Raw(Json.Encode(Model.DepositPlanData.Select(x => x.AmountCollected)));
+    const planTarget = @Html.Raw(Json.Encode(Model.DepositPlanData.Select(x => x.TotalTarget)));
+
+    new Chart(document.getElementById('planChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: planLabels,
+            datasets: [
+                   {
+                    label: 'Target',
+                    data: planTarget,
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)'
+                },
+                {
+                    label: 'Collected',
+                    data: planCollected,
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                }
+                
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { title: { display: true, text: 'Deposit Plan by District' } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    // Agent Chart
+    const agentLabels = @Html.Raw(Json.Encode(Model.DepositMerchantAgentData.Select(x => x.District)));
+    const agentCollected = @Html.Raw(Json.Encode(Model.DepositMerchantAgentData.Select(x => x.AmountCollected)));
+    const agentTarget = @Html.Raw(Json.Encode(Model.DepositMerchantAgentData.Select(x => x.TotalTarget)));
+
+    new Chart(document.getElementById('agentChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: agentLabels,
+            datasets: [
+                  {
+                    label: 'Target',
+                    data: agentTarget,
+                    backgroundColor: 'rgba(255, 206, 86, 0.6)'
+                },
+                {
+                    label: 'Collected',
+                    data: agentCollected,
+                    backgroundColor: 'rgba(153, 102, 255, 0.6)'
+                }
+               
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { title: { display: true, text: 'Merchant Agent by District' } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    // FCY Chart
+    const fcyLabels = @Html.Raw(Json.Encode(Model.DepositFcy.Select(x => x.District)));
+    const fcyCollected = @Html.Raw(Json.Encode(Model.DepositFcy.Select(x => x.AmountCollected)));
+    const fcyTarget = @Html.Raw(Json.Encode(Model.DepositFcy.Select(x => x.TotalTarget)));
+
+    new Chart(document.getElementById('fcyChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: fcyLabels,
+            datasets: [
+               
+                {
+                    label: 'Target',
+                    data: fcyTarget,
+                    backgroundColor: 'rgba(255, 159, 64, 0.6)'
+                }, {
+                    label: 'Collected',
+                    data: fcyCollected,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { title: { display: true, text: 'FCY Collection by District' } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+</script>
+

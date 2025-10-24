@@ -1,0 +1,172 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>TRMS</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    <!-- Font Awesome -->
+    <!-- Ionicons -->
+    <script src="~/admin-lte/plugins/datatables.net/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="admin-lte/plugins/Ionicons/css/ionicons.min.css">
+    <script src="~/admin-lte/js/pages/jquery.dataTables.min.js"></script>
+    <script src="~/Content/jquery-3.6.0.min.js"></script>
+    <link href="~/admin-lte/js/pages/jquery.dataTables.min.css" rel="stylesheet" />
+ 
+    <style>
+    </style>
+    
+</head>
+<body class="hold-transition skin-red sidebar-mini">
+    <div class="wrapper" style="margin-top:2px;background-color: #fff;"  >
+        <!-- Main Header -->
+       
+        <!-- Left side column. contains the logo and sidebar -->
+
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper" style="background-color: #fff;" >
+            <!-- Content Header (Page header) -->
+            <section class="content-header" style="margin-bottom:-1em;margin-right:1em">
+                <ol class="breadcrumb">
+                    @*<li><span class="text-muted">@Html.ActionLink(Html.Controller(), "", "", new { @class = "badge badge-pill" })</span></li>
+                        <li class="active"><span class="text-muted">@Html.ActionLink(Html.Action(), Html.Action(), "", new { @class = "badge badge-pill badge-dark" })</span></li>*@
+                </ol>
+            </section>
+            <!-- Main content -->
+            <section class="content container-fluid">
+                <!--------------------------
+                  | Your Page Content Here |
+                  -------------------------->
+                <div class="loader" id="AjaxLoader" style="display:none;">
+                    <div class="strip-holder">
+                        <div class="strip-1"></div>
+                        <div class="strip-2"></div>
+                        <div class="strip-3"></div>
+                    </div>
+                </div>
+
+                @RenderBody()
+
+            </section>
+            <!-- /.content -->
+        </div>
+        
+    </div>
+    <!-- ./wrapper -->
+    <!-- REQUIRED JS SCRIPTS -->
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/admin-lte/jsFiles")
+    @RenderSection("scripts", required: false)
+
+
+    <script>
+        $(function () {
+            $('#defaultDataTable').DataTable()
+            $('#userDT').DataTable({
+                "columnDefs": [
+                    { "searchable": false, "targets": 8 }
+                ],
+                "lengthMenu": [5, 10, 25, 50, 75, 100]
+            });
+            $('#roleDT').DataTable({
+                "columnDefs": [
+                    { "searchable": false, "targets": 6 }
+                ]
+            });
+            $('#pageDT').DataTable({
+                "columnDefs": [
+                    { "searchable": false, "targets": 6 }
+                ]
+            });
+
+            $('#employeeDT1').DataTable({
+                "columnDefs": [
+                    { "searchable": false, "targets": 6 }
+                ]
+            });
+
+            $('#employeeEarningDT').DataTable({
+                "columnDefs": [
+                    { "searchable": false, "targets": 4 }
+                ],
+                "lengthMenu": [9, 25, 50, 75, 100]
+            });
+
+            $('#FilteremployeeDT').DataTable({
+                'paging': false
+            });
+
+            $('#SettingsDT').DataTable({
+                "columnDefs": [
+                    { "searchable": false, "targets": 3 }
+                ]
+            });
+
+            $('#DeductionsDT').DataTable({
+                "columnDefs": [
+                    { "searchable": false, "targets": 2 }
+                ]
+            });
+
+            $('#DepartmentsDT').DataTable({
+                "columnDefs": [
+                    { "searchable": false, "targets": 2 }
+                ]
+            });
+
+
+
+            $('#example').DataTable({
+                'paging': true,
+                'lengthChange': true,
+                'searching': true,
+                'ordering': true,
+                'info': true,
+                'autoWidth': false,
+                "columnDefs": [
+                    { "searchable": false, "targets": 6 }
+                ]
+            })
+
+
+        })
+
+        function onBegin() {
+            $('#AjaxLoader').show();
+
+
+        }
+        function onComplete() {
+            $('#AjaxLoader').hide();
+
+
+        }
+
+    </script>
+
+
+        <script>
+    $(document).ready(function () {
+        $('#employeeDT').DataTable({
+            "paging": true,      // Enable pagination
+            "searching": true,   // Enable search box
+            "ordering": true,    // Enable sorting
+            "lengthMenu": [5, 10, 25, 50], // Page length options
+            "pageLength": 10,    // Default rows per page
+            "info": true,        // Show table info
+            "language": {
+                "search": "Search User:", // Customize search placeholder
+                "lengthMenu": "Show _MENU_ entries",
+                "info": "Showing _START_ to _END_ of _TOTAL_ User"
+            }
+        });
+
+</script>
+
+
+</body>
+</html>

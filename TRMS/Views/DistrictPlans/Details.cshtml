@@ -1,0 +1,59 @@
+﻿@model TRMS.Models.DistrictPlan
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>DistrictPlan</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Deposit)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Deposit)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.FCY)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.FCY)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.merchant)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.merchant)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CreatedBy)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CreatedBy)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CreatedDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CreatedDate)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.DId }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

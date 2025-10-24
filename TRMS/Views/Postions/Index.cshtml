@@ -1,0 +1,51 @@
+﻿@model IEnumerable<TRMS.Models.Postion>
+
+@{
+    ViewBag.Title = "Index";
+}
+<div class="panel panel-default" style="padding-left:10px;">
+    <div class="panel-heading">
+        <h3>List</h3>
+    </div>
+    <table id="employeeDT" class="table table-striped">
+        <thead>
+            <tr>
+                <th>@Html.DisplayName("Postion")</th>
+                <th>@Html.DisplayName("Limit Amount")</th>
+                <th>@Html.DisplayName("Remark")</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.Postion1)</td>
+                    <td>@Html.DisplayFor(modelItem => item.LimitAmout)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Remark)</td>
+                    <td>
+                        @Html.ActionLink("Edit", "Edit", new { id = item.Id }, new { @class = "btn btn-warning btn-sm" })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#employeeDT').DataTable({
+            "paging": true,      // Enable pagination
+            "searching": true,   // Enable search box
+            "ordering": true,    // Enable sorting
+            "lengthMenu": [5, 10, 25, 50], // Page length options
+            "pageLength": 10,    // Default rows per page
+            "info": true,        // Show table info
+            "language": {
+                "search": "Search User:", // Customize search placeholder
+                "lengthMenu": "Show _MENU_ entries",
+                "info": "Showing _START_ to _END_ of _TOTAL_ User"
+            }
+        });
+    });
+</script>
+

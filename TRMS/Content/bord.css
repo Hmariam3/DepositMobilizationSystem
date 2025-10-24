@@ -1,0 +1,39 @@
+﻿body {
+    font-family: Arial, sans-serif;
+}
+@keyframes marquee-animation {
+    0% {
+        transform: translateX(100%);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .dashboard-card {
+        height: 200px;
+    }
+
+    .dashboard-title {
+        font-size: 22px;
+    }
+
+    .dashboard-value {
+        font-size: 28px;
+    }
+
+    .container {
+        padding: 10px;
+    }
+}
+
+    .dashboard-title {
+        font-size: 22px;
+    }
+
+    .dashboard-value {
+        font-size: 28px;
+    }

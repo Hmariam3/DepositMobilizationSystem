@@ -1,0 +1,396 @@
+﻿
+@model TRMS.Models.User
+
+@{
+    ViewBag.Title = "Create User";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    @Styles.Render("~/Content/css")
+    @Styles.Render("~/Content/cssjqryUi")
+    <link rel="stylesheet" href="/admin-lte/plugins/Ionicons/css/ionicons.min.css">
+    <style>
+        hr {
+            width: 100%;
+            height: 0.1px;
+            background-color: #00AEEF;
+            margin: 10px auto 5px;
+            border-width: 2px;
+            border-color: #00AEEF;
+        }
+
+        .alert {
+            margin: 30px auto;
+            width: 80%;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .form-control[readonly] {
+            background-color: #e9ecef;
+            opacity: 1;
+        }
+
+        .btn-save {
+            background-color: #00AEEF;
+            color: white;
+        }
+
+        .btn-back {
+            background-color: #333;
+            color: white;
+        }
+
+        .panel {
+            margin: 20px auto;
+            max-width: 1200px;
+        }
+
+        .panel-heading {
+            background-color: #00AEEF;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .panel-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .control-label {
+            font-weight: bold;
+        }
+
+        .text-danger {
+            color: #dc3545;
+        }
+
+        .info-card {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+            .info-card h4 {
+                margin-top: 0;
+                color: #00AEEF;
+            }
+
+            .info-card p {
+                margin: 5px 0;
+                font-size: 16px;
+            }
+
+            .info-card label {
+                font-weight: bold;
+                color: #333;
+            }
+    </style>
+</head>
+<body>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3>Create New User</h3>
+        </div>
+        <hr />
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                <strong>Error!</strong> @TempData["ErrorMessage"]
+            </div>
+        }
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                <strong>Success!</strong> @TempData["SuccessMessage"]
+            </div>
+        }
+
+        <div class="panel-body">
+            <div class="row">
+                <!-- Left Column: User Information -->
+                <div class="col-md-5">
+                    <div class="info-card">
+                        <h4>User Information</h4>
+                        <p><label>Username:</label> @(Model.UserName ?? "Not provided")</p>
+                        <p><label>Full Name:</label> @(Model.FullName ?? "Not provided")</p>
+                        <p><label>Email Address:</label> @(Model.MailAdress ?? "Not provided")</p>
+                        <p><label>Organizational Unit:</label> @(Model.OrganizatinalUnit ?? "Not provided")</p>
+                        <p><label>Position:</label> @(Model.Postion ?? "Not provided")</p>
+                    </div>
+                </div>
+
+                <!-- Right Column: Editable Form -->
+                <div class="col-md-6">
+                    @using (Html.BeginForm("UserCreate", "User", FormMethod.Post, new { enctype = "multipart/form-data", id = "createUserForm" }))
+                    {
+                        @Html.AntiForgeryToken()
+                    <div class="form-horizontal form-group-sm">
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                        <div class="row">
+                            <div class="form-group col-md-12">
+                                @Html.LabelFor(model => model.UserName, new { @class = "control-label col-md-5" })
+                                <div class="col-md-7">
+                                    @Html.EditorFor(model => model.UserName, new { htmlAttributes = new { @class = "form-control", @readonly = !string.IsNullOrEmpty(Model.UserName) ? "readonly" : null } })
+                                    @Html.ValidationMessageFor(model => model.UserName, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group col-md-12">
+                                @Html.LabelFor(model => model.FullName, new { @class = "control-label col-md-5" })
+                                <div class="col-md-7">
+                                    @Html.EditorFor(model => model.FullName, new { htmlAttributes = new { @class = "form-control", @readonly = !string.IsNullOrEmpty(Model.FullName) ? "readonly" : null } })
+                                    @Html.ValidationMessageFor(model => model.FullName, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group col-md-12">
+                                @Html.LabelFor(model => model.MailAdress, new { @class = "control-label col-md-5" })
+                                <div class="col-md-7">
+                                    @Html.EditorFor(model => model.MailAdress, new { htmlAttributes = new { @class = "form-control", @readonly = !string.IsNullOrEmpty(Model.MailAdress) ? "readonly" : null } })
+                                    @Html.ValidationMessageFor(model => model.MailAdress, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+
+                            <div class="form-group col-md-12">
+                                @Html.LabelFor(model => model.Process, new { @class = "control-label col-md-5" })
+                                <div class="col-md-7">
+                                    @Html.DropDownListFor(model => model.Process, (SelectList)ViewBag.Processes, "Select Process", new { @class = "form-control", id = "ProcessDropdown" })
+                                    @Html.ValidationMessageFor(model => model.Process, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+
+                            <div class="form-group col-md-12">
+                                @Html.LabelFor(model => model.District, new { @class = "control-label col-md-5" })
+                                <div class="col-md-7">
+                                    @Html.DropDownListFor(model => model.District, (SelectList)ViewBag.Subprocesses, "Select Subprocess", new { @class = "form-control", id = "SubprocessDropdown" })
+                                    @Html.ValidationMessageFor(model => model.District, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+
+                            <div class="form-group col-md-12">
+                                @Html.LabelFor(model => model.Branch, new { @class = "control-label col-md-5" })
+                                <div class="col-md-7">
+                                    @Html.DropDownListFor(model => model.Branch, (SelectList)ViewBag.Branches, "Select Branch", new { @class = "form-control", id = "BranchDropdown" })
+                                    @Html.ValidationMessageFor(model => model.Branch, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+                            <div class="form-group col-md-12">
+                                <label class="control-label col-md-5">Organizational Unit</label>
+                                <div class="col-md-7">
+                                    @Html.DropDownListFor(model => model.OrganizatinalUnit, new List<SelectListItem>
+                                    {
+                                        new SelectListItem { Text = "HO", Value = "HO" },
+                                        new SelectListItem { Text = "District", Value = "District" },
+                                        new SelectListItem { Text = "Branch", Value = "Branch" }
+                                    }, "Select Organizational Unit", new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.OrganizatinalUnit, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group col-md-12">
+                                @Html.LabelFor(model => model.Postion, new { @class = "control-label col-md-5" })
+                                <div class="col-md-7">
+                                    @Html.DropDownListFor(model => model.Postion, new List<SelectListItem>
+                                    {
+                                        new SelectListItem { Text = "Individual", Value = "Individual" },
+                                        new SelectListItem { Text = "BranchManager", Value = "BranchManager" },
+                                        new SelectListItem { Text = "Manager", Value = "Manager" },
+                                        new SelectListItem { Text = "Director", Value = "Director" },
+                                        new SelectListItem { Text = "VP", Value = "VP" },
+                                        new SelectListItem { Text = "CHF", Value = "CHF" },
+                                        new SelectListItem { Text = "CEO", Value = "CEO" }
+                                    }, "Select Position", new { @class = "form-control", @id = "positionId" })
+                                    @Html.ValidationMessageFor(model => model.Postion, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+
+                            <div class="form-group col-md-12">
+                                @Html.LabelFor(model => model.PhoneNumber, new { @class = "control-label col-md-5" })
+                                <div class="col-md-7">
+                                    @Html.EditorFor(model => model.PhoneNumber, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.PhoneNumber, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+
+                            <div class="form-group col-md-12">
+                                @Html.LabelFor(model => model.DepositTargetAmount, new { @class = "control-label col-md-5" })
+                                <div class="col-md-7">
+                                    @Html.EditorFor(model => model.DepositTargetAmount, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.DepositTargetAmount, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+
+                            <div class="form-group col-md-12">
+                                @Html.LabelFor(model => model.MerchantTarget, new { @class = "control-label col-md-5" })
+                                <div class="col-md-7">
+                                    @Html.EditorFor(model => model.MerchantTarget, new { htmlAttributes = new { @class = "form-control", @min = "0", @type = "number" } })
+                                    @Html.ValidationMessageFor(model => model.MerchantTarget, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+
+
+                            <div class="form-group col-md-12" id="fcyTargetContainer">
+                                @Html.LabelFor(model => model.FCYTargetAmount, new { @class = "control-label col-md-5" })
+                                <div class="col-md-7">
+                                    @Html.EditorFor(model => model.FCYTargetAmount, new { htmlAttributes = new { @class = "form-control", @id = "fcyId" } })
+                                    @Html.ValidationMessageFor(model => model.FCYTargetAmount, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-offset-4 col-md-8">
+                                <input type="submit" name="submit" value="Save" class="btn btn-save" />
+                                @Html.ActionLink("Back to Login", "Login", "User", null, new { @class = "btn btn-back" })
+                            </div>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/bootstrap")
+    <script>
+        $(document).ready(function () {
+            // Initialize datepicker for CreatedDate
+            $('input[type=datetime]').datepicker({
+                dateFormat: "dd/M/yy",
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "1950:+1"
+            });
+
+            
+
+            // Cascading dropdowns
+            $('#ProcessDropdown').change(function () {
+                var processName = $(this).val();
+                $('#SubprocessDropdown').empty().append('<option value="">Select Subprocess</option>');
+                $('#BranchDropdown').empty().append('<option value="">Select Branch</option>');
+
+                if (processName) {
+                    $.ajax({
+                        url: '@Url.Action("GetSubprocesses", "User")',
+                        type: 'GET',
+                        data: { processName: processName },
+                        success: function (data) {
+                            if (data && data.length > 0) {
+                                $.each(data, function (i, item) {
+                                    $('#SubprocessDropdown').append($('<option>', {
+                                        value: item.subprocess_name,
+                                        text: item.subprocess_name
+                                    }));
+                                });
+                            } else {
+                                alert('No subprocesses found for the selected process.');
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.log('AJAX Error:', xhr.status, error, xhr.responseText);
+                            alert('Error loading subprocesses: ' + (xhr.responseText || error));
+                        }
+                    });
+                }
+            });
+
+            $('#SubprocessDropdown').change(function () {
+                var subprocessName = $(this).val();
+                $('#BranchDropdown').empty().append('<option value="">Select Branch</option>');
+
+                if (subprocessName) {
+                    $.ajax({
+                        url: '@Url.Action("GetBranches", "User")',
+                        type: 'GET',
+                        data: { subprocessName: subprocessName },
+                        success: function (data) {
+                            if (data && data.length > 0) {
+                                $.each(data, function (i, item) {
+                                    $('#BranchDropdown').append($('<option>', {
+                                        value: item.BranchName,
+                                        text: item.BranchName
+                                    }));
+                                });
+                            } else {
+                                alert('No branches found for the selected subprocess.');
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.log('AJAX Error:', xhr.status, error, xhr.responseText);
+                            alert('Error loading branches: ' + (xhr.responseText || error));
+                        }
+                    });
+                }
+            });
+
+            // Log form submission
+            $('#createUserForm').submit(function () {
+                console.log('Create user form submitted');
+                return true;
+            });
+
+
+            function toggleFcyTarget() {
+                var position = $('#positionId').val();
+                if (position === "Individual") {
+                    $('#fcyTargetContainer').hide();
+                } else {
+                    $('#fcyTargetContainer').show();
+                }
+            }
+
+            // Run on page load
+            toggleFcyTarget();
+
+            // Run when dropdown changes
+            $('#positionId').change(function () {
+                toggleFcyTarget();
+            });
+
+            $('#MerchantTarget').on('input', function () {
+                let value = parseFloat($(this).val());
+
+                // if user enters a negative number, reset to 0
+                if (value < 1) {
+                    $(this).val(0);
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>

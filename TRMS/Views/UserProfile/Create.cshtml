@@ -1,0 +1,301 @@
+﻿@model TRMS.Models.User
+
+@{
+    ViewBag.Title = "Create User";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style type="text/css">
+    hr {
+        width: 100%;
+        height: 0.1px;
+        background-color: #00AEEF;
+        margin: 10px auto 5px;
+        border-width: 2px;
+        border-color: #00AEEF;
+    }
+
+    .alert {
+        margin: 30px auto;
+        width: 80%;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .form-control[readonly] {
+        background-color: #e9ecef;
+        opacity: 1;
+    }
+
+    .btn-save {
+        background-color: #00AEEF;
+        color: white;
+    }
+
+    .btn-back {
+        background-color: #333;
+        color: white;
+    }
+</style>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3>Create New User</h3>
+    </div>
+    <hr />
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            <strong>Error!</strong> @TempData["ErrorMessage"]
+        </div>
+    }
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            <strong>Success!</strong> @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <div class="panel-body">
+        @using (Html.BeginForm("Create", "User", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="form-horizontal form-group-sm">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                <div class="row">
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.UserName, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.UserName, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.UserName, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.FullName, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.FullName, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.FullName, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.Password, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @class = "form-control", type = "password" } })
+                            @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.MailAdress, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.MailAdress, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.MailAdress, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.Process, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.DropDownListFor(model => model.Process, (SelectList)ViewBag.Processes, "Select Process", new { @class = "form-control", id = "ProcessDropdown" })
+                            @Html.ValidationMessageFor(model => model.Process, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.District, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.DropDownListFor(model => model.District, (SelectList)ViewBag.Subprocesses, "Select Subprocess", new { @class = "form-control", id = "SubprocessDropdown" })
+                            @Html.ValidationMessageFor(model => model.District, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.Branch, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.DropDownListFor(model => model.Branch, (SelectList)ViewBag.Branches, "Select Branch", new { @class = "form-control", id = "BranchDropdown" })
+                            @Html.ValidationMessageFor(model => model.Branch, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.OrganizatinalUnit, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.OrganizatinalUnit, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.OrganizatinalUnit, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.Postion, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.Postion, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Postion, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.Role, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.DropDownListFor(model => model.Role, new List<SelectListItem>
+                            {
+                                new SelectListItem { Text = "Admin", Value = "Admin" },
+                                new SelectListItem { Text = "Maker", Value = "Maker" },
+                                new SelectListItem { Text = "District", Value = "District" },
+                                new SelectListItem { Text = "SuperUser", Value = "SuperUser" }
+                            }, "Select Role", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.Role, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.PhoneNumber, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.PhoneNumber, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.PhoneNumber, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.DepositTargetAmount, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.DepositTargetAmount, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.DepositTargetAmount, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.MerchantTarget, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.MerchantTarget, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.MerchantTarget, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.FCYTargetAmount, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.FCYTargetAmount, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.FCYTargetAmount, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.CreatedDate, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.CreatedDate, new { htmlAttributes = new { @class = "form-control", type = "datetime" } })
+                            @Html.ValidationMessageFor(model => model.CreatedDate, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" name="submit" value="Save" class="btn btn-save" />
+                        @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-back" })
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    @Styles.Render("~/Content/cssjqryUi")
+    @Scripts.Render("~/bundles/jqueryui")
+    <script>
+        $(document).ready(function () {
+            // Initialize datepicker for CreatedDate
+            $('input[type=datetime]').datepicker({
+                dateFormat: "dd/M/yy",
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "1950:+1"
+            });
+
+            // Cascading dropdowns
+            @*$('#ProcessDropdown').change(function () {
+                var processId = $(this).val();
+                $('#SubprocessDropdown').empty().append('<option value="">Select Subprocess</option>');
+                $('#BranchDropdown').empty().append('<option value="">Select Branch</option>');
+
+                if (processId) {
+                    $.ajax({
+                        url: '@Url.Action("GetSubprocessesByProcessId", "UserProfile")',
+                        type: 'GET',
+                        data: { processId: processId },
+                        success: function (data) {
+                            $.each(data, function (i, item) {
+                                $('#SubprocessDropdown').append($('<option>', {
+                                    value: item.subprocess_name,
+                                    text: item.subprocess_name
+                                }));
+                            });
+                        },
+                        error: function () {
+                            alert('Error loading subprocesses.');
+                        }
+                    });
+                }
+            });*@
+
+            $('#ProcessDropdown').change(function () {
+                    var processId = $(this).val();
+                    $('#SubprocessDropdown').empty().append('<option value="">Select Subprocess</option>');
+                    if (processId) {
+                        $.ajax({
+                            url: '@Url.Action("GetSubprocessesByProcessId", "UserProfile")',
+                            type: 'GET',
+                            data: { processId: processId },
+                            success: function (data) {
+                                $.each(data, function (i, item) {
+                                    $('#SubprocessDropdown').append($('<option>', {
+                                        value: item.subprocess_Id, // Use subprocess_Id as the value
+                                        text: item.subprocess_name
+                                    }));
+                                });
+                            },
+                            error: function () {
+                                alert('Error loading subprocesses.');
+                            }
+                        });
+                    }
+                });
+            $('#SubprocessDropdown').change(function () {
+                    var subprocessName = $(this).val();
+                    $('#BranchDropdown').empty().append('<option value="">Select Branch</option>');
+
+                    if (subprocessName) {
+                        $.ajax({
+                            url: '@Url.Action("GetDepartmentsBySubprocessId", "UserProfile")',
+                            type: 'GET',
+                            data: { subprocessName: subprocessName },
+                            success: function (data) {
+                                $.each(data, function (i, item) {
+                                    $('#BranchDropdown').append($('<option>', {
+                                        value: item.BranchName,
+                                        text: item.BranchName
+                                    }));
+                                });
+                            },
+                            error: function () {
+                                alert('Error loading branches.');
+                            }
+                        });
+                    }
+                });
+        });
+    </script>
+}

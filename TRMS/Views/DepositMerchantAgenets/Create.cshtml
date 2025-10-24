@@ -1,0 +1,226 @@
+﻿@model TRMS.Models.DepositMerchantAgenet
+
+@{
+    ViewBag.Title = "Create Merchant Agent";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style type="text/css">
+    hr {
+        width: 100%;
+        height: 0.1px;
+        background-color: #00AEEF;
+        margin: 10px auto 5px;
+        border-width: 2px;
+        border-color: #00AEEF;
+    }
+
+    .alert {
+        margin: 30px auto;
+        width: 80%;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .form-control[readonly] {
+        background-color: #e9ecef;
+        opacity: 1;
+    }
+
+    .btn-validate {
+        background-color: #00AEEF;
+        color: white;
+        /*margin-top: -50px;*/
+        position: absolute;
+        /*right: 15px;*/
+    }
+
+    .btn-save {
+        background-color: #00AEEF;
+        color: white;
+    }
+
+    .btn-back {
+        background-color: #333;
+        color: white;
+    }
+</style>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3>Create Merchant</h3>
+    </div>
+    <hr />
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            <strong>Error!</strong> @TempData["ErrorMessage"]
+        </div>
+    }
+
+    @if (TempData["SuccessMessage"]!= null)
+    {
+        <div class="alert alert-success">
+            <strong>Success!</strong> @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <div class="panel-body">
+        @using (Html.BeginForm("Create", "DepositMerchantAgenets", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="form-horizontal form-group-sm">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                <div class="row">
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.AccountNumber, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.AccountNumber, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.AccountNumber, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.ReferenceNumber, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.ReferenceNumber, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.ReferenceNumber, "", new { @class = "text-danger" })
+                        </div>
+                        <input type="submit" name="submit" value="Validate" class="btn btn-validate" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.AccountHolder, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.AccountHolder, new { htmlAttributes = new { @class = "form-control", @Value = ViewBag.AccountHolder, @readonly = "readonly" } })
+                            @Html.ValidationMessageFor(model => model.AccountHolder, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.AccountBalance, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.AccountBalance, new { htmlAttributes = new { @class = "form-control", @Value = ViewBag.AccountBalance, @readonly = "readonly" } })
+                            @*@Html.ValidationMessageFor(model => model.AccountBalance, "", new { @class = "text-danger" })*@
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-5">
+                        <label class="control-label col-md-5">Merchant ID</label>
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.LinkAccount, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.LinkAccount, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group col-md-5">
+                        <label class="control-label col-md-5">Amount</label>
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.Target, new { htmlAttributes = new { @class = "form-control", @Value = ViewBag.DebitAmount, @readonly = "readonly" } })
+                            @*@Html.ValidationMessageFor(model => model.Target, "", new { @class = "text-danger" })*@
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.Merchant_Type, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.DropDownListFor(model => model.Merchant_Type, new List<SelectListItem>
+                            {
+                                new SelectListItem { Text = "New", Value = "New" },
+                            }, "Select Merchant Type", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.Merchant_Type, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.Business_Type, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.DropDownListFor(model => model.Business_Type, new List<SelectListItem>
+                            {
+                                new SelectListItem { Text = "Hotel and Restaurant", Value = "Hotel and Restaurant" },
+                                new SelectListItem { Text = "Health", Value = "Health" },
+                                new SelectListItem { Text = "Transport", Value = "Transport" },
+                                new SelectListItem { Text = "Wholesale", Value = "Wholesale" },
+                                new SelectListItem { Text = "Retail Trade", Value = "Retail Trade" },
+                                new SelectListItem { Text = "Manufacturing", Value = "Manufacturing" },
+                                new SelectListItem { Text = "Agriculture", Value = "Agriculture" },
+                                new SelectListItem { Text = "Other", Value = "Other" }
+                            }, "Select Business Type", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.Business_Type, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.QR, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.DropDownListFor(model => model.QR, new List<SelectListItem>
+                            {
+                                new SelectListItem { Text = "Yes", Value = "Yes" },
+                                new SelectListItem { Text = "No", Value = "No" }
+                            }, "Select QR Option", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.QR, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.Narative, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.TextAreaFor(model => model.Narative, new { @class = "form-control", rows = 4 })
+                            @Html.ValidationMessageFor(model => model.Narative, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" name="submit" value="Save" class="btn btn-save" />
+                        @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-back" })
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    @Styles.Render("~/Content/cssjqryUi")
+    @Scripts.Render("~/bundles/jqueryui")
+    <script>
+        $(document).ready(function () {
+            // Datepicker for date fields
+            $('input[type=datetime]').datepicker({
+                dateFormat: "dd/M/yy",
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "1950:+1"
+            });
+
+            // Toggle TransactionBranch visibility based on Channel selection
+            function toggleTransactionBranch() {
+                var selectedValue = $("#ChannelDropdown").val();
+                $("#TransactionBranchDiv").toggle(selectedValue === "Branch");
+            }
+
+            // Toggle CollectionDetails visibility based on CollectionType selection
+            function toggleTransactionCollect() {
+                var selectedValue = $("#CollectionTypeDropdown").val();
+                $("#CollectionTypeDiv").toggle(selectedValue === "Joint");
+            }
+
+            // Initialize on page load
+            toggleTransactionBranch();
+            toggleTransactionCollect();
+
+            // Bind change events
+            $("#ChannelDropdown").change(toggleTransactionBranch);
+            $("#CollectionTypeDropdown").change(toggleTransactionCollect);
+        });
+    </script>
+}

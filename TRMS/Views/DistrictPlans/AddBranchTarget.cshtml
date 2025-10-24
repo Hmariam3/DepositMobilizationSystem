@@ -1,0 +1,182 @@
+﻿@model TRMS.Models.BranchTarget
+
+@{
+    ViewBag.Title = "AddBranchTarget";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Add Branch Target</h2>
+
+<style type="text/css">
+
+    hr {
+        width: 100%;
+        height: 0.1px;
+        background-color: #00AEEF;
+        margin-right: auto;
+        margin-left: auto;
+        margin-top: 10px;
+        margin-bottom: 5px;
+        border-width: 2px;
+        border-color: #00AEEF;
+    }
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading">
+      
+    </div>
+    <br />
+
+    @if (TempData.Peek("errorRes") != null)
+    {
+        <div class="alert alert-danger text-center" style="margin-left: 100px; margin-top: 30px; font-family: Arial; width:80%;font-weight: bold;">
+            <strong>Error!</strong> @TempData["errorRes"]
+        </div>
+
+    }
+    @if (TempData["successRes"] != null)
+    {
+
+        <div class="alert alert-success text-center" style="font-size: 20px;margin-left: 100px; width:80%;font-weight: bold;">
+            Success! @TempData["successRes"]
+        </div>
+    }
+
+
+    <div class="panel-body">
+        @using (Html.BeginForm("AddBranchTarget", "DistrictPlans", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+
+        <div class="form-horizontal form-group-sm">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            @Html.HiddenFor(model => model.DID, new { htmlAttributes = new { @class = "form-control" } })
+            <div class="row">
+                <div class="form-group col-md-5">
+                    @Html.Label("District", htmlAttributes: new { @class = "control-label col-md-5" })
+                    <div class="col-md-7">
+                        @Html.EditorFor(model => model.District, new { htmlAttributes = new { @class = "form-control" , @readonly = "readonly" } })
+                        @Html.ValidationMessageFor(model => model.District, "", new { @class = "text-danger" })
+                    </div>
+
+                </div>
+                <div class="form-group col-md-5">
+                    @Html.Label("Branch Name", htmlAttributes: new { @class = "control-label col-md-5" })
+                    <div class="col-md-7">
+                        @Html.EditorFor(model => model.BranchName, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                        @Html.ValidationMessageFor(model => model.BranchName, "", new { @class = "text-danger" })
+                    </div>
+
+                </div>
+                <div class="form-group col-md-5">
+                    @Html.Label("Deposit Amount", htmlAttributes: new { @class = "control-label col-md-5" })
+                    <div class="col-md-7">
+                        @Html.EditorFor(model => model.Deposit, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Deposit, "", new { @class = "text-danger" })
+                    </div>
+
+                </div>
+
+
+            </div>
+            <div class="row">
+                <div class="form-group col-md-5">
+                    @Html.Label("Fcy Amount", htmlAttributes: new { @class = "control-label col-md-5" })
+                    <div class="col-md-7">
+                        @Html.EditorFor(model => model.FCY, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.FCY, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group col-md-5">
+                    @Html.Label("Merchant Amount", htmlAttributes: new { @class = "control-label col-md-5" })
+                    <div class="col-md-7">
+                        @Html.EditorFor(model => model.merchant, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.merchant, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+
+            </div>
+
+        </div>
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Save" id="btnSave" name="Submit" class="btn btn-warning" style="background-color:#00AEEF" />
+                    @Html.ActionLink("Back to List", "Index", "", new { @class = "btn btn-github" })
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script src="~/Content/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        function toggleTransactionBranch() {
+            var selectedValue = $("#ChannalDropdown").val();
+            if (selectedValue === "Branch") {
+                $("#TransactionBranchDiv").show();
+            } else {
+                $("#TransactionBranchDiv").hide();
+            }
+        }
+
+        // Run on page load
+        toggleTransactionBranch();
+
+        // Run on dropdown change
+        $("#ChannalDropdown").change(function () {
+            toggleTransactionBranch();
+        });
+    });
+    // for transaction type
+    $(document).ready(function () {
+        function toggleTransactionCollect() {
+            var selectedValue = $("#CollectedDropdown").val();
+            if (selectedValue === "Joint") {
+                $("#CollctionTypeDiv").show();
+            } else {
+                $("#CollctionTypeDiv").hide();
+            }
+        }
+
+        // Run on page load
+        toggleTransactionCollect();
+
+        // Run on dropdown change
+        $("#CollectedDropdown").change(function () {
+            toggleTransactionCollect();
+        });
+    });
+    $(document).ready(function () {
+        $('input[type=datetime]').datepicker({
+            dateFormat: "dd/M/yy",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1950:+1"
+        });
+
+    });
+</script>
+
+<!-- JS datepicker -->
+@section Scripts {
+    @Styles.Render("~/Content/cssjqryUi")
+    @Scripts.Render("~/bundles/jqueryui")
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $('input[type=datetime]').datepicker({
+                dateFormat: "dd/M/yy",
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "1950:+1"
+            });
+
+        });
+
+    </script>
+
+}

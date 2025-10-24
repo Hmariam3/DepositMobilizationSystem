@@ -1,0 +1,430 @@
+﻿@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<style>
+    body {
+        background: linear-gradient(to right, #e0f7fa, #f3e5f5);
+        font-family: 'Poppins', sans-serif;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .row {
+        padding: 1.5rem 0;
+    }
+
+    .col-12, .col-lg-4, .col-md-6 {
+        padding: 1rem;
+    }
+
+    .dashboard-card {
+        border-radius: 5px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        background: linear-gradient(145deg, #ffffff, #f9fafb);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+        padding: 3rem;
+    }
+
+        .dashboard-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .dashboard-card h5 {
+            font-weight: 1000;
+            text-transform: uppercase;
+            background: #46b9f2;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+    .progress {
+        height: 30px;
+        border-radius: 5px;
+        background-color: #e9ecef;
+        overflow: hidden;
+        box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .progress-bar {
+        font-weight: 600;
+        font-size: 14px;
+        line-height: 30px;
+        color: #333;
+        text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+        transition: width 0.6s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .progress-bar-behind {
+        background: linear-gradient(90deg, #dc3545, #e4606d);
+    }
+
+    .progress-bar-good {
+        background: linear-gradient(90deg, #ffc107, #ffca2c);
+    }
+
+    .progress-bar-strong {
+        background: linear-gradient(90deg, #17a2b8, #46b9f2);
+    }
+
+    .progress-bar-above {
+        background: linear-gradient(90deg, #28a745, #34c759);
+    }
+
+    .progress-bar::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            45deg,
+            rgba(255, 255, 255, 0.2) 25%,
+            transparent 25%,
+            transparent 50%,
+            rgba(255, 255, 255, 0.2) 50%,
+            rgba(255, 255, 255, 0.2) 75%,
+            transparent 75%,
+            transparent
+        );
+        background-size: 50px 50px;
+        animation: shimmer 2s infinite linear;
+    }
+
+    @@keyframes shimmer {
+        0% {
+            left: -100%;
+        }
+        100% {
+            left: 100%;
+        }
+    }
+
+    .progress-message {
+        font-size: 1.2rem;
+        font-weight: 700;
+        text-align: center;
+        margin-top: 0.1rem;
+    }
+
+    .progress-message-behind {
+        color: #dc3545;
+    }
+
+    .progress-message-good {
+        color: #ffc107;
+    }
+
+    .progress-message-strong {
+        color: #17a2b8;
+    }
+
+    .progress-message-above {
+        color: #28a745;
+    }
+
+    .countdown-container {
+        display: flex;
+        justify-content: center;
+        gap: 4rem;
+        align-items: center;
+    }
+
+    .countdown-box {
+        background: linear-gradient(135deg, #6e8efb, #46b9f2);
+        color: white;
+        border-radius: 10px;
+        padding: 1rem;
+        min-width: 80px;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease;
+    }
+
+        .countdown-box:hover {
+            transform: scale(1.05);
+        }
+
+    .countdown-label {
+        font-size: 1rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+        color: #fff;
+    }
+
+    .countdown-value {
+        font-size: 2rem;
+        font-weight: bold;
+    }
+
+    .separator {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .warning .countdown-box {
+        background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+    }
+
+    .actual-target {
+        font-size: 1.1rem;
+        color: #555;
+        margin-bottom: 1rem;
+        line-height: 1.6;
+    }
+
+    .table-container {
+        margin-bottom: 1rem;
+    }
+
+    .metric-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 1.3rem;
+        color: #555;
+    }
+
+    .metric-table th,
+    .metric-table td {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .metric-table th {
+        font-weight: 600;
+        color: #222;
+        background: linear-gradient(145deg, #f9fafb, #e9ecef);
+        width: 50%;
+    }
+
+    .metric-table td {
+        font-weight: 500;
+        color: #333;
+    }
+
+    .metric-table tr:last-child th,
+    .metric-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .metric-table tr:hover {
+        background: rgba(70, 185, 242, 0.1);
+        transition: background 0.3s ease;
+    }
+
+    @@media (max-width: 768px) {
+        .metric-table {
+            font-size: 0.9rem;
+        }
+
+        .metric-table th,
+        .metric-table td {
+            padding: 0.5rem 0.75rem;
+        }
+    }
+</style>
+
+<div class="container-fluid p-5">
+    <div style="display: flex; justify-content: center;">
+        <h1 class="text-center"><span>📊</span> @ViewBag.Branch Deposit Performance</h1>
+    </div>
+    <!-- Countdown Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div id="countdown" class="countdown-container">
+                <div class="countdown-box">
+                    <div class="countdown-label">Days</div>
+                    <div class="countdown-value" id="days">0</div>
+                </div>
+                <div class="separator">:</div>
+                <div class="countdown-box">
+                    <div class="countdown-label">Hours</div>
+                    <div class="countdown-value" id="hours">0</div>
+                </div>
+                <div class="separator">:</div>
+                <div class="countdown-box">
+                    <div class="countdown-label">Minutes</div>
+                    <div class="countdown-value" id="minutes">0</div>
+                </div>
+                <div class="separator">:</div>
+                <div class="countdown-box">
+                    <div class="countdown-label">Seconds</div>
+                    <div class="countdown-value" id="seconds">0</div>
+                </div>
+            </div>
+            <div id="target-reached" class="mt-3" style="display: none;">
+                <h5>🎯 Target Date Reached!</h5>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center g-4">
+        <!-- Deposit Plan -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card dashboard-card p-4">
+                <h5 class="text-center mb-3">Deposit Plan</h5>
+                <div class="table-container">
+                    <table class="metric-table">
+                        <tbody>
+                            <tr>
+                                <th>Assigned Target</th>
+                                <td>@String.Format("{0:N2}", ViewBag.DepositPlanTarget)</td>
+                            </tr>
+                            <tr>
+                                <th>Deposit</th>
+                                <td>@String.Format("{0:N2}", ViewBag.DepositActualTarget)</td>
+                            </tr>
+                            <tr>
+                                <th>Initial Balance</th>
+                                <td>@String.Format("{0:N2}", ViewBag.DepositInitialAmount)</td>
+                            </tr>
+                            <tr>
+                                <th>Achieved Amount</th>
+                                <td>@String.Format("{0:N2}", ViewBag.DepositPlanAchieved)</td>
+                            </tr>
+                            <tr>
+                                <th>Remaining Amount</th>
+                                <td>@String.Format("{0:N2}", ViewBag.DepositRemainingAmount)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="progress mt-3">
+                    <div class="progress-bar @(ViewBag.DepositPlanProgress < 33 ? "progress-bar-behind" : ViewBag.DepositPlanProgress <= 66 ? "progress-bar-good" : ViewBag.DepositPlanProgress <= 100 ? "progress-bar-strong" : "progress-bar-above")" style="width: @ViewBag.DepositPlanProgress%">
+                        @ViewBag.DepositPlanProgress% 📈
+                    </div>
+                </div>
+                <div class="progress-message @(ViewBag.DepositPlanProgress < 33 ? "progress-message-behind" : ViewBag.DepositPlanProgress <= 66 ? "progress-message-good" : ViewBag.DepositPlanProgress <= 100 ? "progress-message-strong" : "progress-message-above")">
+                    @(ViewBag.DepositPlanProgress < 33 ? "Catch Up: Push harder to reach your goal!" : ViewBag.DepositPlanProgress <= 66 ? "On Track: Keep up the steady progress!" : ViewBag.DepositPlanProgress <= 100 ? "Strong Performance: You're close to the goal!" : "Target Exceeded: Outstanding achievement!")
+                </div>
+            </div>
+        </div>
+
+        <!-- Agent Merchant Deposit -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card dashboard-card p-4">
+                <h5 class="text-center mb-6">Merchant Deposit</h5>
+                <div class="table-container">
+                    <table class="metric-table">
+                        <tbody>
+                            <tr>
+                                <th>Assigned Target</th>
+                                <td>@String.Format("{0:N2}", ViewBag.MerchantTarget)</td>
+                            </tr>
+                            <tr>
+                                <th>Deposit</th>
+                                <td>@String.Format("{0:N2}", ViewBag.MerchantActualTarget)</td>
+                            </tr>
+                            <tr>
+                                <th>Initial Balance</th>
+                                <td>@String.Format("{0:N2}", ViewBag.MerchantInitialAmount)</td>
+                            </tr>
+                            <tr>
+                                <th>Achieved Amount</th>
+                                <td>@String.Format("{0:N2}", ViewBag.MerchantAchieved)</td>
+                            </tr>
+                            <tr>
+                                <th>Remaining Amount</th>
+                                <td>@String.Format("{0:N2}", ViewBag.MerchantRemainingAmount)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="progress mt-3">
+                    <div class="progress-bar @(ViewBag.MerchantProgress < 33 ? "progress-bar-behind" : ViewBag.MerchantProgress <= 66 ? "progress-bar-good" : ViewBag.MerchantProgress <= 100 ? "progress-bar-strong" : "progress-bar-above")" style="width: @ViewBag.MerchantProgress%">
+                        @ViewBag.MerchantProgress% 💼
+                    </div>
+                </div>
+                <div class="progress-message @(ViewBag.MerchantProgress < 33 ? "progress-message-behind" : ViewBag.MerchantProgress <= 66 ? "progress-message-good" : ViewBag.MerchantProgress <= 100 ? "progress-message-strong" : "progress-message-above")">
+                    @(ViewBag.MerchantProgress < 33 ? "Catch Up: Push harder to reach your goal!" : ViewBag.MerchantProgress <= 66 ? "On Track: Keep up the steady progress!" : ViewBag.MerchantProgress <= 100 ? "Strong Performance: You're close to the goal!" : "Target Exceeded: Outstanding achievement!")
+                </div>
+            </div>
+        </div>
+
+        <!-- FCY Deposit -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card dashboard-card p-4">
+                <h5 class="text-center mb-6">FCY Deposit</h5>
+                <div class="table-container">
+                    <table class="metric-table">
+                        <tbody>
+                            @*<tr>
+                                <th>Currency</th>
+                                <td>USD ($)</td>
+                            </tr>*@
+                            <tr>
+                                <th>Assigned Target</th>
+                                <td>@String.Format("{0:N2}", ViewBag.FCYTarget)</td>
+                            </tr>
+                            
+                            <tr>
+                                <th>Achieved Amount</th>
+                                <td>@String.Format("{0:N2}", ViewBag.FCYAchieved)</td>
+                            </tr>
+                            <tr>
+                                <th>Remaining Amount</th>
+                                <td>@String.Format("{0:N2}", ViewBag.FCYRemainingAmount)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="progress mt-3">
+                    <div class="progress-bar @(ViewBag.FCYProgress < 33 ? "progress-bar-behind" : ViewBag.FCYProgress <= 66 ? "progress-bar-good" : ViewBag.FCYProgress <= 100 ? "progress-bar-strong" : "progress-bar-above")" style="width: @ViewBag.FCYProgress%">
+                        @ViewBag.FCYProgress% 💰
+                    </div>
+                </div>
+                <div class="progress-message @(ViewBag.FCYProgress < 33 ? "progress-message-behind" : ViewBag.FCYProgress <= 66 ? "progress-message-good" : ViewBag.FCYProgress <= 100 ? "progress-message-strong" : "progress-message-above")">
+                    @(ViewBag.FCYProgress < 33 ? "Catch Up: Push harder to reach your goal!" : ViewBag.FCYProgress <= 66 ? "On Track: Keep up the steady progress!" : ViewBag.FCYProgress <= 100 ? "Strong Performance: You're close to the goal!" : "Target Exceeded: Outstanding achievement!")
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const targetDate = new Date("2025-12-30");
+    function updateCountdown() {
+        const now = new Date();
+        const distance = targetDate - now;
+
+        const countdownContainer = document.getElementById("countdown");
+        const targetReached = document.getElementById("target-reached");
+
+        if (distance < 0) {
+            countdownContainer.style.display = "none";
+            targetReached.style.display = "block";
+            countdownContainer.classList.remove("warning");
+            return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((distance / 1000 / 60) % 60);
+        const seconds = Math.floor((distance / 1000) % 60);
+
+        document.getElementById("days").textContent = days;
+        document.getElementById("hours").textContent = hours;
+        document.getElementById("minutes").textContent = minutes;
+        document.getElementById("seconds").textContent = seconds;
+
+        if (days < 5) {
+            countdownContainer.classList.add("warning");
+        } else {
+            countdownContainer.classList.remove("warning");
+        }
+    }
+
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+</script>

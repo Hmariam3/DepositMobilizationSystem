@@ -1,0 +1,110 @@
+﻿@model TRMS.Models.Transaction
+
+@{
+    ViewBag.Title = "Details";
+}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4> Transaction Detail </h4>
+    </div>
+    <br />
+    <div>
+        <hr />
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.DisplayName("User Name")
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.UserName)
+            </dd>
+
+            <dt>
+                @Html.DisplayName("User Branch")
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.UserBranch)
+            </dd>
+
+            <dt>
+                @Html.DisplayName("Reference Number")
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.ReferenceNumber)
+            </dd>
+            <dt>
+                @Html.DisplayName("Amount")
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.TransactionAmount)
+            </dd>
+
+            <dt>
+                @Html.DisplayName("Transaction Type")
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.TransactionType)
+            </dd>
+
+            <dt>
+                @Html.DisplayName("Channal")
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Channal)
+            </dd>
+
+            <dt>
+                @Html.DisplayName("Transction Branch")
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.TransctionBranch)
+            </dd>
+
+            <dt>
+                @Html.DisplayName("Remark")
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Remark)
+            </dd>
+
+            <dt>
+                @Html.DisplayName("Transaction Date")
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.TranDate)
+            </dd>
+            <dt>
+                @Html.DisplayName("Slip")
+            </dt>
+            <dd>
+    @if (!string.IsNullOrEmpty(ViewBag.SlipPath))
+    {
+        if (ViewBag.SlipPath.ToString().ToLower().EndsWith(".pdf"))
+        {
+            <embed src="@ViewBag.SlipPath" type="application/pdf" width="600px" height="400px" />
+            <br />
+            <a href="@ViewBag.SlipPath" target="_blank" class="btn btn-info">Download PDF</a>
+        }
+        else
+        {
+            <img src="@ViewBag.SlipPath" alt="Slip Document" style="max-width: 300px;" />
+        }
+    }
+    else
+    {
+        <span>No slip uploaded.</span>
+    }
+</dl>
+    </div>
+</div>
+    <p>
+        @Html.ActionLink("Back to List", "Index")
+    </p>

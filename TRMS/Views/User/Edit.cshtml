@@ -1,0 +1,92 @@
+﻿@model TRMS.Models.User
+@{
+
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3>Update Account</h3>
+    </div>
+    <label style="color:lightseagreen;margin-left:20px;" >@TempData["userUpdated"]</label>
+  
+    <div class="panel-body">
+
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="form-horizontal form-group-sm">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                @Html.HiddenFor(model => model.ID)
+                <div class="row">
+                    <div class="form-group col-md-5">
+                        @Html.Label("User Name", htmlAttributes: new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.UserName, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.UserName, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-5">
+                        @Html.Label("Full Name", htmlAttributes: new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.FullName, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.FullName, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="row">
+
+                    <div class="form-group col-md-5">
+                        @Html.Label("Sub Proccess", htmlAttributes: new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @*@Html.DropDownListFor(model => model.Branch, (SelectList)ViewBag.Branch, "--Select Sub Branch--", new { @class = "form-control" })*@
+                            @Html.EditorFor(model => model.Branch, new { htmlAttributes = new { @class = "form-control" } })
+
+                            @Html.ValidationMessageFor(model => model.Branch, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="row">
+
+                    <div class="form-group col-md-5">
+                        @Html.Label("Role", htmlAttributes: new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.DropDownListFor(model => model.Role, new List<SelectListItem>
+                           { new SelectListItem{ Text="----Select Role---", Value = "" },
+                                new SelectListItem{ Text="Admin", Value = "Admin" },
+                                new SelectListItem{ Text="Maker", Value = "Maker" },
+                                new SelectListItem{ Text="SuperUser", Value = "SuperUser" },
+
+                       })
+
+                            @Html.ValidationMessageFor(model => model.Role, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                    @Html.ActionLink("Back to List", "Index", "", new { @class = "btn btn-github" })
+                </div>
+            </div>
+
+
+
+        }
+    </div>
+</div>
+

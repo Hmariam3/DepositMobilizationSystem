@@ -1,0 +1,70 @@
+﻿
+@model IEnumerable<TRMS.Models.UserEngagement>
+@{
+    ViewBag.Title = "Users";
+
+}
+<div class="panel panel-default" style="padding-left:10px;">
+    <div class="panel-heading">
+        <h3>Engagements Detail</h3>
+    </div>
+    <table id="employeeDT" class="table table-striped">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Contacts)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Promise)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Deposited)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.TotalAmount)
+                </th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Contacts)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Promise)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Deposited)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TotalAmount)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.id }, new { @class = "btn btn-warning btn-sm" })
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#employeeDT').DataTable({
+            "paging": true,      // Enable pagination
+            "searching": true,   // Enable search box
+            "ordering": true,    // Enable sorting
+            "lengthMenu": [5, 10, 25, 50], // Page length options
+            "pageLength": 10,    // Default rows per page
+            "info": true,        // Show table info
+            "language": {
+                "search": "Search User:", // Customize search placeholder
+                "lengthMenu": "Show _MENU_ entries",
+                "info": "Showing _START_ to _END_ of _TOTAL_ User"
+            }
+        });
+    });
+</script>
+

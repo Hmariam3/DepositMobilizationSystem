@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-store" />
+    <title>Insurance Management System</title>
+
+    <!-- AdminLTE -->
+    <link rel="stylesheet" href="~/dist/css/adminlte.min.css" />
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="~/plugins/fontawesome-free/css/all.min.css" />
+
+    <!-- Bootstrap Icons CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+
+    <!-- Plugin Styles -->
+    <link rel="stylesheet" href="~/plugins/icheck-bootstrap/icheck-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/plugins/overlayScrollbars/css/OverlayScrollbars.min.css" />
+    <link rel="stylesheet" href="~/plugins/summernote/summernote-bs4.min.css" />
+    <link rel="stylesheet" href="~/plugins/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="~/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" />
+    <link rel="stylesheet" href="~/plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css" />
+    <link rel="stylesheet" href="~/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css" />
+    <link rel="stylesheet" href="~/plugins/datatables-responsive/css/responsive.bootstrap4.min.css" />
+    <link rel="stylesheet" href="~/plugins/datatables-buttons/css/buttons.bootstrap4.min.css" />
+    <link rel="stylesheet" href="~/plugins/chart.js/Chart.css" />
+
+    <!-- jQuery + Bootstrap Bundle -->
+    <script src="~/plugins/jquery/jquery.min.js"></script>
+    <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- jQuery Validation -->
+    <script src="~/plugins/jquery-validation/jquery.validate.min.js"></script>
+    <script src="~/plugins/jquery-validation/additional-method.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="~/plugins/chart.js/Chart.min.js"></script>
+</head>
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+    <div class="app-wrapper">
+        <!-- Navbar -->
+                <!--begin::Header-->
+        <nav class="app-header navbar navbar-expand fixed-top" style="background-color: #00aeef;">
+            <div class="container-fluid">
+
+                <!-- Left Side: Sidebar toggle and Home -->
+                <ul class="navbar-nav" style="margin-left:30px; margin-left: 230px">
+                    <li class="nav-item">
+                        <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button" style="color: white">
+                            <i class="bi bi-list"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item d-none d-md-block">
+                        <a href="/" class="nav-link" style="color: white"></a>
+                    </li>
+                </ul>
+
+                <!-- Right Side: Notifications, Fullscreen, User Dropdown -->
+                <ul class="navbar-nav ms-auto">
+
+                    <!-- User Dropdown -->
+                    <li class="nav-item dropdown user-menu">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <img src="~/dist/assets/img/user-profile.png" class="user-image rounded-circle shadow" alt="User Image" />
+                            @*<span class="d-none d-md-inline text-white">@ViewBag.User</span>*@
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+                            <li class="user-header text-bg-primary text-center">
+                                <img src="~/dist/assets/img/user-profile.png" class="rounded-circle shadow" alt="User Image" />
+                                <p>
+                                    @ViewBag.Fullname
+                                    <br />
+                                    <small>@ViewBag.email | Member Since: @(((DateTime)Session["memberSince"]).ToString("MMM dd, yyyy"))</small>
+                                </p>
+                            </li>
+                            <li class="user-footer">
+                                @*<form method="post" action="/Account/Logout">
+                                        <button type="submit" class="btn btn-danger btn-flat float-end">Sign out</button>
+                                    </form>*@
+
+                                @using (Html.BeginForm("Logout", "Account", FormMethod.Post, new { @class = "float-end" }))
+                                {
+                                    <button type="submit" class="btn btn-danger btn-flat">Sign out</button>
+                                }
+
+
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Sidebar -->
+                <!--begin::Sidebar-->
+        <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+            <!--begin::Sidebar Brand-->
+            <div class="sidebar-brand">
+                <!--begin::Brand Link-->
+                <a href="~/Home/Index" class="brand-link">
+                    <!--begin::Brand Image-->
+                    <img src="../../dist/assets/img/cooplogo.gif"
+                         style="width: 55px; height: 45px"
+                         alt="DMS"
+                         class="brand-image opacity-75 shadow" />
+                    <!--end::Brand Image-->
+                    <!--begin::Brand Text-->
+                    <span class="brand-text fw-bold">INSURANCE MS</span>
+                    <!--end::Brand Text-->
+                </a>
+                <!--end::Brand Link-->
+            </div>
+            <!--end::Sidebar Brand-->
+            <!--begin::Sidebar Wrapper-->
+            <div class="sidebar-wrapper">
+                <nav class="mt-2">
+                    <!--begin::Sidebar Menu-->
+                    <ul class="nav sidebar-menu flex-column"
+                        data-lte-toggle="treeview"
+                        role="menu"
+                        data-accordion="false">
+
+
+
+                        <li class="nav-header" style="font-size:large; color:white; font-family:'Berlin Sans FB'; background-color:lightslategrey">System Management</li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon bi bi-box-seam-fill"></i>
+                                <p>
+                                    User Management
+                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="~/Users/Create" class="nav-link">
+                                    <i class="nav-icon bi bi-circle"></i>
+                                    <p>Create User</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="~/Users/Index" class="nav-link">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Manage User</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="~/Roles/Index" class="nav-link">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Manage Role</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="~/Permissions/Index" class="nav-link">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Manage Permissions</p>
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon bi bi-clipboard-fill"></i>
+                                <p>
+                                    Configuration
+                                    <span class="nav-badge badge text-bg-secondary me-3"></span>
+                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>-----</p>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>-----</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>-----</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-header" style="font-size:large; color:white; font-family:'Berlin Sans FB'; background-color:lightslategrey">Insurance Process</li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon bi-file-earmark-check"></i>
+                                <p>
+                                    Vehicle Type
+                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="~/VehicleTypes/Create" class="nav-link">
+                                        <i class="nav-icon bi bi-minecart-loaded"></i>
+                                        <p>Add Type</p>
+                                    </a>
+                                    <a href="~/VehicleTypes/index" class="nav-link">
+                                        <i class="nav-icon bi bi-minecart-loaded"></i>
+                                        <p>View  Type</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon bi bi-ui-checks-grid"></i>
+                                <p>
+                                    Follow Up
+                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+
+                                <li class="nav-item">
+                                    <a href="~/InsuraceFollowups/Create" class="nav-link">
+                                        <i class="nav-icon bi bi-minecart-loaded"></i>
+                                        <p>Add FollowUp</p>
+                                    </a>
+                                    <a href="~/InsuraceFollowups/index" class="nav-link">
+                                        <i class="nav-icon bi bi-minecart-loaded"></i>
+                                        <p>View FollowUp</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-header" style="font-size:large; color:white; font-family:'Berlin Sans FB'; background-color:lightslategrey">Reports</li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon bi bi-pencil-square"></i>
+                                <p>
+                                    Reports
+                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="~/Report/FollowupReport" class="nav-link">
+                                        <i class="nav-icon bi bi-database-fill-exclamation"></i>
+                                        <p>view FollowUp</p>
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </li>
+
+                        @*<li class="nav-header" style="font-size:large; color:white; font-family:'Berlin Sans FB'; background-color:lightslategrey">AUDIT LOGS</li>
+
+
+        <li class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="nav-icon bi bi-ui-checks"></i>
+                <p>
+                    Manage Logs
+                    <i class="nav-arrow bi bi-chevron-right"></i>
+                </p>
+            </a>
+            <ul class="nav nav-treeview">
+                <li class="nav-item">
+                    <a href="~/Logs/Index" class="nav-link">
+                        <i class="nav-icon bi bi-circle"></i>
+                        <p>View Logs</p>
+                    </a>
+                </li>
+
+            </ul>
+        </li>*@
+
+                        @*<li class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="nav-icon bi bi-book"></i>
+                <p>
+                    Manual
+                    <i class="nav-arrow bi bi-chevron-right"></i>
+                </p>
+            </a>
+            <ul class="nav nav-treeview">
+                <li class="nav-item">
+                    <a href="~/dist/Manual/Manual.pdf" class="nav-link" target="_blank">
+                        <i class="nav-icon bi bi-file-earmark-pdf"></i>
+                        <p>User Manual (PDF)</p>
+                    </a>
+                </li>
+            </ul>
+        </li>*@
+
+                    </ul>
+                    <!--end::Sidebar Menu-->
+                </nav>
+            </div>
+            <!--end::Sidebar Wrapper-->
+        </aside>
+
+        <!-- Main Content -->
+        <main class="app-main" style="margin-left: 20px; margin-top: 56px;">
+            <div class="app-content-header">
+                <div class="container-fluid">
+                    <!-- Header content (if needed) -->
+                </div>
+                @RenderBody()
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer fixed-bottom">
+            <div class="float-end d-none d-sm-inline">Empowering Communities, Transforming Lives</div>
+            <strong style="margin-left: 250px;">
+                Copyright &copy; 2025
+                <a href="https://coopbankoromia.com.et/" class="text-decoration-none">Coopbank</a>.
+            </strong>
+            All rights reserved.
+        </footer>
+    </div>
+
+    <!-- Additional Scripts -->
+    <script src="~/plugins/jquery-ui/jquery-ui.min.js"></script>
+    <script src="~/plugins/summernote/summernote-bs4.min.js"></script>
+    <script src="~/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+    <script src="~/plugins/select2/js/select2.full.min.js"></script>
+
+    <!-- DataTables -->
+    <script src="~/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="~/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <script src="~/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="~/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <script src="~/plugins/jszip/jszip.min.js"></script>
+    <script src="~/plugins/pdfmake/pdfmake.min.js"></script>
+    <script src="~/plugins/pdfmake/vfs_fonts.js"></script>
+    <script src="~/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+    <script src="~/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+    <script src="~/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+
+    <!-- AdminLTE App -->
+    <script src="~/dist/js/adminlte.js"></script>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

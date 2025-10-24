@@ -1,0 +1,100 @@
+﻿
+@model IEnumerable<TRMS.Models.Transaction>
+
+@{
+    ViewBag.Title = "Transaction Report";
+}
+
+<div class="panel panel-default" style="padding-left:10px;">
+    <div class="panel-heading">
+        <h4> Transaction Report </h4>
+    </div>
+    <hr />
+    <form method="get">
+        <div class="row">
+            <div class="col-md-3">
+                <label>Start Date:</label>
+                <input type="date" name="startDate" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label>End Date:</label>
+                <input type="date" name="endDate" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label>Process:</label>
+                <select name="Process" class="form-control">
+                    <option value="All">All</option>
+                    @foreach (var Process in ViewBag.Process)
+                    {
+                        <option value="@Process">@Process</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <br />
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a href="@Url.Action("IndexReportByprocess")" class="btn btn-secondary">Reset</a>
+            </div>
+        </div>
+    </form>
+
+    <hr />
+
+    <table id="transactionDT" class="table table-striped">
+        <thead>
+            <tr>
+                <th>Reference Number</th>
+                <th>Slip</th>
+                <th>Amount</th>
+                <th>Channel</th>
+                <th>Branch/SubProccess</th>
+                <th>Type</th>
+                <th>Remark</th>
+                <th>Transaction Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.ReferenceNumber</td>
+                    <td>@item.Slip</td>
+                    <td>
+                        @(item.TransactionAmount.HasValue ? item.TransactionAmount.Value.ToString("N0") : "N/A")
+                                    </td>
+                    <td>@item.Channal</td>
+                    <td>@item.UserBranch</td>
+                    <td>@item.TransactionType</td>
+                    <td>@item.Remark</td>
+                    <td>@(item.TranDate?.ToString("MM/dd/yyyy") ?? "N/A")</td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+    <h2 class="btn btn-default">
+        Total Amount @ViewBag.totalAmount.ToString("N0")
+    </h2>
+    <hr />
+
+    <a href="@Url.Action("ExportToExcelByprocess", new {startDate = Request.QueryString["startDate"], endDate = Request.QueryString["endDate"], Process = Request.QueryString["Process"] })" class="btn btn-success">Export to Excel</a>
+    @*<a href="@Url.Action("ExportToPdf", new { startDate = Request.QueryString["startDate"], endDate = Request.QueryString["endDate"], branch = Request.QueryString["branch"] })" class="btn btn-danger">Export to PDF</a>*@
+</div>
+<script>
+        $(document).ready(function () {
+            $('#transactionDT').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "pageLength": 10,
+                "lengthMenu": [5, 10, 25, 50],
+                "language": {
+                    "search": "Search Transactions:",
+                    "lengthMenu": "Show _MENU_ entries",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ Transactions"
+                }
+            });
+        });
+</script>
+

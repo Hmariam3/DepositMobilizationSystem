@@ -1,0 +1,91 @@
+﻿
+@model TRMS.Models.User
+@{
+    ViewBag.Title = "Login";
+    Layout = null;
+}
+<head>
+    <title>@ViewBag.Title</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    <link rel="stylesheet" href="/admin-lte/plugins/Ionicons/css/ionicons.min.css">
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success text-center" style="font-size: 20px;margin-left: 100px; width:80%;font-weight: bold;">
+            Success! @TempData["SuccessMessage"]
+        </div>
+    }
+    @using (Html.BeginForm("Login", "User", FormMethod.Post, new { id = "loginForm" }))
+    {
+        @Html.AntiForgeryToken()
+        <div class="form-horizontal col-md-offset-3 col-md-5" style="margin-top: 12em;">
+            <div class="panel panel-default">
+                <div class="panel-heading text-center" style="background-color:#00AEEF;color:white;font-size:30px;">
+                    <b>Login Page</b>
+                </div>
+                <div class="panel-body">
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.UserName, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.UserName, new { htmlAttributes = new { @class = "form-control form-control-sm" } })
+                            @Html.ValidationMessageFor(model => model.UserName, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Password, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @class = "form-control form-control-sm", @type = "password", @id = "password" } })
+                            @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+                            <div class="text-danger">
+                                @ViewBag.Error
+                                @TempData["LoginError"]
+                            </div>
+                        </div>
+                        <div class="input-group-append">
+                            <span class="input-group-text" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                <i id="togglePassword" class="fa fa-eye-slash" style="cursor: pointer; font-size: 20px;"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-offset-2 col-md-10">
+                            <input type="submit" value="Login" class="btn btn-default" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @Scripts.Render("~/bundles/jquery")
+    <script>
+        $(document).ready(function () {
+            $("#togglePassword").click(function () {
+                var passwordField = $("#password");
+                var icon = $(this);
+                if (passwordField.attr("type") === "password") {
+                    passwordField.attr("type", "text");
+                    icon.removeClass("fa-eye-slash").addClass("fa-eye");
+                } else {
+                    passwordField.attr("type", "password");
+                    icon.removeClass("fa-eye").addClass("fa-eye-slash");
+                }
+            });
+
+            $("#loginForm").submit(function () {
+                console.log("Login form submitted to /User/Login");
+                return true; // Ensure default form submission
+            });
+        });
+    </script>
+</body>

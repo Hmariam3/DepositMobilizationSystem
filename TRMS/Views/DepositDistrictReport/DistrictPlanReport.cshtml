@@ -1,0 +1,86 @@
+﻿@model IEnumerable<TRMS.Models.DepositPlan>
+@{
+    ViewBag.Title = "Deposit  Report";
+}
+<div class="panel panel-default" style="padding-left:10px;">
+    <div class="panel-heading">
+        <h4> Deposit  Report </h4>
+    </div>
+    <hr />
+    <form method="get">
+        <div class="row">
+            <div class="col-md-3">
+                <label>Start Date:</label>
+                <input type="date" name="startDate" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label>End Date:</label>
+                <input type="date" name="endDate" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <br />
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a href="@Url.Action("DistrictPlanReport")" class="btn btn-secondary">Reset</a>
+            </div>
+        </div>
+    </form>
+
+    <hr />
+
+    <table id="transactionDT" class="table table-striped">
+        <thead>
+            <tr>
+                <th>District</th>
+                <th>Branch</th>
+                <th>Account Number</th>
+                <th>Account Holder</th>
+                <th>Account Balance</th>
+                <th>Target</th>
+                <th>User</th>
+                <th>Transaction Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.District</td>
+                    <td>@item.Branch</td>
+                    <td>@item.AccountNumber</td>
+                    <td>@item.AccountHolder</td>
+                    <td>@(item.AccountBalance - item.IntialAccountBalance)</td>
+
+                    <td>@item.Amount</td>
+                    <td>@item.User</td>
+                    <td>@item.CreatedDate.ToString("MM/dd/yyyy")</td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+    <h2 class="btn btn-default">
+        Total Amount @ViewBag.totalAmount.ToString("N0")
+    </h2>
+    <hr />
+
+    <a href="@Url.Action("ExportDepositPlan", new { startDate = Request.QueryString["startDate"], endDate = Request.QueryString["endDate"] })" class="btn btn-success">Export to Excel</a>
+    @*<a href="@Url.Action("ExportToPdf", new { startDate = Request.QueryString["startDate"], endDate = Request.QueryString["endDate"] })" class="btn btn-danger">Export to PDF</a>*@
+</div>
+<script>
+        $(document).ready(function () {
+            $('#transactionDT').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "pageLength": 10,
+                "lengthMenu": [5, 10, 25, 50],
+                "language": {
+                    "search": "Search Transactions:",
+                    "lengthMenu": "Show _MENU_ entries",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ Transactions"
+                }
+            });
+        });
+</script>
+

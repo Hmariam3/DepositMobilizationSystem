@@ -1,0 +1,249 @@
+﻿@model TRMS.Models.DepositPlanViewModel
+
+@{
+    ViewBag.Title = "Create Deposit Plan";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<style type="text/css">
+    hr {
+        width: 100%;
+        height: 0.1px;
+        background-color: #00AEEF;
+        margin: 10px auto 5px;
+        border-width: 2px;
+        border-color: #00AEEF;
+    }
+
+    .alert {
+        margin: 30px auto;
+        width: 80%;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .form-control[readonly] {
+        background-color: #e9ecef;
+        opacity: 1;
+    }
+
+    .btn-validate {
+        background-color: #00AEEF;
+        color: white;
+        /*margin-top: -50px;*/
+        position: absolute;
+        /*right: 15px;*/
+    }
+
+    .btn-save {
+        background-color: #00AEEF;
+        color: white;
+    }
+
+    .btn-back {
+        background-color: #333;
+        color: white;
+    }
+</style>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3>Create New Deposit</h3>
+    </div>
+    <hr />
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            <strong>Error!</strong> @TempData["ErrorMessage"]
+        </div>
+    }
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            <strong>Success!</strong> @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <div class="panel-body">
+        @using (Html.BeginForm("Create", "DepositPlans", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="form-horizontal form-group-sm">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                <div class="row">
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.DepositPlan.AccountNumber, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.DepositPlan.AccountNumber, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.DepositPlan.AccountNumber, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.DepositPlan.ReferenceNumber, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.DepositPlan.ReferenceNumber, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.DepositPlan.ReferenceNumber, "", new { @class = "text-danger" })
+                        </div>
+                        <input type="submit" name="submit" value="Validate" class="btn btn-validate" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.DepositPlan.AccountHolder, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.DepositPlan.AccountHolder, new { htmlAttributes = new { @class = "form-control", @Value = ViewBag.AccountHolder, @readonly = "readonly" } })
+                            @Html.ValidationMessageFor(model => model.DepositPlan.AccountHolder, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group col-md-5">
+                        @Html.LabelFor(model => model.DepositPlan.AccountBalance, new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.DepositPlan.AccountBalance, new { htmlAttributes = new { @class = "form-control", @Value = ViewBag.AccountBalance, @readonly = "readonly" } })
+                            @*@Html.ValidationMessageFor(model => model.DepositPlan.AccountBalance, "", new { @class = "text-danger" })*@
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-5">
+                        <label class="control-label col-md-5">Amount</label>
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.DepositPlan.Amount, new { htmlAttributes = new { @class = "form-control", @Value = ViewBag.DebitAmount, @readonly = "readonly" } })
+                            @*@Html.ValidationMessageFor(model => model.DepositPlan.Amount, "", new { @class = "text-danger" })*@
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-5">
+                        <label class="control-label col-md-5">Deposit Type</label>
+                        <div class="col-md-7">
+                            @Html.DropDownListFor(m => m.DepositType,
+                                new SelectList(new[] { "Individual", "Shared" }),
+                                "Select Type",
+                                new { @class = "form-control", id = "DepositTypeDropdown" })
+
+                        </div>
+                    </div>
+                </div>
+
+                <div id="sharedSection" style="display:none;">
+                    <h4>Shared Users</h4>
+                    <hr />
+                    @for (int i = 1; i <= 3; i++)
+                    {
+                        <div class="row mb-2">
+                            <div class="form-group col-md-5">
+                                <label>User @i</label>
+                                <div class="col-md-7">
+                                    @Html.DropDownList($"SharedUser{i}", (IEnumerable<SelectListItem>)ViewBag.Users, "Select User", new { @class = "form-control", id = $"SharedUser{i}" })
+
+                                </div>
+                            </div>
+                            <div class="form-group col-md-5">
+                                <label>Amount</label>
+                                <div class="col-md-7">
+                                    <input type="number" name="@($"SharedAmount{i}")" class="form-control" step="0.01" />
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" name="submit" value="Save" class="btn btn-save" />
+                        @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-back" })
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    @Styles.Render("~/Content/cssjqryUi")
+    @Scripts.Render("~/bundles/jqueryui")
+    <script src="~/Content/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            //// hide initially
+            //$('#sharedSection').hide();
+            // Deposit Type toggle
+            $('#DepositTypeDropdown').on('change', function () {
+                var selected = $(this).val();
+                if (selected === "Shared") {
+                    $('#sharedSection').slideDown(300);
+                } else {
+                    $('#sharedSection').slideUp(300);
+                }
+            });
+
+                    // Initialize Select2 for shared user dropdowns
+        @for (int i = 1; i <= 3; i++)
+        {
+            <text>
+                $('#SharedUser@i').select2({
+                    placeholder: 'Select User',
+                    allowClear: true,
+                    width: '100%'
+                });
+            </text>
+        }
+
+
+
+        // Validate shared amount sum on Save
+        $('form').submit(function (e) {
+            var depositAmount = parseFloat($('#DepositPlan_Amount').val()) || 0;
+            var sumShared = 0;
+
+            for (var i = 1; i <= 3; i++) {
+                var amt = parseFloat($('input[name="SharedAmount' + i + '"]').val()) || 0;
+                sumShared += amt;
+            }
+
+            if ($('#DepositTypeDropdown').val() === "Shared" && sumShared > depositAmount) {
+                alert('The sum of all shared amounts cannot exceed the main Amount.');
+                return false; // prevent form submission
+            }
+        });
+
+            // Datepicker for date fields
+            $('input[type=datetime]').datepicker({
+                dateFormat: "dd/M/yy",
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "1950:+1"
+            });
+
+            // Toggle TransactionBranch visibility based on Channel selection
+            function toggleTransactionBranch() {
+                var selectedValue = $("#ChannalDropdown").val();
+                $("#TransactionBranchDiv").toggle(selectedValue === "Branch");
+            }
+
+            // Toggle CollectionDetails visibility based on CollectionType selection
+            function toggleTransactionCollect() {
+                var selectedValue = $("#CollectedDropdown").val();
+                $("#CollctionTypeDiv").toggle(selectedValue === "Joint");
+            }
+
+            // Initialize on page load
+            toggleTransactionBranch();
+            toggleTransactionCollect();
+
+
+
+            // Bind change events
+            $("#ChannalDropdown").change(toggleTransactionBranch);
+            $("#CollectedDropdown").change(toggleTransactionCollect);
+        });
+    </script>
+}

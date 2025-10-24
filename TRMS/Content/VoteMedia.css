@@ -1,0 +1,199 @@
+﻿/* Responsive adjustments */
+/*@media (max-width: 768px) {
+    th, td {
+        display: block;
+        text-align: left;
+        width: 100%;
+    }
+
+    td {
+        font-size: 1.1rem;
+        padding: 10px;
+    }
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 15px 0;
+}*/
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    /* Make the table a flex container for small screens */
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    table {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        border: 1px solid black;
+        border-color: #00AEEF;
+    }
+
+    th, td {
+        /* Display th and td as block for responsiveness */
+        display: block;
+        width: 100%;
+        text-align: left;
+        border: 1px solid black;
+        border-color: #00AEEF;
+        padding-left: 29px;
+    }
+
+    td {
+        font-size: 1.1rem;
+        padding: 5px;
+       
+    }
+
+        /* Style the labels in the table to appear clearly */
+        td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            margin-right: 30px;
+        }
+
+    /* Optional: Add a separator line between each item for clarity */
+    tr {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        border-bottom: 1px solid #ccc;
+        margin-bottom: 10px;
+    }
+    /* Make the alert and customAlert take full width for mobile devices */
+    .alert, #customAlert {
+        width: 100%; /* Makes them take up more space on small screens */
+        margin-left: 0; /* Align properly in the center */
+    }
+
+    /* Close button on small screens */
+    .closebtn {
+        font-size: 18px; /* Smaller font size for close button on smaller screens */
+    }
+
+    #customAlert {
+        font-size: 16px; /* Smaller font size for customAlert */
+        padding: 15px; /* Less padding */
+    }
+}
+
+/* Optional: Flex layout for form fields */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 15px 0;
+}
+/*form other divice*/
+/* Adjust font size and layout on smaller screens */
+@media (max-width: 1200px) {
+    .navbar {
+        font-size: 1.3em;
+    }
+
+    .logo-mini {
+        width: 45px;
+        height: 45px;
+    }
+
+    .logo-lg img {
+        width: 80%;
+        margin-left: -15px;
+    }
+
+    .navbar span {
+        font-size: 1.5em;
+        margin-left: 1.5em;
+    }
+
+    .user-image {
+        width: 25px;
+        height: 25px;
+    }
+}
+
+@media (max-width: 992px) {
+    /* For tablets and smaller devices */
+    .navbar {
+        font-size: 1.2em;
+    }
+
+    .logo-mini {
+        width: 40px;
+        height: 40px;
+    }
+
+    .logo-lg img {
+        width: 70%;
+        margin-left: -10px;
+    }
+
+    .navbar span {
+        font-size: 1.2em;
+        margin-left: 1.5em;
+    }
+
+    .user-image {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    /* For mobile devices */
+    .navbar {
+        font-size: 0.5em;
+        flex-direction: column;
+        align-items: flex-start;
+      
+    }
+    .votesuccess {
+        width: 100%;
+        height: 150px;
+        padding: 30px;
+        
+    }
+    .navbar span {
+        font-size: 1.1em;
+        margin-left: 0;
+    }
+
+    .logo-lg img {
+        width: 90%;
+        margin-left: 0;
+        height: 50px;
+        margin-bottom:40px;
+    }
+
+    .user-image {
+        width: 20px;
+        height: 20px;
+    }
+
+    /* Make the dropdown menu stack */
+    .user-menu .dropdown-menu {
+        position: static;
+        display: block;
+        width: 100%;
+        margin: 0;
+    }
+
+    .user-footer {
+        display: block;
+    }
+
+    .navbar-custom-menu {
+        display: none;
+    }
+
+    .sidebar-toggle {
+        display: block;
+        color: #f0ce0d;
+        background-color: #00AEEF;
+        padding: 10px;
+    }
+}

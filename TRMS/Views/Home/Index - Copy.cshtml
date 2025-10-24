@@ -1,0 +1,140 @@
+﻿@{
+    ViewBag.Title = "Dashboard";
+}
+@{
+    var achievedPercent = @ViewBag.Target != 0 ? (@ViewBag.achivedTarget * 100) / @ViewBag.Target : 0;
+    var remainingPercent = @ViewBag.Target != 0 ? (@ViewBag.remaing * 100) / @ViewBag.Target : 0;
+}
+<style>
+    /* Global Styling */
+    body {
+        font-family: Arial, sans-serif;
+    }
+
+    /* Card Styling */
+    .dashboard-card {
+        height: 220px;
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Title Styling */
+    .dashboard-title {
+        font-weight: bold;
+        font-size: 20px;
+        padding-bottom: 5px;
+    }
+
+    /* Centering Numbers */
+    .dashboard-value {
+        font-weight: bold;
+        font-size: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+</style>
+
+<div class="container mt-4">
+    <!-- Header Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-lg mb-4 border-0 p-3">
+                <div class="card-body text-center">
+                    <h1 class="dashboard-title text-primary"> Project 20 for 20   Performance Dashboard</h1>
+                    <h2 class="text-muted fs-5">Track Your Progress and Targets</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Panels -->
+    <div class="row text-center">
+        <!-- Your Target -->
+        <div class="col-md-4">
+            <div class="card text-white bg-primary dashboard-card">
+                <div class="card-header dashboard-title"> Target Amount</div>
+                <div class="card-body dashboard-value">@ViewBag.Target.ToString("N0")</div>
+            </div>
+        </div>
+
+        <!-- Achieved Target -->
+        <div class="col-md-4">
+            <div class="card text-white bg-success dashboard-card">
+                <div class="card-header dashboard-title">Collected Amount</div>
+                <div class="card-body dashboard-value">@ViewBag.achivedTarget.ToString("N0")</div>
+            </div>
+        </div>
+
+        <!-- Expected Remaining -->
+        <div class="col-md-4">
+            <div class="card text-white bg-warning dashboard-card">
+                <div class="card-header dashboard-title">Remaining Amount</div>
+                <div class="card-body dashboard-value">@ViewBag.remaing.ToString("N0")</div>
+            </div>
+        </div>
+        <br />
+        <br />
+        <div class="row text-center mt-4">
+            <!-- Achieved Percentage -->
+            <div class="col-md-4" style="margin-top:100px;">
+                <div class="card text-white bg-success dashboard-card">
+                    <div class="card-header dashboard-title">Achieved Percentage</div>
+                    <div class="card-body dashboard-value">@(achievedPercent.ToString("F2")) %</div>
+                </div>
+            </div>
+            <!-- Remaining Percentage -->
+            <div class="col-md-4" style="margin-top:100px;">
+                <div class="card text-white bg-danger dashboard-card">
+                    <div class="card-header dashboard-title">Remaining Percentage</div>
+                    <div class="card-body dashboard-value">@(remainingPercent.ToString("F2")) %</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <br />
+    <br />
+    <br />
+    <!-- Engagement  Panels -->
+    <div class="card-body text-center">
+        <h2 class="dashboard-title text-primary"> Your  Engagement Progress for the  Targets</h2>
+    </div>
+    <div class="row text-center">
+        <!-- Your Target -->
+        <div class="col-md-3">
+            <div class="card text-white bg-primary dashboard-card">
+                <div class="card-header dashboard-title"> Number of Contact</div>
+                <div class="card-body dashboard-value">@ViewBag.contact</div>
+            </div>
+        </div>
+
+        <!-- Achieved Target -->
+        <div class="col-md-3">
+            <div class="card text-white bg-success dashboard-card">
+                <div class="card-header dashboard-title">Number of Promised</div>
+                <div class="card-body dashboard-value">@ViewBag.Promised</div>
+            </div>
+        </div>
+
+        <!-- Expected Remaining -->
+        <div class="col-md-3">
+            <div class="card text-white bg-warning dashboard-card">
+                <div class="card-header dashboard-title">Collected From</div>
+                <div class="card-body dashboard-value">@ViewBag.deposited</div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-warning dashboard-card">
+                <div class="card-header dashboard-title">Total Collected amount</div>
+                <div class="card-body dashboard-value">@ViewBag.totalcollected</div>
+            </div>
+        </div>
+
+    </div>
+
+
+</div>

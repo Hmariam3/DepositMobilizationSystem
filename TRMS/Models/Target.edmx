@@ -1,0 +1,989 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="TRMSModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Branch">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" Nullable="false" />
+          <Property Name="BranchCode" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="BranchName" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="SubProcess id" Type="int" />
+        </EntityType>
+        <EntityType Name="BranchTarget">
+          <Key>
+            <PropertyRef Name="BID" />
+          </Key>
+          <Property Name="BID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="DID" Type="int" Nullable="false" />
+          <Property Name="District" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="BranchName" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Deposit" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="FCY" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="merchant" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="CreatedBy" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="CreatedDate" Type="date" Nullable="false" />
+        </EntityType>
+        <EntityType Name="CheckInCheckOut">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="priority_activity" Type="nvarchar(max)" />
+          <Property Name="deliverable" Type="nvarchar(max)" />
+          <Property Name="remark" Type="nvarchar(max)" />
+          <Property Name="check_in_date" Type="date" />
+          <Property Name="created_by" Type="int" />
+          <Property Name="district" Type="nvarchar" MaxLength="50" />
+          <Property Name="created_at" Type="datetime" />
+        </EntityType>
+        <EntityType Name="DepartementInfo">
+          <Key>
+            <PropertyRef Name="DID" />
+          </Key>
+          <Property Name="DID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="DepartemntName" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="CreatedBy" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="CreatedDate" Type="date" Nullable="false" />
+        </EntityType>
+        <EntityType Name="DepositFCY">
+          <Key>
+            <PropertyRef Name="FID" />
+          </Key>
+          <Property Name="FID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserID" Type="int" Nullable="false" />
+          <Property Name="Process" Type="nvarchar(max)" />
+          <Property Name="District" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Branch" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Target" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Currecy" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="AccountNumber" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="RefernceNumber" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="TransactionAmount" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Narative" Type="nvarchar(max)" />
+          <Property Name="User" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="CreatedDate" Type="date" Nullable="false" />
+          <Property Name="DepositType" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="DepositMerchantAgenet">
+          <Key>
+            <PropertyRef Name="MID" />
+          </Key>
+          <Property Name="MID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserID" Type="int" Nullable="false" />
+          <Property Name="Process" Type="nvarchar(max)" />
+          <Property Name="District" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Branch" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Target" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="LinkAccount" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="AccountNumber" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="ReferenceNumber" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="AccountHolder" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="IntialAccountBalance" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="AccountBalance" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Merchant_Type" Type="nvarchar(max)" />
+          <Property Name="Business_Type" Type="nvarchar(max)" />
+          <Property Name="QR" Type="nvarchar(max)" />
+          <Property Name="Narative" Type="nvarchar(max)" />
+          <Property Name="CreatedBY" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="CreatedDate" Type="date" Nullable="false" />
+          <Property Name="DepositType" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="DepositPlan">
+          <Key>
+            <PropertyRef Name="DID" />
+          </Key>
+          <Property Name="DID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserID" Type="int" Nullable="false" />
+          <Property Name="Process" Type="nvarchar(max)" />
+          <Property Name="District" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Branch" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Amount" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="AccountNumber" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="ReferenceNumber" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="AccountHolder" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="IntialAccountBalance" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="AccountBalance" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Narative" Type="nvarchar(max)" />
+          <Property Name="User" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="CreatedDate" Type="date" Nullable="false" />
+          <Property Name="DepositType" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="DistrictPlan">
+          <Key>
+            <PropertyRef Name="DId" />
+          </Key>
+          <Property Name="DId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="DistrictName" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Deposit" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="FCY" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="merchant" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="CreatedBy" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="CreatedDate" Type="date" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Fcy_Branch">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FcyTargetAmount" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="District" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Branch" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="CreatedBy" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="CreatedDate" Type="date" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Postion">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Postion" Type="nvarchar(max)" />
+          <Property Name="LimitAmout" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="Remark" Type="text" />
+        </EntityType>
+        <EntityType Name="Process">
+          <Key>
+            <PropertyRef Name="proces_Id" />
+          </Key>
+          <Property Name="proces_Id" Type="int" Nullable="false" />
+          <Property Name="process_name" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="process_acrnm" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Subprocess">
+          <Key>
+            <PropertyRef Name="subprocess_Id" />
+          </Key>
+          <Property Name="subprocess_Id" Type="int" Nullable="false" />
+          <Property Name="subprocess_name" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="sunprocess_acrnm" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="process_Id" Type="int" />
+        </EntityType>
+        <EntityType Name="Transactions">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserName" Type="nvarchar(max)" />
+          <Property Name="UserBranch" Type="nvarchar(max)" />
+          <Property Name="Process" Type="nvarchar(max)" />
+          <Property Name="ReferenceNumber" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="CreditAccount" Type="nvarchar" MaxLength="50" />
+          <Property Name="Slip" Type="nvarchar(max)" />
+          <Property Name="TransactionAmount" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="TransactionType" Type="nvarchar(max)" />
+          <Property Name="Channal" Type="nvarchar(max)" />
+          <Property Name="TransctionBranch" Type="nvarchar(max)" />
+          <Property Name="Remark" Type="text" />
+          <Property Name="TranDate" Type="date" />
+          <Property Name="Collected_Type" Type="nvarchar" MaxLength="50" />
+          <Property Name="Particpant_Number" Type="int" />
+          <Property Name="Total_Particpant" Type="int" />
+          <Property Name="Joint1" Type="nvarchar(max)" />
+          <Property Name="Joint2" Type="nvarchar(max)" />
+          <Property Name="Joint3" Type="nvarchar(max)" />
+          <Property Name="Joint4" Type="nvarchar(max)" />
+          <Property Name="Joint5" Type="nvarchar(max)" />
+          <Property Name="Created_By" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="UserEngagement">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Contacts" Type="int" />
+          <Property Name="Promise" Type="int" />
+          <Property Name="Deposited" Type="int" />
+          <Property Name="TotalAmount" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="created_by" Type="nvarchar(max)" />
+          <Property Name="Created_Date" Type="date" />
+        </EntityType>
+        <EntityType Name="Users">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserName" Type="nvarchar(max)" />
+          <Property Name="FullName" Type="nvarchar" MaxLength="50" />
+          <Property Name="Password" Type="nvarchar(max)" />
+          <Property Name="MailAdress" Type="nvarchar(max)" />
+          <Property Name="Process" Type="nvarchar(max)" />
+          <Property Name="District" Type="nvarchar(max)" />
+          <Property Name="Branch" Type="nvarchar(max)" />
+          <Property Name="OrganizatinalUnit" Type="nvarchar(max)" />
+          <Property Name="Postion" Type="nvarchar(max)" />
+          <Property Name="Role" Type="nvarchar(max)" />
+          <Property Name="PhoneNumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="DepositTargetAmount" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="MerchantTarget" Type="int" />
+          <Property Name="FCYTargetAmount" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="CreatedDate" Type="date" />
+          <Property Name="BranchDepositTarget" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="BranchMerchantTarget" Type="int" />
+          <Property Name="BranchFcyTarget" Type="decimal" Precision="18" Scale="2" />
+        </EntityType>
+        <Association Name="FK__Branch__SubProce__08B54D69">
+          <End Role="Subprocess" Type="Self.Subprocess" Multiplicity="0..1" />
+          <End Role="Branch" Type="Self.Branch" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Subprocess">
+              <PropertyRef Name="subprocess_Id" />
+            </Principal>
+            <Dependent Role="Branch">
+              <PropertyRef Name="SubProcess id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Subproces__proce__05D8E0BE">
+          <End Role="Process" Type="Self.Process" Multiplicity="0..1" />
+          <End Role="Subprocess" Type="Self.Subprocess" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Process">
+              <PropertyRef Name="proces_Id" />
+            </Principal>
+            <Dependent Role="Subprocess">
+              <PropertyRef Name="process_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BranchTarget_DistrictPlan">
+          <End Role="DistrictPlan" Type="Self.DistrictPlan" Multiplicity="1" />
+          <End Role="BranchTarget" Type="Self.BranchTarget" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="DistrictPlan">
+              <PropertyRef Name="DId" />
+            </Principal>
+            <Dependent Role="BranchTarget">
+              <PropertyRef Name="DID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CheckInCheckOut_Users">
+          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+          <End Role="CheckInCheckOut" Type="Self.CheckInCheckOut" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="CheckInCheckOut">
+              <PropertyRef Name="created_by" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_DepositFCY_Users">
+          <End Role="Users" Type="Self.Users" Multiplicity="1" />
+          <End Role="DepositFCY" Type="Self.DepositFCY" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="DepositFCY">
+              <PropertyRef Name="UserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_DepositMerchantAgenet_Users">
+          <End Role="Users" Type="Self.Users" Multiplicity="1" />
+          <End Role="DepositMerchantAgenet" Type="Self.DepositMerchantAgenet" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="DepositMerchantAgenet">
+              <PropertyRef Name="UserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_DepositPlan_Users">
+          <End Role="Users" Type="Self.Users" Multiplicity="1" />
+          <End Role="DepositPlan" Type="Self.DepositPlan" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="DepositPlan">
+              <PropertyRef Name="UserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="TRMSModelStoreContainer">
+          <EntitySet Name="Branch" EntityType="Self.Branch" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="BranchTarget" EntityType="Self.BranchTarget" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CheckInCheckOut" EntityType="Self.CheckInCheckOut" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="DepartementInfo" EntityType="Self.DepartementInfo" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="DepositFCY" EntityType="Self.DepositFCY" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="DepositMerchantAgenet" EntityType="Self.DepositMerchantAgenet" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="DepositPlan" EntityType="Self.DepositPlan" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="DistrictPlan" EntityType="Self.DistrictPlan" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Fcy_Branch" EntityType="Self.Fcy_Branch" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Postion" EntityType="Self.Postion" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Process" EntityType="Self.Process" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Subprocess" EntityType="Self.Subprocess" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Transactions" EntityType="Self.Transactions" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="UserEngagement" EntityType="Self.UserEngagement" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK__Branch__SubProce__08B54D69" Association="Self.FK__Branch__SubProce__08B54D69">
+            <End Role="Subprocess" EntitySet="Subprocess" />
+            <End Role="Branch" EntitySet="Branch" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Subproces__proce__05D8E0BE" Association="Self.FK__Subproces__proce__05D8E0BE">
+            <End Role="Process" EntitySet="Process" />
+            <End Role="Subprocess" EntitySet="Subprocess" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BranchTarget_DistrictPlan" Association="Self.FK_BranchTarget_DistrictPlan">
+            <End Role="DistrictPlan" EntitySet="DistrictPlan" />
+            <End Role="BranchTarget" EntitySet="BranchTarget" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CheckInCheckOut_Users" Association="Self.FK_CheckInCheckOut_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="CheckInCheckOut" EntitySet="CheckInCheckOut" />
+          </AssociationSet>
+          <AssociationSet Name="FK_DepositFCY_Users" Association="Self.FK_DepositFCY_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="DepositFCY" EntitySet="DepositFCY" />
+          </AssociationSet>
+          <AssociationSet Name="FK_DepositMerchantAgenet_Users" Association="Self.FK_DepositMerchantAgenet_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="DepositMerchantAgenet" EntitySet="DepositMerchantAgenet" />
+          </AssociationSet>
+          <AssociationSet Name="FK_DepositPlan_Users" Association="Self.FK_DepositPlan_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="DepositPlan" EntitySet="DepositPlan" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="TRMSModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Branch">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" />
+          <Property Name="BranchCode" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="BranchName" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="SubProcess_id" Type="Int32" />
+          <NavigationProperty Name="Subprocess" Relationship="Self.FK__Branch__SubProce__08B54D69" FromRole="Branch" ToRole="Subprocess" />
+        </EntityType>
+        <EntityType Name="BranchTarget">
+          <Key>
+            <PropertyRef Name="BID" />
+          </Key>
+          <Property Name="BID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="DID" Type="Int32" Nullable="false" />
+          <Property Name="District" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="BranchName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Deposit" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="FCY" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="merchant" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="CreatedBy" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="0" />
+          <NavigationProperty Name="DistrictPlan" Relationship="Self.FK_BranchTarget_DistrictPlan" FromRole="BranchTarget" ToRole="DistrictPlan" />
+        </EntityType>
+        <EntityType Name="CheckInCheckOut">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="priority_activity" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="deliverable" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="remark" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="check_in_date" Type="DateTime" Precision="0" />
+          <Property Name="created_by" Type="Int32" />
+          <Property Name="district" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="created_at" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="User" Relationship="Self.FK_CheckInCheckOut_Users" FromRole="CheckInCheckOut" ToRole="Users" />
+        </EntityType>
+        <EntityType Name="DepartementInfo">
+          <Key>
+            <PropertyRef Name="DID" />
+          </Key>
+          <Property Name="DID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="DepartemntName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="CreatedBy" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="0" />
+        </EntityType>
+        <EntityType Name="DepositFCY">
+          <Key>
+            <PropertyRef Name="FID" />
+          </Key>
+          <Property Name="FID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserID" Type="Int32" Nullable="false" />
+          <Property Name="Process" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="District" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Branch" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Target" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Currecy" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="AccountNumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="RefernceNumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="TransactionAmount" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Narative" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="User" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="DepositType" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="User1" Relationship="Self.FK_DepositFCY_Users" FromRole="DepositFCY" ToRole="Users" />
+        </EntityType>
+        <EntityType Name="DepositMerchantAgenet">
+          <Key>
+            <PropertyRef Name="MID" />
+          </Key>
+          <Property Name="MID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserID" Type="Int32" Nullable="false" />
+          <Property Name="Process" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="District" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Branch" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Target" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="LinkAccount" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="AccountNumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="ReferenceNumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="AccountHolder" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="IntialAccountBalance" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="AccountBalance" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Merchant_Type" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Business_Type" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="QR" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Narative" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedBY" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="DepositType" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="User" Relationship="Self.FK_DepositMerchantAgenet_Users" FromRole="DepositMerchantAgenet" ToRole="Users" />
+        </EntityType>
+        <EntityType Name="DepositPlan">
+          <Key>
+            <PropertyRef Name="DID" />
+          </Key>
+          <Property Name="DID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserID" Type="Int32" Nullable="false" />
+          <Property Name="Process" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="District" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Branch" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Amount" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="AccountNumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="ReferenceNumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="AccountHolder" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="IntialAccountBalance" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="AccountBalance" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Narative" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="User" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="DepositType" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="User1" Relationship="Self.FK_DepositPlan_Users" FromRole="DepositPlan" ToRole="Users" />
+        </EntityType>
+        <EntityType Name="DistrictPlan">
+          <Key>
+            <PropertyRef Name="DId" />
+          </Key>
+          <Property Name="DId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="DistrictName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Deposit" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="FCY" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="merchant" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="CreatedBy" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="0" />
+          <NavigationProperty Name="BranchTargets" Relationship="Self.FK_BranchTarget_DistrictPlan" FromRole="DistrictPlan" ToRole="BranchTarget" />
+        </EntityType>
+        <EntityType Name="Fcy_Branch">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FcyTargetAmount" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="District" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Branch" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="CreatedBy" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="0" />
+        </EntityType>
+        <EntityType Name="Postion">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Postion1" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="LimitAmout" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="Remark" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="Process">
+          <Key>
+            <PropertyRef Name="proces_Id" />
+          </Key>
+          <Property Name="proces_Id" Type="Int32" Nullable="false" />
+          <Property Name="process_name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="process_acrnm" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Subprocesses" Relationship="Self.FK__Subproces__proce__05D8E0BE" FromRole="Process" ToRole="Subprocess" />
+        </EntityType>
+        <EntityType Name="Subprocess">
+          <Key>
+            <PropertyRef Name="subprocess_Id" />
+          </Key>
+          <Property Name="subprocess_Id" Type="Int32" Nullable="false" />
+          <Property Name="subprocess_name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="sunprocess_acrnm" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="process_Id" Type="Int32" />
+          <NavigationProperty Name="Branches" Relationship="Self.FK__Branch__SubProce__08B54D69" FromRole="Subprocess" ToRole="Branch" />
+          <NavigationProperty Name="Process" Relationship="Self.FK__Subproces__proce__05D8E0BE" FromRole="Subprocess" ToRole="Process" />
+        </EntityType>
+        <EntityType Name="Transaction">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="UserBranch" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Process" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ReferenceNumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="CreditAccount" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Slip" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="TransactionAmount" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="TransactionType" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Channal" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="TransctionBranch" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Remark" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="TranDate" Type="DateTime" Precision="0" />
+          <Property Name="Collected_Type" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Particpant_Number" Type="Int32" />
+          <Property Name="Total_Particpant" Type="Int32" />
+          <Property Name="Joint1" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Joint2" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Joint3" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Joint4" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Joint5" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Created_By" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="UserEngagement">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Contacts" Type="Int32" />
+          <Property Name="Promise" Type="Int32" />
+          <Property Name="Deposited" Type="Int32" />
+          <Property Name="TotalAmount" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="created_by" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Created_Date" Type="DateTime" Precision="0" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="FullName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Password" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="MailAdress" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Process" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="District" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Branch" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="OrganizatinalUnit" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Postion" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Role" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="PhoneNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="DepositTargetAmount" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="MerchantTarget" Type="Int32" />
+          <Property Name="FCYTargetAmount" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="CreatedDate" Type="DateTime" Precision="0" />
+          <Property Name="BranchDepositTarget" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="BranchMerchantTarget" Type="Int32" />
+          <Property Name="BranchFcyTarget" Type="Decimal" Precision="18" Scale="2" />
+          <NavigationProperty Name="CheckInCheckOuts" Relationship="Self.FK_CheckInCheckOut_Users" FromRole="Users" ToRole="CheckInCheckOut" />
+          <NavigationProperty Name="DepositFCies" Relationship="Self.FK_DepositFCY_Users" FromRole="Users" ToRole="DepositFCY" />
+          <NavigationProperty Name="DepositMerchantAgenets" Relationship="Self.FK_DepositMerchantAgenet_Users" FromRole="Users" ToRole="DepositMerchantAgenet" />
+          <NavigationProperty Name="DepositPlans" Relationship="Self.FK_DepositPlan_Users" FromRole="Users" ToRole="DepositPlan" />
+        </EntityType>
+        <Association Name="FK__Branch__SubProce__08B54D69">
+          <End Role="Subprocess" Type="Self.Subprocess" Multiplicity="0..1" />
+          <End Role="Branch" Type="Self.Branch" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Subprocess">
+              <PropertyRef Name="subprocess_Id" />
+            </Principal>
+            <Dependent Role="Branch">
+              <PropertyRef Name="SubProcess_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BranchTarget_DistrictPlan">
+          <End Role="DistrictPlan" Type="Self.DistrictPlan" Multiplicity="1" />
+          <End Role="BranchTarget" Type="Self.BranchTarget" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="DistrictPlan">
+              <PropertyRef Name="DId" />
+            </Principal>
+            <Dependent Role="BranchTarget">
+              <PropertyRef Name="DID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CheckInCheckOut_Users">
+          <End Role="Users" Type="Self.User" Multiplicity="0..1" />
+          <End Role="CheckInCheckOut" Type="Self.CheckInCheckOut" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="CheckInCheckOut">
+              <PropertyRef Name="created_by" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_DepositFCY_Users">
+          <End Role="Users" Type="Self.User" Multiplicity="1" />
+          <End Role="DepositFCY" Type="Self.DepositFCY" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="DepositFCY">
+              <PropertyRef Name="UserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_DepositMerchantAgenet_Users">
+          <End Role="Users" Type="Self.User" Multiplicity="1" />
+          <End Role="DepositMerchantAgenet" Type="Self.DepositMerchantAgenet" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="DepositMerchantAgenet">
+              <PropertyRef Name="UserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_DepositPlan_Users">
+          <End Role="Users" Type="Self.User" Multiplicity="1" />
+          <End Role="DepositPlan" Type="Self.DepositPlan" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="DepositPlan">
+              <PropertyRef Name="UserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Subproces__proce__05D8E0BE">
+          <End Role="Process" Type="Self.Process" Multiplicity="0..1" />
+          <End Role="Subprocess" Type="Self.Subprocess" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Process">
+              <PropertyRef Name="proces_Id" />
+            </Principal>
+            <Dependent Role="Subprocess">
+              <PropertyRef Name="process_Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="TRMSEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Branches" EntityType="Self.Branch" />
+          <EntitySet Name="BranchTargets" EntityType="Self.BranchTarget" />
+          <EntitySet Name="CheckInCheckOuts" EntityType="Self.CheckInCheckOut" />
+          <EntitySet Name="DepartementInfoes" EntityType="Self.DepartementInfo" />
+          <EntitySet Name="DepositFCies" EntityType="Self.DepositFCY" />
+          <EntitySet Name="DepositMerchantAgenets" EntityType="Self.DepositMerchantAgenet" />
+          <EntitySet Name="DepositPlans" EntityType="Self.DepositPlan" />
+          <EntitySet Name="DistrictPlans" EntityType="Self.DistrictPlan" />
+          <EntitySet Name="Fcy_Branch" EntityType="Self.Fcy_Branch" />
+          <EntitySet Name="Postions" EntityType="Self.Postion" />
+          <EntitySet Name="Processes" EntityType="Self.Process" />
+          <EntitySet Name="Subprocesses" EntityType="Self.Subprocess" />
+          <EntitySet Name="Transactions" EntityType="Self.Transaction" />
+          <EntitySet Name="UserEngagements" EntityType="Self.UserEngagement" />
+          <EntitySet Name="Users" EntityType="Self.User" />
+          <AssociationSet Name="FK__Branch__SubProce__08B54D69" Association="Self.FK__Branch__SubProce__08B54D69">
+            <End Role="Subprocess" EntitySet="Subprocesses" />
+            <End Role="Branch" EntitySet="Branches" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BranchTarget_DistrictPlan" Association="Self.FK_BranchTarget_DistrictPlan">
+            <End Role="DistrictPlan" EntitySet="DistrictPlans" />
+            <End Role="BranchTarget" EntitySet="BranchTargets" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CheckInCheckOut_Users" Association="Self.FK_CheckInCheckOut_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="CheckInCheckOut" EntitySet="CheckInCheckOuts" />
+          </AssociationSet>
+          <AssociationSet Name="FK_DepositFCY_Users" Association="Self.FK_DepositFCY_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="DepositFCY" EntitySet="DepositFCies" />
+          </AssociationSet>
+          <AssociationSet Name="FK_DepositMerchantAgenet_Users" Association="Self.FK_DepositMerchantAgenet_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="DepositMerchantAgenet" EntitySet="DepositMerchantAgenets" />
+          </AssociationSet>
+          <AssociationSet Name="FK_DepositPlan_Users" Association="Self.FK_DepositPlan_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="DepositPlan" EntitySet="DepositPlans" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Subproces__proce__05D8E0BE" Association="Self.FK__Subproces__proce__05D8E0BE">
+            <End Role="Process" EntitySet="Processes" />
+            <End Role="Subprocess" EntitySet="Subprocesses" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="TRMSModelStoreContainer" CdmEntityContainer="TRMSEntities">
+          <EntitySetMapping Name="Branches">
+            <EntityTypeMapping TypeName="TRMSModel.Branch">
+              <MappingFragment StoreEntitySet="Branch">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="BranchCode" ColumnName="BranchCode" />
+                <ScalarProperty Name="BranchName" ColumnName="BranchName" />
+                <ScalarProperty Name="SubProcess_id" ColumnName="SubProcess id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="BranchTargets">
+            <EntityTypeMapping TypeName="TRMSModel.BranchTarget">
+              <MappingFragment StoreEntitySet="BranchTarget">
+                <ScalarProperty Name="BID" ColumnName="BID" />
+                <ScalarProperty Name="DID" ColumnName="DID" />
+                <ScalarProperty Name="District" ColumnName="District" />
+                <ScalarProperty Name="BranchName" ColumnName="BranchName" />
+                <ScalarProperty Name="Deposit" ColumnName="Deposit" />
+                <ScalarProperty Name="FCY" ColumnName="FCY" />
+                <ScalarProperty Name="merchant" ColumnName="merchant" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CheckInCheckOuts">
+            <EntityTypeMapping TypeName="TRMSModel.CheckInCheckOut">
+              <MappingFragment StoreEntitySet="CheckInCheckOut">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="priority_activity" ColumnName="priority_activity" />
+                <ScalarProperty Name="deliverable" ColumnName="deliverable" />
+                <ScalarProperty Name="remark" ColumnName="remark" />
+                <ScalarProperty Name="check_in_date" ColumnName="check_in_date" />
+                <ScalarProperty Name="created_by" ColumnName="created_by" />
+                <ScalarProperty Name="district" ColumnName="district" />
+                <ScalarProperty Name="created_at" ColumnName="created_at" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DepartementInfoes">
+            <EntityTypeMapping TypeName="TRMSModel.DepartementInfo">
+              <MappingFragment StoreEntitySet="DepartementInfo">
+                <ScalarProperty Name="DID" ColumnName="DID" />
+                <ScalarProperty Name="DepartemntName" ColumnName="DepartemntName" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DepositFCies">
+            <EntityTypeMapping TypeName="TRMSModel.DepositFCY">
+              <MappingFragment StoreEntitySet="DepositFCY">
+                <ScalarProperty Name="FID" ColumnName="FID" />
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
+                <ScalarProperty Name="Process" ColumnName="Process" />
+                <ScalarProperty Name="District" ColumnName="District" />
+                <ScalarProperty Name="Branch" ColumnName="Branch" />
+                <ScalarProperty Name="Target" ColumnName="Target" />
+                <ScalarProperty Name="Currecy" ColumnName="Currecy" />
+                <ScalarProperty Name="AccountNumber" ColumnName="AccountNumber" />
+                <ScalarProperty Name="RefernceNumber" ColumnName="RefernceNumber" />
+                <ScalarProperty Name="TransactionAmount" ColumnName="TransactionAmount" />
+                <ScalarProperty Name="Narative" ColumnName="Narative" />
+                <ScalarProperty Name="User" ColumnName="User" />
+                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+                <ScalarProperty Name="DepositType" ColumnName="DepositType" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DepositMerchantAgenets">
+            <EntityTypeMapping TypeName="TRMSModel.DepositMerchantAgenet">
+              <MappingFragment StoreEntitySet="DepositMerchantAgenet">
+                <ScalarProperty Name="MID" ColumnName="MID" />
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
+                <ScalarProperty Name="Process" ColumnName="Process" />
+                <ScalarProperty Name="District" ColumnName="District" />
+                <ScalarProperty Name="Branch" ColumnName="Branch" />
+                <ScalarProperty Name="Target" ColumnName="Target" />
+                <ScalarProperty Name="LinkAccount" ColumnName="LinkAccount" />
+                <ScalarProperty Name="AccountNumber" ColumnName="AccountNumber" />
+                <ScalarProperty Name="ReferenceNumber" ColumnName="ReferenceNumber" />
+                <ScalarProperty Name="AccountHolder" ColumnName="AccountHolder" />
+                <ScalarProperty Name="IntialAccountBalance" ColumnName="IntialAccountBalance" />
+                <ScalarProperty Name="AccountBalance" ColumnName="AccountBalance" />
+                <ScalarProperty Name="Merchant_Type" ColumnName="Merchant_Type" />
+                <ScalarProperty Name="Business_Type" ColumnName="Business_Type" />
+                <ScalarProperty Name="QR" ColumnName="QR" />
+                <ScalarProperty Name="Narative" ColumnName="Narative" />
+                <ScalarProperty Name="CreatedBY" ColumnName="CreatedBY" />
+                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+                <ScalarProperty Name="DepositType" ColumnName="DepositType" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DepositPlans">
+            <EntityTypeMapping TypeName="TRMSModel.DepositPlan">
+              <MappingFragment StoreEntitySet="DepositPlan">
+                <ScalarProperty Name="DID" ColumnName="DID" />
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
+                <ScalarProperty Name="Process" ColumnName="Process" />
+                <ScalarProperty Name="District" ColumnName="District" />
+                <ScalarProperty Name="Branch" ColumnName="Branch" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="AccountNumber" ColumnName="AccountNumber" />
+                <ScalarProperty Name="ReferenceNumber" ColumnName="ReferenceNumber" />
+                <ScalarProperty Name="AccountHolder" ColumnName="AccountHolder" />
+                <ScalarProperty Name="IntialAccountBalance" ColumnName="IntialAccountBalance" />
+                <ScalarProperty Name="AccountBalance" ColumnName="AccountBalance" />
+                <ScalarProperty Name="Narative" ColumnName="Narative" />
+                <ScalarProperty Name="User" ColumnName="User" />
+                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+                <ScalarProperty Name="DepositType" ColumnName="DepositType" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DistrictPlans">
+            <EntityTypeMapping TypeName="TRMSModel.DistrictPlan">
+              <MappingFragment StoreEntitySet="DistrictPlan">
+                <ScalarProperty Name="DId" ColumnName="DId" />
+                <ScalarProperty Name="DistrictName" ColumnName="DistrictName" />
+                <ScalarProperty Name="Deposit" ColumnName="Deposit" />
+                <ScalarProperty Name="FCY" ColumnName="FCY" />
+                <ScalarProperty Name="merchant" ColumnName="merchant" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Fcy_Branch">
+            <EntityTypeMapping TypeName="TRMSModel.Fcy_Branch">
+              <MappingFragment StoreEntitySet="Fcy_Branch">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="FcyTargetAmount" ColumnName="FcyTargetAmount" />
+                <ScalarProperty Name="District" ColumnName="District" />
+                <ScalarProperty Name="Branch" ColumnName="Branch" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Postions">
+            <EntityTypeMapping TypeName="TRMSModel.Postion">
+              <MappingFragment StoreEntitySet="Postion">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Postion1" ColumnName="Postion" />
+                <ScalarProperty Name="LimitAmout" ColumnName="LimitAmout" />
+                <ScalarProperty Name="Remark" ColumnName="Remark" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Processes">
+            <EntityTypeMapping TypeName="TRMSModel.Process">
+              <MappingFragment StoreEntitySet="Process">
+                <ScalarProperty Name="proces_Id" ColumnName="proces_Id" />
+                <ScalarProperty Name="process_name" ColumnName="process_name" />
+                <ScalarProperty Name="process_acrnm" ColumnName="process_acrnm" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Subprocesses">
+            <EntityTypeMapping TypeName="TRMSModel.Subprocess">
+              <MappingFragment StoreEntitySet="Subprocess">
+                <ScalarProperty Name="subprocess_Id" ColumnName="subprocess_Id" />
+                <ScalarProperty Name="subprocess_name" ColumnName="subprocess_name" />
+                <ScalarProperty Name="sunprocess_acrnm" ColumnName="sunprocess_acrnm" />
+                <ScalarProperty Name="process_Id" ColumnName="process_Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Transactions">
+            <EntityTypeMapping TypeName="TRMSModel.Transaction">
+              <MappingFragment StoreEntitySet="Transactions">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+                <ScalarProperty Name="UserBranch" ColumnName="UserBranch" />
+                <ScalarProperty Name="Process" ColumnName="Process" />
+                <ScalarProperty Name="ReferenceNumber" ColumnName="ReferenceNumber" />
+                <ScalarProperty Name="CreditAccount" ColumnName="CreditAccount" />
+                <ScalarProperty Name="Slip" ColumnName="Slip" />
+                <ScalarProperty Name="TransactionAmount" ColumnName="TransactionAmount" />
+                <ScalarProperty Name="TransactionType" ColumnName="TransactionType" />
+                <ScalarProperty Name="Channal" ColumnName="Channal" />
+                <ScalarProperty Name="TransctionBranch" ColumnName="TransctionBranch" />
+                <ScalarProperty Name="Remark" ColumnName="Remark" />
+                <ScalarProperty Name="TranDate" ColumnName="TranDate" />
+                <ScalarProperty Name="Collected_Type" ColumnName="Collected_Type" />
+                <ScalarProperty Name="Particpant_Number" ColumnName="Particpant_Number" />
+                <ScalarProperty Name="Total_Particpant" ColumnName="Total_Particpant" />
+                <ScalarProperty Name="Joint1" ColumnName="Joint1" />
+                <ScalarProperty Name="Joint2" ColumnName="Joint2" />
+                <ScalarProperty Name="Joint3" ColumnName="Joint3" />
+                <ScalarProperty Name="Joint4" ColumnName="Joint4" />
+                <ScalarProperty Name="Joint5" ColumnName="Joint5" />
+                <ScalarProperty Name="Created_By" ColumnName="Created_By" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="UserEngagements">
+            <EntityTypeMapping TypeName="TRMSModel.UserEngagement">
+              <MappingFragment StoreEntitySet="UserEngagement">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="Contacts" ColumnName="Contacts" />
+                <ScalarProperty Name="Promise" ColumnName="Promise" />
+                <ScalarProperty Name="Deposited" ColumnName="Deposited" />
+                <ScalarProperty Name="TotalAmount" ColumnName="TotalAmount" />
+                <ScalarProperty Name="created_by" ColumnName="created_by" />
+                <ScalarProperty Name="Created_Date" ColumnName="Created_Date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Users">
+            <EntityTypeMapping TypeName="TRMSModel.User">
+              <MappingFragment StoreEntitySet="Users">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+                <ScalarProperty Name="FullName" ColumnName="FullName" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
+                <ScalarProperty Name="MailAdress" ColumnName="MailAdress" />
+                <ScalarProperty Name="Process" ColumnName="Process" />
+                <ScalarProperty Name="District" ColumnName="District" />
+                <ScalarProperty Name="Branch" ColumnName="Branch" />
+                <ScalarProperty Name="OrganizatinalUnit" ColumnName="OrganizatinalUnit" />
+                <ScalarProperty Name="Postion" ColumnName="Postion" />
+                <ScalarProperty Name="Role" ColumnName="Role" />
+                <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
+                <ScalarProperty Name="DepositTargetAmount" ColumnName="DepositTargetAmount" />
+                <ScalarProperty Name="MerchantTarget" ColumnName="MerchantTarget" />
+                <ScalarProperty Name="FCYTargetAmount" ColumnName="FCYTargetAmount" />
+                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+                <ScalarProperty Name="BranchDepositTarget" ColumnName="BranchDepositTarget" />
+                <ScalarProperty Name="BranchMerchantTarget" ColumnName="BranchMerchantTarget" />
+                <ScalarProperty Name="BranchFcyTarget" ColumnName="BranchFcyTarget" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

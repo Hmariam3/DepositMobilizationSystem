@@ -1,0 +1,67 @@
+﻿@model TRMS.Models.Postion
+
+@{
+    ViewBag.Title = "Create";
+}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3>Add Postion</h3>
+    </div>
+    <br />
+    </br>
+    <label style="color:darkred">@TempData["errormessage"]</label>
+    <div class="panel-body">
+
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="form-horizontal form-group-sm">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                <div class="row">
+                    <div class="form-group col-md-5">
+                        @Html.Label("Postion", htmlAttributes: new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.Postion1, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Postion1, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-5">
+                        @Html.Label("Limit Amount", htmlAttributes: new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(model => model.LimitAmout, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.LimitAmout, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group col-md-5">
+                        @Html.Label("Remark", htmlAttributes: new { @class = "control-label col-md-5" })
+                        <div class="col-md-7">
+                            @Html.TextAreaFor(model => model.Remark, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Remark, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                </div>
+               
+
+
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                    @Html.ActionLink("Back to List", "Index", "", new { @class = "btn btn-github" })
+                </div>
+            </div>
+
+
+
+        }
+    </div>
+</div>

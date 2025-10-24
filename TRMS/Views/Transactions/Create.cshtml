@@ -1,0 +1,250 @@
+﻿@model TRMS.Models.Transaction
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3>New Transaction</h3>
+    </div>
+    <br />
+
+    @if (TempData.Peek("errorRes") != null)
+    {
+    <div class="alert alert-danger text-center" style="margin-left: 100px; margin-top: 30px; font-family: Arial; width:80%;font-weight: bold;">
+        <strong>Error!</strong> @TempData["errorRes"]
+    </div>
+       
+    }
+    @if (TempData["successRes"] != null)
+    {
+     
+        <div class="alert alert-success text-center" style="font-size: 20px;margin-left: 100px; width:80%;font-weight: bold;">
+            Success! @TempData["successRes"]
+        </div>
+    }
+
+
+    <div class="panel-body">
+        @using (Html.BeginForm("Create", "Transactions", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+
+        <div class="form-horizontal form-group-sm">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <div class="row">
+                <div class="form-group col-md-5">
+                    @Html.Label("Reference Number", htmlAttributes: new { @class = "control-label col-md-5" })
+                    <div class="col-md-7">
+                        @Html.EditorFor(model => model.ReferenceNumber, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.ReferenceNumber, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group col-md-5">
+                    @Html.Label("Transaction Amount", htmlAttributes: new { @class = "control-label col-md-5" })
+                    <div class="col-md-7">
+                        @Html.EditorFor(model => model.TransactionAmount, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.TransactionAmount, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-5">
+                    @Html.Label("Credit Account Number", htmlAttributes: new { @class = "control-label col-md-5" })
+                    <div class="col-md-7">
+                        @Html.EditorFor(model => model.CreditAccount, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.CreditAccount, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+  
+            </div>
+
+            <div class="row">
+                <div class="form-group col-md-5">
+                    @Html.Label("Channel", htmlAttributes: new { @class = "control-label col-md-5" })
+                    <div class="col-md-7">
+                        <div class="col-md-10">
+                            @Html.DropDownListFor(model => model.Channal, new List<SelectListItem>
+                            {
+                                new SelectListItem { Text="----Select Channal---", Value = "" },
+                                new SelectListItem { Text="Branch", Value = "Branch" },
+                                new SelectListItem { Text="Mobile Banking", Value = "Mobile Banking" },
+                                new SelectListItem { Text="Internet Banking", Value = "Internet Banking" }
+                            }, new { @class = "form-control", id = "ChannalDropdown" })
+
+                            @Html.ValidationMessageFor(model => model.Channal, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transaction Branch (Initially Hidden) -->
+                <div class="form-group col-md-5" id="TransactionBranchDiv" style="display: none;">
+                    @Html.Label("Transaction From  Bank", htmlAttributes: new { @class = "control-label col-md-5" })
+                    <div class="col-md-7">
+                        @Html.EditorFor(model => model.TransctionBranch, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.TransctionBranch, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group col-md-5">
+                    @Html.Label("Transaction Type", htmlAttributes: new { @class = "control-label col-md-5" })
+                    <div class="col-md-7">
+                        @Html.DropDownListFor(model => model.TransactionType, new List<SelectListItem>
+                           {
+                               new SelectListItem { Text="----Select Type---", Value = "" },
+                               new SelectListItem { Text="RTGS", Value = "RTGS" },
+                               new SelectListItem { Text="Cash Deposit", Value = "Cash Deposit" },
+                               new SelectListItem { Text="FT", Value = "FT" },
+                               new SelectListItem { Text="SWIFT", Value = "SWIFT" },
+                               new SelectListItem { Text="Remittance", Value = "Remittance" },
+                           })
+
+                        @Html.ValidationMessageFor(model => model.TransactionType, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group col-md-5">
+                    @Html.Label("Remark", htmlAttributes: new { @class = "control-label col-md-5" })
+                    <div class="col-md-7">
+                        @Html.TextAreaFor(model => model.Remark, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Remark, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="row">
+                <div class="form-group col-md-5">
+                    @Html.Label("TranDate", htmlAttributes: new { @class = "control-label col-md-5" })
+                    <div class="col-md-7">
+                        @Html.EditorFor(model => model.TranDate, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.TranDate, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group col-md-5">
+                    @Html.Label("Slip Document", htmlAttributes: new { @class = "control-label col-md-5" })
+                    <div class="col-md-7">
+                        <input type="file" name="postedFile" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" style="margin-left:100px;">
+                <div class="form-group col-md-4">
+                    @Html.Label("Registered with", htmlAttributes: new { @class = "control-label col-md-5" })
+                    <div class="col-md-7">
+                        @Html.DropDownListFor(model => model.Collected_Type, new List<SelectListItem>
+                           {
+                               new SelectListItem { Text="Individual", Value = "Individual" },
+                               new SelectListItem { Text="Joint", Value = "Joint" },
+                           },new { @class = "form-control", id = "CollectedDropdown" })
+
+                        @Html.ValidationMessageFor(model => model.Collected_Type, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+
+
+            </div>
+
+
+
+            <div class="row" id="CollctionTypeDiv" style="display: none;">
+                <div class="form-group col-md-5">
+                    @Html.Label("Participant Number", htmlAttributes: new { @class = "control-label col-md-5" })
+                    <div class="col-md-7">
+                        @Html.EditorFor(model => model.Particpant_Number, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Particpant_Number, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                    @Html.ActionLink("Back to List", "Index", "", new { @class = "btn btn-github" })
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script src="~/Content/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        function toggleTransactionBranch() {
+            var selectedValue = $("#ChannalDropdown").val();
+            if (selectedValue === "Branch") {
+                $("#TransactionBranchDiv").show();
+            } else {
+                $("#TransactionBranchDiv").hide();
+            }
+        }
+
+        // Run on page load
+        toggleTransactionBranch();
+
+        // Run on dropdown change
+        $("#ChannalDropdown").change(function () {
+            toggleTransactionBranch();
+        });
+    });
+    // for transaction type
+    $(document).ready(function () {
+        function toggleTransactionCollect() {
+            var selectedValue = $("#CollectedDropdown").val();
+            if (selectedValue === "Joint") {
+                $("#CollctionTypeDiv").show();
+            } else {
+                $("#CollctionTypeDiv").hide();
+            }
+        }
+
+        // Run on page load
+        toggleTransactionCollect();
+
+        // Run on dropdown change
+        $("#CollectedDropdown").change(function () {
+            toggleTransactionCollect();
+        });
+    });
+    $(document).ready(function () {
+        $('input[type=datetime]').datepicker({
+            dateFormat: "dd/M/yy",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1950:+1"
+        });
+
+    });
+</script>
+
+<!-- JS datepicker -->
+@section Scripts {
+    @Styles.Render("~/Content/cssjqryUi")
+    @Scripts.Render("~/bundles/jqueryui")
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $('input[type=datetime]').datepicker({
+                dateFormat: "dd/M/yy",
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "1950:+1"
+            });
+
+        });
+  
+    </script>
+
+}

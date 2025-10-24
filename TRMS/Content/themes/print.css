@@ -1,0 +1,108 @@
+﻿
+.nyala-bold {
+    font-family: Nyala;
+    font-weight: bold;
+    font-size: 18px;
+    width: auto;
+    margin-left: 20px;
+    color: #80ccff;
+}
+
+.nyala-bold1 {
+    font-family: Nyala;
+    font-size: 14px;
+    width: auto;
+    margin-left: 130px;
+}
+
+.custom-hr {
+    border: 0;
+    height: 4px;
+    background-color: #0000b3; /* Green */
+    width: 100%;
+    margin: 20px 0;
+}
+
+
+table td {
+    padding: 10px; /* Reduce padding to 5px or any desired value */
+    font-family: Nyala;
+    font-size: 20px;
+    width: auto;
+    margin-left: 130px;
+}
+
+.voteform th {
+    text-decoration: underline;
+    padding: 4px;
+    font-family: Nyala;
+    font-weight: bold;
+    font-size: 20px;
+    width: auto;
+}
+
+.voteform1 td {
+    font-family: Nyala;
+    font-weight: bold;
+    font-size: 20px;
+    width: auto;
+    margin-left: 20px;
+}
+
+.rounded-input {
+    border: 1px solid #ccc; /* Border color */
+    border-radius: 8px; /* Rounded corners */
+    width: 100px; /* Width of the textbox */
+    height: 40px; /* height of the textbox */
+    font-size: 16px; /* Font size */
+}
+
+    .rounded-input:focus {
+        border-color: #4CAF50; /* Change border color on focus */
+    }
+
+.agenda {
+    text-decoration: underline;
+}
+
+.agenda1 td {
+    padding: 5px; /* Reduce padding to 5px or any desired value */
+    font-family: Nyala;
+    font-size: 18px;
+    width: auto;
+}
+
+.agendaform th {
+    text-decoration: underline;
+    padding: 5px;
+    font-family: Nyala;
+    font-weight: bold;
+    font-size: 18px;
+    border: 1px solid black;
+}
+
+.agndatable td {
+    border: 1px solid black;
+}
+
+@media print {
+    /* Styles specifically for printing */
+    body * {
+        visibility: hidden; /* Hide everything */
+    }
+
+    .print-area, .print-area * {
+        visibility: visible; /* Show the print area */
+    }
+
+    .print-area {
+        position: absolute; /* Remove from normal flow */
+        left: 0;
+        top: 0;
+    }
+    /* Optional: hide any buttons or navigation */
+    .no-print {
+        display: none;
+    }
+
+

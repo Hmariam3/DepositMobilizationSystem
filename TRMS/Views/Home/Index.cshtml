@@ -1,0 +1,295 @@
+﻿@{
+    ViewBag.Title = "Dashboard";
+}
+@{
+    var achievedPercent = @ViewBag.AssinedTargetdeposit != 0 ? (@ViewBag.achivedDeposit * 100) / @ViewBag.AssinedTargetdeposit : 0;
+    var remainingPercent = @ViewBag.AssinedTargetdeposit != 0 ? (@ViewBag.remaing * 100) / @ViewBag.AssinedTargetdeposit : 0;
+
+    var achievedPercentAgenet = @ViewBag.AssinedTargetAgent != 0 ? (@ViewBag.uniqueMerchantCount * 100) / @ViewBag.AssinedTargetAgent : 0;
+    var remainingPercentAgenet = @ViewBag.AssinedTargetAgent != 0 ? (@ViewBag.remaing1 * 100) / @ViewBag.AssinedTargetAgent : 0;
+
+    var achievedPercentFcy = @ViewBag.AssinedTargetFCY != 0 ? (@ViewBag.achivedDepositFCY * 100) / @ViewBag.AssinedTargetFCY : 0;
+    var remainingPercentFcy = @ViewBag.AssinedTargetFCY != 0 ? (@ViewBag.remaing2 * 100) / @ViewBag.AssinedTargetFCY : 0;
+
+}
+<style>
+    /* Global Styling */
+    body {
+        font-family: Arial, sans-serif;
+    }
+
+    /* Card Styling */
+    .dashboard-card {
+        height: 220px;
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Title Styling */
+    .dashboard-title {
+        font-weight: bold;
+        font-size: 20px;
+        padding-bottom: 5px;
+    }
+
+    /* Centering Numbers */
+    .dashboard-value {
+        font-weight: bold;
+        font-size: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+    hr {
+        width: 100%;
+        height: 0.1px;
+        background-color: #00AEEF;
+        margin-right: auto;
+        margin-left: auto;
+        margin-top: 10px;
+        margin-bottom: 5px;
+        border-width: 5px;
+        border-color: #00AEEF;
+    }
+    .alert-danger {
+        background-color: #dc3545 !important;
+        color: white;
+    }
+</style>
+
+<div class="container mt-4">
+    <!-- Header Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-lg mb-4 border-0 p-3">
+
+                <div class="card-body text-center">
+                    <h2 class="dashboard-title text-primary"> Deposit Progress</h2>
+                    <hr />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Panels -->
+    <div class="row text-center">
+        <!-- Your Target -->
+        <!-- Your Target -->
+        <div class="col-md-3">
+            <div class="card text-white bg-primary dashboard-card">
+                <div class="card-header dashboard-title"> Assigned Target</div>
+                <h1>@ViewBag.AssinedTargetdeposit.ToString("N2")</h1>
+
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-primary dashboard-card">
+                <div class="card-header dashboard-title"> Account Balance</div>
+                <h1>@ViewBag.acountBlance.ToString("N2")</h1>
+                <div class="card-header dashboard-title">Initial Account Balance </div>
+                <h1>@ViewBag.AaccountountIntial.ToString("N2")</h1>
+            </div>
+        </div>
+
+        <!-- Achieved Target -->
+        <div class="col-md-3">
+            <div class="card text-white bg-success dashboard-card">
+                <div class="card-header dashboard-title">Deposit Amount </div>
+                <h1>@ViewBag.achivedDeposit.ToString("N2")</h1>
+                <div class="card-header dashboard-title">Deposit Percentage</div>
+                <h1>@(achievedPercent.ToString("F2")) %</h1>
+
+
+
+            </div>
+        </div>
+
+        <!-- Achieved Target -->
+        <div class="col-md-3">
+            <div class="card text-white bg-success dashboard-card">
+                <div class="card-header dashboard-title">Remaining Amount</div>
+                <h1>@ViewBag.remaing.ToString("N2")</h1>
+                <div class="card-header dashboard-title">Remaining Percentage</div>
+                <h1>@(remainingPercent.ToString("F2")) %</h1>
+            </div>
+        </div>
+
+        <br />
+        <br />
+        <div class="col-md-3">
+            <div class="card text-white bg-success dashboard-card">
+                <div class="card-header dashboard-title">Deposit Percentage Relative to Branch</div>
+                <h1>@(ViewBag.avargaeUserProgressDeposit.ToString("F2")) %</h1>
+
+
+            </div>
+        </div>
+
+        <!-- Expected Remaining -->
+
+        <br />
+        <br />
+
+        <div class="row text-center mt-4">
+            <!-- Achieved Percentage -->
+            <div class="col-md-12" style="margin-top:100px;">
+
+                <div class="panel panel-default p-3">
+
+                    <div class="alert @ViewBag.MessageClass" role="alert">
+                        <strong>@ViewBag.MessageText</strong><br />
+                        <p>Target:@string.Format("{0:N0}", ViewBag.AssinedTargetdeposit) over 90 days</p>
+                        <p>Day: @ViewBag.DaysElapsed</p>
+                        <p>Expected by now: @ViewBag.Expected.ToString("N2")</p>
+                        <p>Collected: @ViewBag.Collected.ToString("N2")</p>
+                        <p>Progress: @ViewBag.ProgressPercent.ToString("F3")%</p>
+                    </div>
+                </div>
+
+            </div>
+            <!-- Remaining Percentage -->
+
+        </div>
+    </div>
+    <br />
+    <br />
+    <br />
+    <br />
+    <!-- Engagement  Panels -->
+    <div class="card-body text-center">
+        <h2 class="dashboard-title text-primary"> Your  Deposit  From Merchant</h2>
+        <hr />
+    </div>
+    <div class="row text-center">
+
+        <div class="col-md-3">
+            <div class="card text-white bg-primary dashboard-card">
+                <div class="card-header dashboard-title"> Assigned Target</div>
+                <div class="card-body dashboard-value">@ViewBag.AssinedTargetAgent</div>
+            </div>
+        </div>
+        <!-- Your Target -->
+        <div class="col-md-3">
+            <div class="card text-white bg-primary dashboard-card">
+                <div class="card-header dashboard-title"> Achived Merchant</div>
+                <h1>@ViewBag.uniqueMerchantCount </h1>
+                <div class="card-header dashboard-title">Initial Account Balance </div>
+                <h1>@ViewBag.AaccountountIntial.ToString("N2")</h1>
+            </div>
+        </div>
+
+        <!-- Achieved Target -->
+        <div class="col-md-3">
+            <div class="card text-white bg-success dashboard-card">
+                <div class="card-header dashboard-title">Collected Amount</div>
+                <h1>@ViewBag.achivedDepositAgenet</h1>
+                <div class="card-header dashboard-title">Deposit Percentage</div>
+                <h1>@(achievedPercentAgenet.ToString("F2")) %</h1>
+                <div class="card-header dashboard-title">Deposit Percentage Relative to Branch</div>
+                <h1>@(ViewBag.avargaeUserProgressMerchant.ToString("F2")) %</h1>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-warning dashboard-card">
+                <div class="card-header dashboard-title">Remaing amount</div>
+                <h1>@ViewBag.remaing1 </h1>
+                <div class="card-header dashboard-title">Remaining Percentage</div>
+                <h1>@(remainingPercentAgenet.ToString("F2")) %</h1>
+            </div>
+        </div>
+
+    </div>
+
+    <br />
+    <br />
+    <div class="row text-center mt-4">
+        <!-- Achieved Percentage -->
+        <div class="col-md-12" style="margin-top:100px;">
+
+            <div class="panel panel-default p-3">
+                <div class="alert @ViewBag.MessageClass1" role="alert">
+                    <strong>@ViewBag.MessageText1</strong><br />
+                    <p>Target: @ViewBag.AssinedTargetAgent over 90 days</p>
+                    <p>Day: @ViewBag.DaysElapsed</p>
+                    <p>Expected by now: @ViewBag.ExpectedAgent.ToString("N2")</p>
+                    <p>Collected: @ViewBag.CollectedAgent.ToString("N2")</p>
+                    <p>Progress: @ViewBag.progressPercentAgent.ToString("F3")%</p>
+                </div>
+            </div>
+
+        </div>
+        <!-- Remaining Percentage -->
+
+    </div>
+    <!-- Engagement  Panels -->
+    <div class="card-body text-center">
+        <h2 class="dashboard-title text-primary"> Your   Fcy Deposit  </h2>
+        <hr />
+    </div>
+    <div class="row text-center">
+        <!-- Your Target -->
+
+        <div class="col-md-3">
+            <div class="card text-white bg-primary dashboard-card">
+                <div class="card-header dashboard-title">Assigned Plan</div>
+                <div class="card-body dashboard-value">@ViewBag.AssinedTargetFCY</div>
+            </div>
+        </div>
+        @*<div class="col-md-3">
+            <div class="card text-white bg-primary dashboard-card">
+                <div class="card-header dashboard-title"> Fcy Deposit Plan</div>
+                <div class="card-body dashboard-value">@ViewBag.depositplanFCY</div>
+            </div>
+        </div>*@
+
+        <!-- Achieved Target -->
+        <div class="col-md-3">
+            <div class="card text-white bg-success dashboard-card">
+                <div class="card-header dashboard-title">Collected Amount</div>
+                <h1>@ViewBag.achivedDepositFCY </h1>
+                <div class="card-header dashboard-title">Fcy Deposit Percentage</div>
+                <h1>@(achievedPercentFcy.ToString("F2")) %</h1>
+                <div class="card-header dashboard-title">Deposit Percentage Relative to Branch</div>
+                <h1>@(ViewBag.avargaeUserProgressFcy.ToString("F2")) %</h1>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-warning dashboard-card">
+                <div class="card-header dashboard-title">Remaing amount</div>
+                <h1>@ViewBag.remaing2 </h1>
+                <div class="card-header dashboard-title">Remaining Percentage</div>
+                <h1>@(remainingPercentAgenet.ToString("F2")) %</h1>
+            </div>
+        </div>
+
+    </div>
+
+    <br />
+    <br />
+
+    <div class="row text-center mt-4">
+        <!-- Achieved Percentage -->
+        <div class="col-md-12" style="margin-top:100px;">
+
+            <div class="panel panel-default p-3">
+                <div class="alert @ViewBag.MessageClass2" role="alert">
+                    <strong>@ViewBag.MessageText2</strong><br />
+                    <p>Target: @ViewBag.AssinedTargetFCY over 90 days</p>
+                    <p>Day: @ViewBag.DaysElapsed</p>
+                    <p>Expected by now: @ViewBag.expectedFCY.ToString("N2")</p>
+                    <p>Collected: @ViewBag.CollectedFCY.ToString("N2")</p>
+                    <p>Progress: @ViewBag.progressPercentFCY.ToString("F3")%</p>
+                </div>
+            </div>
+
+        </div>
+        <!-- Remaining Percentage -->
+
+    </div>
+
+</div>

@@ -1,0 +1,65 @@
+﻿
+@model IEnumerable<TRMS.Models.TransactionReportViewModel>
+
+@{
+    ViewBag.Title = "Transaction Report";
+}
+
+<h2>Transaction Report For Information System Proccess</h2>
+
+
+<div class="panel panel-default" style="padding-left:10px;">
+    <div class="panel-heading">
+        <h3>User List</h3>
+    </div>
+    <table id="employeeDT" class="table table-striped">
+        <thead>
+            <tr>
+                <th>UserName</th>
+                <th>Full Name</th>
+                <th>Branch</th>
+                <th>Process</th>
+                <th>Total Transaction Amount</th>
+                <th>Target Amount</th>
+                <th>Amount Left</th>
+                <th>Percentage Achieved</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.UserName</td>
+                    <td>@item.FullName</td>
+                    <td>@item.Branch</td>
+                    <td>@item.Process</td>
+                    <td>@item.TotalTransactionAmount</td>
+                    <td>@item.TargetAmount</td>
+                    <td>@item.AmountLeft</td>
+                    <td>@item.PercentageAchieved</td>
+                    <td></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <a href="@Url.Action("ExportToExcel")" class="btn btn-success">Export to Excel</a>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#employeeDT').DataTable({
+            "paging": true,      // Enable pagination
+            "searching": true,   // Enable search box
+            "ordering": true,    // Enable sorting
+            "lengthMenu": [5, 10, 25, 50], // Page length options
+            "pageLength": 10,    // Default rows per page
+            "info": true,        // Show table info
+            "language": {
+                "search": "Search User:", // Customize search placeholder
+                "lengthMenu": "Show _MENU_ entries",
+                "info": "Showing _START_ to _END_ of _TOTAL_ User"
+            }
+        });
+    });
+</script>
+

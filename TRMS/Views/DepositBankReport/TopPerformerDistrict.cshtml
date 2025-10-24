@@ -1,0 +1,64 @@
+﻿@model IEnumerable<TRMS.Models.DistrictPlan>
+
+@{
+    ViewBag.Title = "TopPerformerDistrict";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>TopPerformerDistrict</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Deposit)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FCY)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.merchant)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.CreatedBy)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.CreatedDate)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.DistrictName)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Deposit)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.FCY)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.merchant)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.CreatedBy)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.CreatedDate)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.DistrictName)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.DId }) |
+            @Html.ActionLink("Details", "Details", new { id=item.DId }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.DId })
+        </td>
+    </tr>
+}
+
+</table>

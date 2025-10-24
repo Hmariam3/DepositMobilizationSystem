@@ -1,0 +1,107 @@
+﻿@model TRMS.Models.CombinedReportViewModel
+
+<h2>Deposit Plan Report</h2>
+<canvas id="planChart" width="1000" height="400"></canvas>
+
+<h2>Merchant Agent Report</h2>
+<canvas id="agentChart" width="1000" height="400"></canvas>
+<h2>Fcy Report</h2>
+<canvas id="FcyChart" width="1000" height="400"></canvas>
+<script src="~/Content/graph/chart.js"></script>
+<script>
+    // Deposit Plan Data
+    const planLabels = @Html.Raw(Json.Encode(Model.DepositPlanData.Select(x => x.Branch)));
+    const planBalances = @Html.Raw(Json.Encode(Model.DepositPlanData.Select(x => x.AmountCollected)));
+    const planTargets = @Html.Raw(Json.Encode(Model.DepositPlanData.Select(x => x.TotalTarget)));
+
+    const planCtx = document.getElementById('planChart').getContext('2d');
+    new Chart(planCtx, {
+        type: 'bar',
+        data: {
+            labels: planLabels,
+            datasets: [
+
+                {
+                    label: 'Target Amount',
+                    data: planTargets,
+                    backgroundColor: 'rgba(255, 206, 86, 0.6)'
+                },
+                 {
+                    label: 'Collected Amount',
+                    data: planBalances,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { title: { display: true, text: 'Deposit Plan per Branch' } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    // Merchant Agent Data
+    const agentLabels = @Html.Raw(Json.Encode(Model.DepositMerchantAgentData.Select(x => x.Branch)));
+    const agentBalances = @Html.Raw(Json.Encode(Model.DepositMerchantAgentData.Select(x => x.AmountCollected)));
+    const agentTargets = @Html.Raw(Json.Encode(Model.DepositMerchantAgentData.Select(x => x.TotalTarget)));
+
+    const agentCtx = document.getElementById('agentChart').getContext('2d');
+    new Chart(agentCtx, {
+        type: 'bar',
+        data: {
+            labels: agentLabels,
+            datasets: [
+
+                {
+                    label: 'Target Amount',
+                    data: agentTargets,
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)'
+                },
+                {
+                    label: 'Collected Amount',
+                    data: agentBalances,
+                    backgroundColor: 'rgba(153, 102, 255, 0.6)'
+                }
+
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { title: { display: true, text: 'Merchant Agent per Branch' } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+     // Fcy
+    const FcyLabels = @Html.Raw(Json.Encode(Model.Depositfcy.Select(x => x.Branch)));
+    const FcyBalances = @Html.Raw(Json.Encode(Model.Depositfcy.Select(x => x.AmountCollected)));
+    const FcyTargets = @Html.Raw(Json.Encode(Model.Depositfcy.Select(x => x.TotalTarget)));
+
+    const FcyCtx = document.getElementById('FcyChart').getContext('2d');
+    new Chart(FcyChart, {
+        type: 'bar',
+        data: {
+            labels: FcyLabels,
+            datasets: [
+
+                {
+                    label: 'Target Amount',
+                    data: FcyTargets,
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)'
+                },
+                {
+                    label: 'Collected Amount',
+                    data: FcyBalances,
+                    backgroundColor: 'rgba(153, 102, 255, 0.6)'
+                }
+
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { title: { display: true, text: 'Fcy per Branch' } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+
+</script>

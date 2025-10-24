@@ -1,0 +1,133 @@
+﻿@model IEnumerable<TRMS.Models.DepositMerchantAgenet>
+
+@{
+    ViewBag.Title = "Agent and Merchant by District";
+}
+
+<div class="panel panel-default" style="padding-left:10px;">
+    <div class="panel-heading">
+        <h4>Agent and Merchant by District</h4>
+    </div>
+    <hr />
+    <form method="get">
+        <div class="row">
+            <div class="col-md-3">
+                <label>Start Date:</label>
+                <input type="date" name="startDate" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label>End Date:</label>
+                <input type="date" name="endDate" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label>District:</label>
+                <select name="district" class="form-control">
+                    <option value="All">All</option>
+                    @foreach (var district in ViewBag.District)
+                    {
+                        <option value="@district">@district</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <br />
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a href="@Url.Action("BankAgenetReport")" class="btn btn-secondary">Reset</a>
+            </div>
+        </div>
+    </form>
+
+    <hr />
+    <table id="transactionDT" class="table table-striped">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayName("District")
+                </th>
+                <th>
+                    @Html.DisplayName("Branch")
+                </th>
+                <td>
+                    @Html.DisplayName("Link Account")
+                </td>
+                <th>
+                    @Html.DisplayName("Account Number")
+                </th>
+                <th>
+                    @Html.DisplayName("Account Holder")
+                </th>
+                <th>
+                    @Html.DisplayName("Account Balance")
+                </th>
+                <th>
+                    @Html.DisplayName("Target Amount")
+                </th>
+                <th>
+                    @Html.DisplayName("Maker")
+                </th>
+                <th>
+                    @Html.DisplayName("Tran Date")
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.District)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Branch)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.LinkAccount)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AccountNumber)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AccountHolder)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AccountBalance)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Target)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CreatedBY)
+                    </td>
+
+                    <td>@item.CreatedDate.ToString("MM/dd/yyyy")</td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+    <h2 class="btn btn-default">
+        Total Amount @ViewBag.totalAmount.ToString("N0")
+    </h2>
+    <hr />
+
+    <a href="@Url.Action("ExportBankAgenet", new { startDate = Request.QueryString["startDate"], endDate = Request.QueryString["endDate"], district = Request.QueryString["district"] })" class="btn btn-success">Export to Excel</a>
+
+</div>
+<script>
+        $(document).ready(function () {
+            $('#transactionDT').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "pageLength": 10,
+                "lengthMenu": [5, 10, 25, 50],
+                "language": {
+                    "search": "Search Transactions:",
+                    "lengthMenu": "Show _MENU_ entries",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ Transactions"
+                }
+            });
+        });
+</script>
+

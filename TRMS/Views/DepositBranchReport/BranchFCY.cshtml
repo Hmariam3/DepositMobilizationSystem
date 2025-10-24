@@ -1,0 +1,118 @@
+﻿@model IEnumerable<TRMS.Models.DepositFCY>
+@{
+    ViewBag.Title = "Fcy Deposit Report";
+}
+<div class="panel panel-default" style="padding-left:10px;">
+    <div class="panel-heading">
+        <h4> FCY Deposit  Report </h4>
+    </div>
+    <hr />
+    <form method="get">
+        <div class="row">
+            <div class="col-md-3">
+                <label>Start Date:</label>
+                <input type="date" name="startDate" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label>End Date:</label>
+                <input type="date" name="endDate" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <br />
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a href="@Url.Action("BranchFCY")" class="btn btn-secondary">Reset</a>
+            </div>
+        </div>
+    </form>
+
+    <hr />
+
+    <table id="transactionDT" class="table table-striped">
+        <thead>
+            <tr>
+
+                <th>
+                    @Html.DisplayName("District")
+                </th>
+                <th>
+                    @Html.DisplayName("Branch")
+                </th>
+
+                <th>
+                    @Html.DisplayName("Account Number")
+                </th>
+
+                <th>
+                    @Html.DisplayName("Refernce Number")
+                </th>
+                <th>
+                    @Html.DisplayName("Transaction Amount")
+                </th>
+                <th>
+                    @Html.DisplayName("Maker")
+                </th>
+                <th>
+                    @Html.DisplayName("Tran Date")
+                </th>
+                <th>Actions</th>
+                <th></th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.District)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Branch)
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AccountNumber)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.RefernceNumber)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TransactionAmount)
+                    </td>
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.User)
+                    </td>
+
+                    <td>@item.CreatedDate.ToString("MM/dd/yyyy")</td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+    <h2 class="btn btn-default">
+        Total Amount @ViewBag.totalAmount.ToString("N0")
+    </h2>
+    <hr />
+
+    <a href="@Url.Action("ExportDepositFcy", new { startDate = Request.QueryString["startDate"], endDate = Request.QueryString["endDate"] })" class="btn btn-success">Export to Excel</a>
+    @*<a href="@Url.Action("ExportToPdf", new { startDate = Request.QueryString["startDate"], endDate = Request.QueryString["endDate"] })" class="btn btn-danger">Export to PDF</a>*@
+</div>
+<script>
+        $(document).ready(function () {
+            $('#transactionDT').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "pageLength": 10,
+                "lengthMenu": [5, 10, 25, 50],
+                "language": {
+                    "search": "Search Transactions:",
+                    "lengthMenu": "Show _MENU_ entries",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ Transactions"
+                }
+            });
+        });
+</script>
+

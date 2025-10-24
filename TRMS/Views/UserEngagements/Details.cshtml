@@ -1,0 +1,50 @@
+﻿@model TRMS.Models.UserEngagement
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>UserEngagement</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Contacts)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Contacts)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Promise)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Promise)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Deposited)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Deposited)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TotalAmount)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TotalAmount)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
