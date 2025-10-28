@@ -33,6 +33,7 @@ namespace TRMS.Models
         public virtual DbSet<DepositMerchantAgenet> DepositMerchantAgenets { get; set; }
         public virtual DbSet<DepositPlan> DepositPlans { get; set; }
         public virtual DbSet<DistrictPlan> DistrictPlans { get; set; }
+        public virtual DbSet<ECO> ECOes { get; set; }
         public virtual DbSet<Fcy_Branch> Fcy_Branch { get; set; }
         public virtual DbSet<Postion> Postions { get; set; }
         public virtual DbSet<Process> Processes { get; set; }

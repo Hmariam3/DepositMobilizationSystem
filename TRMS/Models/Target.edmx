@@ -125,6 +125,15 @@
           <Property Name="CreatedBy" Type="nvarchar(max)" Nullable="false" />
           <Property Name="CreatedDate" Type="date" Nullable="false" />
         </EntityType>
+        <EntityType Name="ECO">
+          <Key>
+            <PropertyRef Name="EcoID" />
+          </Key>
+          <Property Name="EcoID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserName" Type="nvarchar(max)" />
+          <Property Name="AccountNumber" Type="nvarchar(max)" />
+          <Property Name="Branch" Type="nvarchar(max)" />
+        </EntityType>
         <EntityType Name="Fcy_Branch">
           <Key>
             <PropertyRef Name="ID" />
@@ -318,6 +327,7 @@
           <EntitySet Name="DepositMerchantAgenet" EntityType="Self.DepositMerchantAgenet" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DepositPlan" EntityType="Self.DepositPlan" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DistrictPlan" EntityType="Self.DistrictPlan" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ECO" EntityType="Self.ECO" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Fcy_Branch" EntityType="Self.Fcy_Branch" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Postion" EntityType="Self.Postion" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Process" EntityType="Self.Process" Schema="dbo" store:Type="Tables" />
@@ -485,6 +495,15 @@
           <Property Name="CreatedBy" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="0" />
           <NavigationProperty Name="BranchTargets" Relationship="Self.FK_BranchTarget_DistrictPlan" FromRole="DistrictPlan" ToRole="BranchTarget" />
+        </EntityType>
+        <EntityType Name="ECO">
+          <Key>
+            <PropertyRef Name="EcoID" />
+          </Key>
+          <Property Name="EcoID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="AccountNumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Branch" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="Fcy_Branch">
           <Key>
@@ -686,6 +705,7 @@
           <EntitySet Name="DepositMerchantAgenets" EntityType="Self.DepositMerchantAgenet" />
           <EntitySet Name="DepositPlans" EntityType="Self.DepositPlan" />
           <EntitySet Name="DistrictPlans" EntityType="Self.DistrictPlan" />
+          <EntitySet Name="ECOes" EntityType="Self.ECO" />
           <EntitySet Name="Fcy_Branch" EntityType="Self.Fcy_Branch" />
           <EntitySet Name="Postions" EntityType="Self.Postion" />
           <EntitySet Name="Processes" EntityType="Self.Process" />
@@ -853,6 +873,16 @@
                 <ScalarProperty Name="merchant" ColumnName="merchant" />
                 <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
                 <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ECOes">
+            <EntityTypeMapping TypeName="TRMSModel.ECO">
+              <MappingFragment StoreEntitySet="ECO">
+                <ScalarProperty Name="EcoID" ColumnName="EcoID" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+                <ScalarProperty Name="AccountNumber" ColumnName="AccountNumber" />
+                <ScalarProperty Name="Branch" ColumnName="Branch" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

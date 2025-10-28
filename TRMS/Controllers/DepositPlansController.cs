@@ -69,11 +69,15 @@ namespace TRMS.Controllers
                 DepositPlan = new DepositPlan()
             };
 
-            // Pass user list to dropdowns (for shared users)
+            // Fetch users from DB first, then format
             ViewBag.Users = db.Users
-                .Select(u => new SelectListItem { Text = u.UserName, Value = u.UserName })
+                .AsEnumerable() // switch to in-memory, allows string formatting
+                .Select(u => new SelectListItem
+                {
+                    Text = $"{u.FullName} ({u.UserName})",
+                    Value = u.UserName
+                })
                 .ToList();
-
             return View(model);
         }
 
@@ -90,6 +94,9 @@ namespace TRMS.Controllers
             PopulateUserDropdown(); // ✅ always load before any View return
 
             var depositPlan = vm.DepositPlan;
+
+          
+
             // Validate input model
             if (depositPlan == null || string.IsNullOrEmpty(depositPlan.AccountNumber))
             {
@@ -149,7 +156,6 @@ namespace TRMS.Controllers
                         return View(vm);
                     }
 
-
                     var transactionDoc = new XmlDocument();
                     transactionDoc.LoadXml(transactionResponse);
 
@@ -169,7 +175,6 @@ namespace TRMS.Controllers
 
                     // ✅ Select all transaction detail nodes
                     var transactionNodes = transactionDoc.SelectNodes("//S:Body/ns4:CBOTXNDETAILResponse/FTTTTXNDETAILType/ns3:gFTTTTXNDETAILDetailType/ns3:mFTTTTXNDETAILDetailType", transactionNsManager);
-
                     if (transactionNodes == null || transactionNodes.Count == 0)
                     {
                         ViewBag.ReferenceExists = false;
@@ -177,12 +182,18 @@ namespace TRMS.Controllers
                         return View(vm);
                     }
 
-                    // ✅ Extract all transaction details
+                    // ✅ Extract reference type
+                    string referenceNumber = depositPlan.ReferenceNumber?.Trim() ?? "";
+                    string refType = referenceNumber.Length >= 2 ? referenceNumber.Substring(0, 2).ToUpper() : "";
+                    bool isFT = refType == "FT";
+                    bool isTT = refType == "TT";
+                    //bool isTF = refType == "TF";
+                    bool isDC = refType == "DC";
+
                     var transactionDetails = new List<dynamic>();
                     string debitAccount = "";
                     string creditAccount = "";
-                    string debitAmount = "";
-                    string creditAmount = "";
+                    string amount = "";
                     string txnRef = "";
                     string currency = "";
                     string txnDate = "";
@@ -192,7 +203,7 @@ namespace TRMS.Controllers
                         var refValue = txnNode.SelectSingleNode("ns3:TXNREF", transactionNsManager)?.InnerText ?? "";
                         var marker = txnNode.SelectSingleNode("ns3:DRCRMARKER", transactionNsManager)?.InnerText ?? "";
                         var account = txnNode.SelectSingleNode("ns3:Account", transactionNsManager)?.InnerText ?? "";
-                        var amount = txnNode.SelectSingleNode("ns3:Amount", transactionNsManager)?.InnerText ?? "";
+                        var amt = txnNode.SelectSingleNode("ns3:Amount", transactionNsManager)?.InnerText ?? "";
                         var curr = txnNode.SelectSingleNode("ns3:Currency", transactionNsManager)?.InnerText ?? "";
                         var date = txnNode.SelectSingleNode("ns3:TXNDATE", transactionNsManager)?.InnerText ?? "";
 
@@ -201,65 +212,101 @@ namespace TRMS.Controllers
                             TXNREF = refValue,
                             DRCRMARKER = marker,
                             Account = account,
-                            Amount = amount,
+                            Amount = amt,
                             Currency = curr,
                             TXNDATE = date
                         });
 
-                        // Identify debit and credit accounts
-                        if (marker == "DEBIT")
+                        // Assign based on type
+                        if (isFT)
                         {
-                            debitAccount = account;
-                            debitAmount = amount;
-                        }
-                        else if (marker == "CREDIT")
-                        {
-                            creditAccount = account;
-                            creditAmount = amount;
-                        }
+                            // Identify debit and credit accounts
+                            if (marker == "DEBIT")
+                                debitAccount = account;
+                            else if (marker == "CREDIT")
+                                creditAccount = account;
 
-                        // Common fields
-                        txnRef = refValue;
-                        currency = curr;
-                        txnDate = date;
+                            // ✅ Capture amount: take whichever node has a non-empty value
+                            if (string.IsNullOrEmpty(amount) && !string.IsNullOrEmpty(amt))
+                                amount = amt;
+                            else if (!string.IsNullOrEmpty(amt))
+                                amount = amt; // overwrite only if current node has valid amount
+
+                            txnRef = refValue;
+                            currency = curr;
+                            txnDate = date;
+                        }
+                        else if (isTT)
+                        {
+                            // TT transactions have only one record
+                            debitAccount = "";
+                            creditAccount = account;
+                            amount = amt;
+                            txnRef = refValue;
+                            currency = curr;
+                            txnDate = date;
+                        }
+                        else if (isDC)
+                        {
+                            // TT transactions have only one record
+                            debitAccount = "";
+                            creditAccount = account;
+                            amount = amt;
+                            txnRef = refValue;
+                            currency = curr;
+                            txnDate = date;
+                        }
                     }
 
-                    // ✅ Example: display or pass to View
+                    // ✅ Populate ViewBag for UI
                     ViewBag.TransactionDetails = transactionDetails;
                     ViewBag.DebitAccount = debitAccount;
                     ViewBag.CreditAccount = creditAccount;
-                    ViewBag.DebitAmount = debitAmount;
-                    ViewBag.CreditAmount = creditAmount;
+                    ViewBag.TransactionAmount = amount;
                     ViewBag.TXNREF = txnRef;
                     ViewBag.Currency = currency;
                     ViewBag.TXNDATE = txnDate;
 
-                    // Optionally, pass to your View
-                    ViewBag.TransactionDetails = transactionDetails;
-
-
-                    // Validate account number match
-                    if (accountNo != creditAccount)
+                    // ✅ Validate account number
+                    if ((isFT) && accountNo != creditAccount)
                     {
+                        TempData["AccountMismatch"] = true;
                         ViewBag.ReferenceExists = false;
                         TempData["ErrorMessage"] = "Account number from transaction details does not match the provided account number.";
                         return View(vm);
                     }
+                    else if (isTT && accountNo != creditAccount)
+                    {
+                        TempData["AccountMismatch"] = true;
+                        ViewBag.ReferenceExists = false;
+                        TempData["ErrorMessage"] = "Account number does not match transaction account for TT reference.";
+                        return View(vm);
+                    }
+                    else if (isDC && accountNo != creditAccount)
+                    {
+                        TempData["AccountMismatch"] = true;
+                        ViewBag.ReferenceExists = false;
+                        TempData["ErrorMessage"] = "Account number does not match transaction account for DC reference.";
+                        return View(vm);
+                    }
+                    else
+                    {
+                        TempData["AccountMismatch"] = false;
+                    }
 
-                    // Parse transaction amount
-                    var amountMatch = Regex.Match(debitAmount, @"\d+(\.\d+)?");
-                    debitAmount = amountMatch.Success ? amountMatch.Value : "Not Found";
+                    // ✅ Extract numeric value of amount
+                    var amountMatch = Regex.Match(amount, @"\d+(\.\d+)?");
+                    amount = amountMatch.Success ? amountMatch.Value : "Not Found";
 
-                    // Store transaction details in ViewBag
+                    // ✅ Set success info
                     ViewBag.ReferenceExists = true;
-                    ViewBag.TransactionAmount = debitAmount;
-                    ViewBag.Currency = currency;
+                    ViewBag.TransactionAmount = amount;
                     ViewBag.TransactionReference = txnRef;
 
-
-                    //ViewBag.TransactionAmount = 5000;
+                    // Populate dropdowns and return
                     PopulateUserDropdown();
                     return View(vm);
+
                 }
                 catch (XmlException ex)
                 {
@@ -293,6 +340,7 @@ namespace TRMS.Controllers
                 }
             }
 
+
             if (submit == "Save")
             {
                 var userName = Session["UserName"]?.ToString();
@@ -303,43 +351,128 @@ namespace TRMS.Controllers
                     return RedirectToAction("Login", "User");
                 }
 
-                // ✅ Handle "Individual" deposit
-                if (vm.DepositType == "Individual")
+                // --- Guard: vm.DepositPlan must exist ---
+                if (vm.DepositPlan == null)
                 {
-                    depositPlan.User = userName;
-                    depositPlan.UserID = user.ID;
-                    depositPlan.Process = Session["Process"]?.ToString() ?? "";
-                    depositPlan.District = Session["District"]?.ToString() ?? "";
-                    depositPlan.Branch = Session["UserHomeBranch"]?.ToString() ?? "";
-                    depositPlan.CreatedDate = DateTime.Now;
-
-                    db.DepositPlans.Add(depositPlan);
+                    TempData["ErrorMessage"] = "Deposit plan data is missing.";
+                    return View(vm);
                 }
-                else if (vm.DepositType == "Shared")
+                // --- Guard: vm.DepositPlan must exist ---
+                if (vm.DepositPlan.Amount == null || vm.DepositPlan.Amount <= 0)
                 {
-                    // ✅ Save up to 3 shared users (but same UserID)
-                    var sharedUsers = new List<(string username, decimal? amount)>
-                            {
-                                (vm.SharedUser1, vm.SharedAmount1),
-                                (vm.SharedUser2, vm.SharedAmount2),
-                                (vm.SharedUser3, vm.SharedAmount3)
-                            }.Where(x => !string.IsNullOrEmpty(x.username) && x.amount.HasValue && x.amount.Value > 0)
-                                     .ToList();
+                    TempData["ErrorMessage"] = "Invalid Amount.";
+                    return View(vm);
+                }
 
-                    // Ensure at least 2 users sharing
+                //var depositPlan = vm.DepositPlan;
+
+                // --- Read checkbox safely (HTML sends "true,false" if unchecked) ---
+                bool isShared = vm.ShareDeposit; // Always reliable now
+                if (depositPlan.DepositType == "Branch")
+                {
+                    depositPlan.DepositType = "Branch";
+                }
+                else
+                {
+                    depositPlan.DepositType = "Individual";
+                }
+
+                if (!isShared)
+                {
+                    // Single deposit (Individual or Branch)
+                    var ecoAccount = db.ECOes.FirstOrDefault(e => e.AccountNumber == depositPlan.AccountNumber);
+                    var depositorBranch = Session["UserHomeBranch"]?.ToString() ?? "";
+
+                    if (ecoAccount != null && !string.Equals(ecoAccount.Branch, depositorBranch, StringComparison.OrdinalIgnoreCase))
+                    {
+                        // The account belongs to another branch — split 60/40
+                        var depositorAmount = depositPlan.Amount * 0.6m;
+                        var ecoBranchAmount = depositPlan.Amount * 0.4m;
+
+                        // 1️⃣ 60% for depositor
+                        var depositorDeposit = new DepositPlan
+                        {
+                            AccountNumber = depositPlan.AccountNumber,
+                            ReferenceNumber = depositPlan.ReferenceNumber,
+                            AccountHolder = depositPlan.AccountHolder ?? "Unknown",
+                            Amount = depositorAmount,
+                            AccountBalance = depositPlan.AccountBalance,
+                            IntialAccountBalance = depositPlan.AccountBalance,
+                            Process = Session["Process"]?.ToString() ?? "",
+                            District = Session["District"]?.ToString() ?? "",
+                            Branch = depositorBranch,
+                            Narative = "(Auto-share) ECO",
+                            User = userName,
+                            UserID = user.ID,
+                            CreatedDate = DateTime.Now,
+                            DepositType = depositPlan.DepositType
+                        };
+                        db.DepositPlans.Add(depositorDeposit);
+
+                        // 2️⃣ 40% for ECO branch owner
+                        var ecoUser = db.Users.FirstOrDefault(u => u.UserName == ecoAccount.UserName);
+                        var ecoDeposit = new DepositPlan
+                        {
+                            AccountNumber = depositPlan.AccountNumber,
+                            ReferenceNumber = depositPlan.ReferenceNumber,
+                            AccountHolder = depositPlan.AccountHolder ?? "Unknown",
+                            Amount = ecoBranchAmount,
+                            AccountBalance = depositPlan.AccountBalance,
+                            IntialAccountBalance = depositPlan.AccountBalance,
+                            Process = ecoUser?.Process ?? "",
+                            District = ecoUser?.District ?? "",
+                            Branch = ecoAccount.Branch,
+                            Narative = "(Auto-share) ECO",
+                            User = ecoAccount.UserName,
+                            UserID = user.ID,
+                            CreatedDate = DateTime.Now,
+                            DepositType = depositPlan.DepositType
+                        };
+                        db.DepositPlans.Add(ecoDeposit);
+                    }
+                    else
+                    {
+                        // Normal deposit — same branch or not in ECO
+                        depositPlan.User = userName;
+                        depositPlan.UserID = user.ID;
+                        depositPlan.Process = Session["Process"]?.ToString() ?? "";
+                        depositPlan.District = Session["District"]?.ToString() ?? "";
+                        depositPlan.Branch = depositorBranch;
+                        depositPlan.IntialAccountBalance = depositPlan.AccountBalance;
+                        depositPlan.CreatedDate = DateTime.Now;
+
+                        db.DepositPlans.Add(depositPlan);
+                    }
+                }
+                else
+                {
+                    // ✅ Shared deposit validation
+                    var sharedUsers = new List<(string username, decimal? amount)>
+                        {
+                            (vm.SharedUser1, vm.SharedAmount1),
+                            (vm.SharedUser2, vm.SharedAmount2),
+                            (vm.SharedUser3, vm.SharedAmount3)
+                        }
+                    .Where(x => !string.IsNullOrWhiteSpace(x.username) && x.amount.GetValueOrDefault() > 0)
+                    .ToList();
+
                     if (sharedUsers.Count < 2)
                     {
                         TempData["ErrorMessage"] = "Please select at least two users for shared deposit.";
                         return View(vm);
                     }
 
+                    var totalSharedAmount = sharedUsers.Sum(x => x.amount.GetValueOrDefault());
+                    if (totalSharedAmount > depositPlan.Amount)
+                    {
+                        TempData["ErrorMessage"] = $"Total shared amount ({totalSharedAmount:N2}) exceeds the deposit amount ({depositPlan.Amount:N2}).";
+                        return View(vm);
+                    }
+
                     foreach (var (sharedUserName, sharedAmount) in sharedUsers)
                     {
-                        //  Fetch the actual shared user from DB
                         var sharedUser = db.Users.FirstOrDefault(u => u.UserName == sharedUserName);
-
-                        if (sharedUser == null)
-                            continue; // or handle error if you prefer strict validation
+                        if (sharedUser == null) continue;
 
                         var dp = new DepositPlan
                         {
@@ -354,7 +487,8 @@ namespace TRMS.Controllers
                             Branch = sharedUser.Branch ?? "",
                             Narative = depositPlan.Narative ?? "",
                             User = sharedUser.UserName,
-                            UserID = user.ID, // main recorder (logged-in user)
+                            UserID = user.ID,
+                            DepositType = depositPlan.DepositType,
                             CreatedDate = DateTime.Now
                         };
 
@@ -362,193 +496,45 @@ namespace TRMS.Controllers
                     }
                 }
 
-                db.SaveChanges();
-                TempData["SuccessMessage"] = "Deposit saved successfully!";
+                try
+                {
+                    if (TempData["AccountMismatch"] != null && (bool)TempData["AccountMismatch"] == true)
+                    {
+                        // 🧠 Keep the flag for next request (since TempData clears after reading)
+                        TempData.Keep("AccountMismatch");
+                        TempData["ErrorMessage"] = "Cannot save — account number mismatch detected. Please revalidate.";
+                        return View(vm);
+                    }
+
+                    db.SaveChanges();
+                    TempData["SuccessMessage"] = "Deposit saved successfully!";
+                }
+                catch (Exception ex)
+                {
+                    TempData["ErrorMessage"] = "Failed to save: " + ex.Message;
+                    return View(vm);
+                }
+
                 return RedirectToAction("Create");
             }
-
-
             TempData["ErrorMessage"] = "Invalid data provided. Please check the form.";
+
+            // Fetch users from DB first, then format
+            ViewBag.Users = db.Users
+                .AsEnumerable() // switch to in-memory, allows string formatting
+                .Select(u => new SelectListItem
+                {
+                    Text = $"{u.FullName} ({u.UserName})",
+                    Value = u.UserName
+                })
+                .ToList();
             return View(vm);
         }
 
 
 
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Create(DepositPlan depositPlan, string submit)
-        //{
-        //    if (depositPlan == null)
-        //    {
-        //        TempData["errorRes"] = "Invalid Transaction Data!";
-        //        return View(depositPlan);
-        //    }
-        //    if (depositPlan.AccountNumber ==null)
-        //    {
-        //        TempData["errorRes"] = "Please Account Number!";
-        //        return View(depositPlan);
-        //    }
 
-        //    if (submit.Equals("Validate"))
-        //    {
-        //        string xmlResponse = soapServiceHelper.GetAccountBalance(depositPlan.AccountNumber);
-        //        XmlDocument xmlDoc = new XmlDocument();
-        //        xmlDoc.LoadXml(xmlResponse); 
-        //        XmlNamespaceManager nsManager = new XmlNamespaceManager(xmlDoc.NameTable);
-        //        nsManager.AddNamespace("S", "http://schemas.xmlsoap.org/soap/envelope/");
-        //        nsManager.AddNamespace("ns11", "http://temenos.com/TWSMMT");
-        //        nsManager.AddNamespace("ns7", "http://temenos.com/ACCTBALCTS");
-
-        //        // Check the success status from the XML
-        //        var statusNode = xmlDoc.SelectSingleNode("//S:Body/ns11:MMTACCTBALANCEResponse/Status/successIndicator", nsManager);
-
-        //        if (statusNode != null && statusNode.InnerText == "Success")
-        //        {
-        //            var accountNode = xmlDoc.SelectSingleNode("//S:Body/ns11:MMTACCTBALANCEResponse/ACCTBALCTSType/ns7:gACCTBALCTSDetailType/ns7:mACCTBALCTSDetailType", nsManager);
-
-        //            if (accountNode != null)
-        //            {
-        //                // Check if the child nodes are not null before accessing their InnerText
-        //                var accountNoNode = accountNode.SelectSingleNode("ns7:AcctNo", nsManager);
-        //                string accountNo = accountNoNode != null ? accountNoNode.InnerText : "Account Number Not Found";
-        //                //string amount = accountNoNode.SelectSingleNode("ns2:Amount", nsManager)?.InnerText ?? "Not Found";
-
-        //                var accountNameNode = accountNode.SelectSingleNode("ns7:Name", nsManager);
-        //                string accountName = accountNameNode != null ? accountNameNode.InnerText : "Account Name Not Found";
-
-
-        //                var workingBalNode = accountNode.SelectSingleNode("ns7:WorkingBal", nsManager);
-        //                string workingBal = workingBalNode != null ? workingBalNode.InnerText : "Working Balance Not Found";
-        //                workingBal = workingBal.Replace(",", string.Empty);
-
-        //                //amount = Regex.Match(amount ?? "", @"\d+(\.\d+)?").Value;
-
-        //                ViewBag.AccountHolder = accountName;
-        //                ViewBag.AccountBalance = workingBal;
-        //                //ViewBag.Amount = amount;
-
-        //                bool refEXist = false;
-        //                // from core system refrenece
-        //                string xmlResponserref= callbyRefrence.GetAccountinformationByrefrence(depositPlan.ReferenceNumber); // Your method here
-        //                XmlDocument xmlDocref = new XmlDocument();
-        //                xmlDoc.LoadXml(xmlResponserref);
-
-        //                XmlNamespaceManager nsManagerref = new XmlNamespaceManager(xmlDocref.NameTable);
-        //                nsManagerref.AddNamespace("S", "http://schemas.xmlsoap.org/soap/envelope/");
-        //                nsManagerref.AddNamespace("ns2", "http://temenos.com/FTTTTXNDETAIL");
-        //                nsManagerref.AddNamespace("ns3", "http://temenos.com/TWSTXNDETAIL");
-
-        //                // Check if the call was successful
-        //                var statusNoderef = xmlDocref.SelectSingleNode("//S:Body/ns3:FTTTTXNDETAILResponse/Status/successIndicator", nsManagerref);
-        //                if (statusNoderef != null && statusNoderef.InnerText == "Success")
-        //                {
-        //                    var detailNode = xmlDocref.SelectSingleNode("//S:Body/ns3:FTTTTXNDETAILResponse/FTTTTXNDETAILType/ns2:gFTTTTXNDETAILDetailType/ns2:mFTTTTXNDETAILDetailType", nsManagerref);
-        //                    if (detailNode != null)
-        //                    {
-        //                        string txnRef = detailNode.SelectSingleNode("ns2:TXNREF", nsManagerref)?.InnerText ?? "Not Found";
-        //                        string drcrMarker = detailNode.SelectSingleNode("ns2:DRCRMARKER", nsManagerref)?.InnerText ?? "Not Found";
-        //                        string account = detailNode.SelectSingleNode("ns2:Account", nsManagerref)?.InnerText ?? "Not Found";
-        //                        string amount = detailNode.SelectSingleNode("ns2:Amount", nsManagerref)?.InnerText ?? "Not Found";
-        //                        string currency = detailNode.SelectSingleNode("ns2:Currency", nsManagerref)?.InnerText ?? "Not Found";
-
-        //                        amount = Regex.Match(amount ?? "", @"\d+(\.\d+)?").Value;
-
-        //                        ViewBag.TransactionAmount = amount;
-        //                        ViewBag.Currency = currency;
-        //                        refEXist = true;
-        //                        ViewBag.refEXist = refEXist;
-
-        //                    }
-        //                    else
-        //                    {
-        //                        refEXist = false;
-        //                        ViewBag.refEXist = refEXist;
-        //                        TempData["errorRes"] = "Transaction details not found.";
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    refEXist = false;
-        //                    ViewBag.refEXist = refEXist;
-        //                    TempData["errorRes"] = "Failed To Retrieve Transaction Detail or Invalide  RefernceNumber or Not Found.";
-        //                }
-
-        //                //ViewBag.TransactionAmount = 5000;
-        //            }
-        //            else
-        //            {
-
-        //                TempData["errorRes"] = "Account details not found in the XML response.";
-        //            }
-        //        }
-        //        else
-        //        {
-
-        //            TempData["errorRes"]  = "Failed to retrieve account details or status not 'Success'.";
-        //        }
-
-        //        return View(depositPlan);
-        //    }
-        //    var accountNumberExist = db.DepositPlans.Where(t => t.AccountNumber.Trim() == depositPlan.AccountNumber.Trim()).ToList();
-        //    if (accountNumberExist.Count() >= 1)
-        //    {
-        //        // Ensure transaction is not null before accessing ReferenceNumber
-        //        string createdBy = db.DepositPlans
-        //            .Where(u => u.AccountNumber == depositPlan.AccountNumber)
-        //            .FirstOrDefault()?.User ?? string.Empty;  // Default to empty string if null
-
-        //        string phoneNumber = db.Users
-        //            .Where(u => u.UserName == createdBy)
-        //            .FirstOrDefault()?.PhoneNumber ?? string.Empty;  // Default to empty string if null
-
-        //        TempData["errorRes"] = "Account Number  duplication!" + "Registerd BY " + createdBy + "  " + "And  Phone Number is " + phoneNumber;
-        //        return View(depositPlan);
-        //    }
-        //    else
-        //    {
-
-        //        if (ModelState.IsValid)
-        //        {
-        //            depositPlan.User = Session["UserName"].ToString();
-        //            var userName = Session["UserName"]?.ToString();
-        //            if (!string.IsNullOrEmpty(userName))
-        //            {
-        //                var user = db.Users.FirstOrDefault(u => u.UserName == userName);
-        //                if (user != null)
-        //                {
-        //                    depositPlan.UserID = user.ID;
-        //                }
-        //                else
-        //                {
-        //                    // Handle case where user is not found
-        //                    // e.g., throw an error, redirect, or set a default value
-        //                }
-        //            }
-        //            else
-        //            {
-        //                return RedirectToAction("login", "User");
-        //            }
-
-        //            depositPlan.District = Session["District"].ToString();
-        //            depositPlan.IntialAccountBalance= depositPlan.AccountBalance;
-        //            depositPlan.AccountBalance = depositPlan.AccountBalance;
-        //            depositPlan.Branch = Session["UserHomeBranch"].ToString();
-        //            depositPlan.CreatedDate = DateTime.Now;
-        //            db.DepositPlans.Add(depositPlan);
-        //            db.SaveChanges();
-
-        //            TempData["successRes"] = "Transaction saved successfully!";
-
-        //            ModelState.Clear();
-        //            depositPlan = new DepositPlan(); // Reinitialize model
-
-        //            return View();
-        //        }
-        //    }
-        //    return View(depositPlan);
-
-        //}
 
         // GET: DepositPlans/Edit/5
         public ActionResult Edit(int? id)

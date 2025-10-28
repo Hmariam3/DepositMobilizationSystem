@@ -22,5 +22,7 @@ namespace TRMS.Models
 
         public string SharedUser3 { get; set; }
         public decimal? SharedAmount3 { get; set; }
+
+        public bool ShareDeposit { get; set; } // <-- NEW
     }
 }

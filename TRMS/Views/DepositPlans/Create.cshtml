@@ -4,8 +4,7 @@
     ViewBag.Title = "Create Deposit Plan";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <style type="text/css">
     hr {
         width: 100%;
@@ -46,6 +45,50 @@
         background-color: #333;
         color: white;
     }
+
+
+    /* Ensure Select2 matches Bootstrap form-control */
+    .select2-container--bootstrap-5 .select2-selection {
+        height: calc(2rem + 2px); /* Same as form-control height */
+        padding: 0rem 0.3rem;
+        border: 1px solid #ced4da !important; /* Visible border */
+        border-radius: 0.375rem; /* Same as Bootstrap */
+        font-size: 0.95rem;
+    }
+
+    /* Align text vertically */
+    .select2-container--bootstrap-5 .select2-selection__rendered {
+        line-height: 2.2rem !important;
+    }
+
+    /* Adjust arrow position */
+    .select2-container--bootstrap-5 .select2-selection__arrow {
+        height: 100% !important;
+        top: 0.5rem !important;
+    }
+
+    /* Scrollable dropdown results */
+    .select2-results__options {
+        max-height: 200px !important; /* Adjust scroll height */
+        overflow-y: auto !important;
+    }
+    /* Position the clear 'x' button to the right */
+    .select2-container--bootstrap-5 .select2-selection__clear {
+        position: absolute;
+        right: 2.2rem; /* keep space before arrow */
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1rem;
+        color: #6c757d;
+        cursor: pointer;
+        opacity: 0.7;
+    }
+
+        /* Hover effect for better UX */
+        .select2-container--bootstrap-5 .select2-selection__clear:hover {
+            color: #dc3545;
+            opacity: 1;
+        }
 </style>
 
 <div class="panel panel-default">
@@ -114,24 +157,50 @@
                     <div class="form-group col-md-5">
                         <label class="control-label col-md-5">Amount</label>
                         <div class="col-md-7">
-                            @Html.EditorFor(model => model.DepositPlan.Amount, new { htmlAttributes = new { @class = "form-control", @Value = ViewBag.DebitAmount, @readonly = "readonly" } })
+                            @Html.EditorFor(model => model.DepositPlan.Amount, new { htmlAttributes = new { @class = "form-control", @Value = ViewBag.TransactionAmount, @readonly = "readonly" } })
                             @*@Html.ValidationMessageFor(model => model.DepositPlan.Amount, "", new { @class = "text-danger" })*@
                         </div>
                     </div>
                 </div>
 
                 <div class="row">
-                    <div class="form-group col-md-5">
-                        <label class="control-label col-md-5">Deposit Type</label>
-                        <div class="col-md-7">
-                            @Html.DropDownListFor(m => m.DepositType,
-                                new SelectList(new[] { "Individual", "Shared" }),
-                                "Select Type",
-                                new { @class = "form-control", id = "DepositTypeDropdown" })
 
+
+                    <!-- Share Deposit Checkbox (visible by default) -->
+                    <!-- Always-posted hidden checkbox -->
+                    @Html.CheckBoxFor(m => m.ShareDeposit, new { id = "ShareDepositCheckbox", style = "position:absolute; left:-9999px;" })
+
+                    <!-- Visible checkbox -->
+                    <div class="form-group col-md-5" id="shareCheckboxWrapper">
+                        <label class="control-label col-md-5">&nbsp;</label>
+                        <div class="col-md-7">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" id="ShareDepositCheckboxVisible" />
+                                    Share Deposit
+                                </label>
+                            </div>
                         </div>
                     </div>
+                    @if (Session["Position"].ToString() == "BranchManager")
+                    {
+                        <!-- Deposit Type -->
+                        <div class="form-group col-md-5">
+                            <label class="control-label col-md-5">Deposit Type</label>
+                            <div class="col-md-7">
+                                @Html.DropDownListFor(
+                                    m => m.DepositPlan.DepositType,
+                                    new SelectList(new[] { "Individual", "Branch" }),
+                                    "Select Deposit For",
+                                    new { @class = "form-control", id = "DepositTypeSelect" })
+                            </div>
+                        </div>
+                    }
+
+
+
                 </div>
+
 
                 <div id="sharedSection" style="display:none;">
                     <h4>Shared Users</h4>
@@ -155,6 +224,8 @@
                         </div>
                     }
                 </div>
+                <div id="sharedAmountWarning" style="color:red; font-weight:bold; display:none; margin-left:15px;">
+                </div>
 
                 <div class="form-group">
                     <div class="col-md-offset-2 col-md-10">
@@ -167,83 +238,185 @@
     </div>
 </div>
 
+
 @section Scripts {
     @Styles.Render("~/Content/cssjqryUi")
     @Scripts.Render("~/bundles/jqueryui")
     <script src="~/Content/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            //// hide initially
-            //$('#sharedSection').hide();
-            // Deposit Type toggle
-            $('#DepositTypeDropdown').on('change', function () {
-                var selected = $(this).val();
-                if (selected === "Shared") {
-                    $('#sharedSection').slideDown(300);
-                } else {
-                    $('#sharedSection').slideUp(300);
-                }
-            });
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
 
-                    // Initialize Select2 for shared user dropdowns
+    <script>
+    $(document).ready(function () {
+
+        // ------------------------------------------------------------------
+        // 1. HIDDEN model-bound checkbox (always posted)
+        // ------------------------------------------------------------------
+        // @Html.CheckBoxFor(m => m.ShareDeposit, new { id = "ShareDepositCheckbox", style = "position:absolute; left:-9999px;" })
+        // This is rendered outside the visible wrapper but always in DOM
+
+        // ------------------------------------------------------------------
+        // 2. VISIBLE checkbox (user sees this)
+        // ------------------------------------------------------------------
+        // <input type="checkbox" id="ShareDepositCheckboxVisible" />
+
+        // Sync visible checkbox with hidden model-bound one
+        $('#ShareDepositCheckboxVisible').on('change', function () {
+            var isChecked = this.checked;
+            $('#ShareDepositCheckbox').prop('checked', isChecked);
+
+            if (isChecked) {
+                $('#sharedSection').slideDown(300);
+            } else {
+                clearSharedSection();
+                $('#sharedSection').slideUp(300);
+            }
+        });
+
+        // Sync hidden → visible on page load (e.g., edit form)
+        if ($('#ShareDepositCheckbox').is(':checked')) {
+            $('#ShareDepositCheckboxVisible').prop('checked', true);
+            $('#sharedSection').show();
+        }
+
+        // ------------------------------------------------------------------
+        // 3. Control visibility of Share Deposit checkbox based on Deposit Type
+        // ------------------------------------------------------------------
+        function updateShareCheckboxVisibility() {
+            var depositType = $('#DepositTypeSelect').val();
+
+            if (depositType === 'Branch') {
+                $('#shareCheckboxWrapper').fadeOut(200);
+                $('#ShareDepositCheckbox').prop('checked', false);
+                $('#ShareDepositCheckboxVisible').prop('checked', false);
+                clearSharedSection();
+                $('#sharedSection').slideUp(300);
+            } else {
+                $('#shareCheckboxWrapper').fadeIn(200);
+            }
+        }
+
+        $('#DepositTypeSelect').on('change', updateShareCheckboxVisibility);
+        updateShareCheckboxVisibility(); // Run on load
+
+        // ------------------------------------------------------------------
+        // 4. Initialize Select2 for shared user dropdowns (SEARCHABLE)
+        // ------------------------------------------------------------------
         @for (int i = 1; i <= 3; i++)
         {
             <text>
-                $('#SharedUser@i').select2({
-                    placeholder: 'Select User',
-                    allowClear: true,
-                    width: '100%'
-                });
+            $('#SharedUser@i').select2({
+                placeholder: 'Select User',
+                allowClear: true,
+                width: '100%'
+            });
             </text>
         }
 
+        // ------------------------------------------------------------------
+        // 5. Clear all fields in #sharedSection
+        // ------------------------------------------------------------------
+        function clearSharedSection() {
+            $('#sharedSection').find('select, input').each(function () {
+                var $el = $(this);
+                if ($el.is('select')) {
+                    $el.val('').trigger('change'); // Clear Select2
+                } else if ($el.is(':checkbox,:radio')) {
+                    $el.prop('checked', false);
+                } else {
+                    $el.val('');
+                }
+            });
+        }
 
+        // ------------------------------------------------------------------
+        // 6. Form submit validation (only if checkbox is checked)
+        // ------------------------------------------------------------------
+        $('input[name="submit"][value="Save"]').prop('disabled', sumShared > depositAmount || sumShared === 0);
 
-        // Validate shared amount sum on Save
-        $('form').submit(function (e) {
-            var depositAmount = parseFloat($('#DepositPlan_Amount').val()) || 0;
+        $('form').on('submit', function (e) {
+            if (!$('#ShareDepositCheckbox').is(':checked')) {
+                return true; // Skip validation when not shared
+            }
+
+            // Read the main amount (convert formatted or empty to 0)
+            var depositAmount = parseFloat($('#DepositPlan_Amount').val().replace(/,/g, '')) || 0;
             var sumShared = 0;
 
+            // Calculate total of shared amounts
             for (var i = 1; i <= 3; i++) {
                 var amt = parseFloat($('input[name="SharedAmount' + i + '"]').val()) || 0;
                 sumShared += amt;
             }
 
-            if ($('#DepositTypeDropdown').val() === "Shared" && sumShared > depositAmount) {
-                alert('The sum of all shared amounts cannot exceed the main Amount.');
-                return false; // prevent form submission
+            if (sumShared > depositAmount) {
+                alert('❌ The sum of shared user amounts (' + sumShared.toFixed(2) + ') cannot exceed the main deposit amount (' + depositAmount.toFixed(2) + ').');
+                e.preventDefault();
+                return false;
+            }
+
+            if (sumShared === 0) {
+                alert('Please assign at least one shared amount greater than 0.');
+                e.preventDefault();
+                return false;
+            }
+
+            return true;
+        });
+
+        // ------------------------------------------------------------------
+        // Live real-time validation and visual feedback
+        // ------------------------------------------------------------------
+        $('input[name^="SharedAmount"]').on('input', function () {
+            var depositAmount = parseFloat($('#DepositPlan_Amount').val().replace(/,/g, '')) || 0;
+            var sumShared = 0;
+
+            for (var i = 1; i <= 3; i++) {
+                sumShared += parseFloat($('input[name="SharedAmount' + i + '"]').val()) || 0;
+            }
+
+            var $warning = $('#sharedAmountWarning');
+
+            if (sumShared > depositAmount) {
+                $('input[name^="SharedAmount"]').css('border', '2px solid red');
+                $warning.text('⚠️ The total shared amount (' + sumShared.toFixed(2) + ') exceeds the main deposit amount (' + depositAmount.toFixed(2) + ').')
+                    .fadeIn(200);
+            } else if (sumShared === 0) {
+                $('input[name^="SharedAmount"]').css('border', '');
+                $warning.text('Please enter at least one valid shared amount.').fadeIn(200);
+            } else {
+                $('input[name^="SharedAmount"]').css('border', '');
+                $warning.fadeOut(200);
             }
         });
 
-            // Datepicker for date fields
-            $('input[type=datetime]').datepicker({
-                dateFormat: "dd/M/yy",
-                changeMonth: true,
-                changeYear: true,
-                yearRange: "1950:+1"
-            });
 
-            // Toggle TransactionBranch visibility based on Channel selection
-            function toggleTransactionBranch() {
-                var selectedValue = $("#ChannalDropdown").val();
-                $("#TransactionBranchDiv").toggle(selectedValue === "Branch");
-            }
-
-            // Toggle CollectionDetails visibility based on CollectionType selection
-            function toggleTransactionCollect() {
-                var selectedValue = $("#CollectedDropdown").val();
-                $("#CollctionTypeDiv").toggle(selectedValue === "Joint");
-            }
-
-            // Initialize on page load
-            toggleTransactionBranch();
-            toggleTransactionCollect();
-
-
-
-            // Bind change events
-            $("#ChannalDropdown").change(toggleTransactionBranch);
-            $("#CollectedDropdown").change(toggleTransactionCollect);
+        // ------------------------------------------------------------------
+        // 7. Datepicker & other unrelated toggles
+        // ------------------------------------------------------------------
+        $('input[type=datetime]').datepicker({
+            dateFormat: "dd/M/yy",
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "1950:+1"
         });
+
+        function toggleTransactionBranch() {
+            var selectedValue = $("#ChannalDropdown").val();
+            $("#TransactionBranchDiv").toggle(selectedValue === "Branch");
+        }
+
+        function toggleTransactionCollect() {
+            var selectedValue = $("#CollectedDropdown").val();
+            $("#CollctionTypeDiv").toggle(selectedValue === "Joint");
+        }
+
+        toggleTransactionBranch();
+        toggleTransactionCollect();
+
+        $("#ChannalDropdown").change(toggleTransactionBranch);
+        $("#CollectedDropdown").change(toggleTransactionCollect);
+    });
     </script>
 }

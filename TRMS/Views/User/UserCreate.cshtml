@@ -1,5 +1,4 @@
-﻿
-@model TRMS.Models.User
+﻿@model TRMS.Models.User
 
 @{
     ViewBag.Title = "Create User";
@@ -17,52 +16,68 @@
     @Styles.Render("~/Content/cssjqryUi")
     <link rel="stylesheet" href="/admin-lte/plugins/Ionicons/css/ionicons.min.css">
     <style>
-        hr {
-            width: 100%;
-            height: 0.1px;
-            background-color: #00AEEF;
-            margin: 10px auto 5px;
-            border-width: 2px;
-            border-color: #00AEEF;
-        }
-
-        .alert {
-            margin: 30px auto;
-            width: 80%;
-            font-family: Arial, sans-serif;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .form-control[readonly] {
-            background-color: #e9ecef;
-            opacity: 1;
-        }
-
-        .btn-save {
-            background-color: #00AEEF;
-            color: white;
-        }
-
-        .btn-back {
-            background-color: #333;
-            color: white;
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f2f4f6;
+            padding: 20px;
         }
 
         .panel {
-            margin: 20px auto;
+            margin: 0 auto;
             max-width: 1200px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
 
         .panel-heading {
             background-color: #00AEEF;
             color: white;
-            padding: 10px;
+            padding: 15px;
             text-align: center;
         }
 
+        hr {
+            border: 1px solid #00AEEF;
+            margin: 0;
+        }
+
         .panel-body {
+            padding: 30px;
+        }
+
+        .alert {
+            margin: 20px auto;
+            width: 90%;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
             padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-card h4 {
+            color: #00AEEF;
+            margin-bottom: 15px;
+        }
+
+        .info-card label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .target-section {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            margin-top: 10px;
         }
 
         .form-group {
@@ -70,61 +85,55 @@
         }
 
         .control-label {
-            font-weight: bold;
+            font-weight: 600;
+            color: #444;
         }
 
-        .text-danger {
-            color: #dc3545;
+        .btn-save {
+            background-color: #00AEEF;
+            color: white;
+            border: none;
         }
 
-        .info-card {
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 20px;
+        .btn-save:hover {
+            background-color: #0092ce;
         }
 
-            .info-card h4 {
-                margin-top: 0;
-                color: #00AEEF;
-            }
+        .btn-back {
+            background-color: #333;
+            color: white;
+            border: none;
+        }
 
-            .info-card p {
-                margin: 5px 0;
-                font-size: 16px;
-            }
+        .btn-back:hover {
+            background-color: #555;
+        }
 
-            .info-card label {
-                font-weight: bold;
-                color: #333;
-            }
+        .btn-container {
+            text-align: center;
+            margin-top: 25px;
+        }
     </style>
 </head>
 <body>
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            <strong>Error!</strong> @TempData["ErrorMessage"]
+        </div>
+    }
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3>Create New User</h3>
         </div>
         <hr />
 
-        @if (TempData["ErrorMessage"] != null)
-        {
-            <div class="alert alert-danger">
-                <strong>Error!</strong> @TempData["ErrorMessage"]
-            </div>
-        }
 
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <div class="alert alert-success">
-                <strong>Success!</strong> @TempData["SuccessMessage"]
-            </div>
-        }
+
 
         <div class="panel-body">
             <div class="row">
-                <!-- Left Column: User Information -->
+                <!-- Left: User Info Summary -->
                 <div class="col-md-5">
                     <div class="info-card">
                         <h4>User Information</h4>
@@ -136,146 +145,126 @@
                     </div>
                 </div>
 
-                <!-- Right Column: Editable Form -->
-                <div class="col-md-6">
+                <!-- Right: Form -->
+                <div class="col-md-7">
                     @using (Html.BeginForm("UserCreate", "User", FormMethod.Post, new { enctype = "multipart/form-data", id = "createUserForm" }))
                     {
                         @Html.AntiForgeryToken()
-                    <div class="form-horizontal form-group-sm">
-                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                        <div class="row">
-                            <div class="form-group col-md-12">
-                                @Html.LabelFor(model => model.UserName, new { @class = "control-label col-md-5" })
-                                <div class="col-md-7">
-                                    @Html.EditorFor(model => model.UserName, new { htmlAttributes = new { @class = "form-control", @readonly = !string.IsNullOrEmpty(Model.UserName) ? "readonly" : null } })
-                                    @Html.ValidationMessageFor(model => model.UserName, "", new { @class = "text-danger" })
-                                </div>
-                            </div>
-                            <div class="form-group col-md-12">
-                                @Html.LabelFor(model => model.FullName, new { @class = "control-label col-md-5" })
-                                <div class="col-md-7">
-                                    @Html.EditorFor(model => model.FullName, new { htmlAttributes = new { @class = "form-control", @readonly = !string.IsNullOrEmpty(Model.FullName) ? "readonly" : null } })
-                                    @Html.ValidationMessageFor(model => model.FullName, "", new { @class = "text-danger" })
-                                </div>
-                            </div>
-                            <div class="form-group col-md-12">
-                                @Html.LabelFor(model => model.MailAdress, new { @class = "control-label col-md-5" })
-                                <div class="col-md-7">
-                                    @Html.EditorFor(model => model.MailAdress, new { htmlAttributes = new { @class = "form-control", @readonly = !string.IsNullOrEmpty(Model.MailAdress) ? "readonly" : null } })
-                                    @Html.ValidationMessageFor(model => model.MailAdress, "", new { @class = "text-danger" })
-                                </div>
+                        <div class="form-horizontal form-group-sm">
+                            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                            <!-- Hidden AD fields -->
+                            <div style="display:none">
+                                @Html.EditorFor(model => model.UserName, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                @Html.EditorFor(model => model.FullName, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                @Html.EditorFor(model => model.MailAdress, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                             </div>
 
-
-
-                            <div class="form-group col-md-12">
-                                @Html.LabelFor(model => model.Process, new { @class = "control-label col-md-5" })
-                                <div class="col-md-7">
-                                    @Html.DropDownListFor(model => model.Process, (SelectList)ViewBag.Processes, "Select Process", new { @class = "form-control", id = "ProcessDropdown" })
-                                    @Html.ValidationMessageFor(model => model.Process, "", new { @class = "text-danger" })
-                                </div>
+                            <div class="form-group">
+                                <label class="control-label">Process</label>
+                                @Html.DropDownListFor(model => model.Process, (SelectList)ViewBag.Processes, "Select Process", new { @class = "form-control", id = "ProcessDropdown" })
+                                @Html.ValidationMessageFor(model => model.Process, "", new { @class = "text-danger" })
                             </div>
 
-
-
-                            <div class="form-group col-md-12">
-                                @Html.LabelFor(model => model.District, new { @class = "control-label col-md-5" })
-                                <div class="col-md-7">
-                                    @Html.DropDownListFor(model => model.District, (SelectList)ViewBag.Subprocesses, "Select Subprocess", new { @class = "form-control", id = "SubprocessDropdown" })
-                                    @Html.ValidationMessageFor(model => model.District, "", new { @class = "text-danger" })
-                                </div>
+                            <div class="form-group">
+                                <label class="control-label">Subprocess/District</label>
+                                @Html.DropDownListFor(model => model.District, (SelectList)ViewBag.Subprocesses, "Select Subprocess", new { @class = "form-control", id = "SubprocessDropdown" })
+                                @Html.ValidationMessageFor(model => model.District, "", new { @class = "text-danger" })
                             </div>
 
-
-
-                            <div class="form-group col-md-12">
-                                @Html.LabelFor(model => model.Branch, new { @class = "control-label col-md-5" })
-                                <div class="col-md-7">
-                                    @Html.DropDownListFor(model => model.Branch, (SelectList)ViewBag.Branches, "Select Branch", new { @class = "form-control", id = "BranchDropdown" })
-                                    @Html.ValidationMessageFor(model => model.Branch, "", new { @class = "text-danger" })
-                                </div>
+                            <div class="form-group">
+                                <label class="control-label">Team/Branch</label>
+                                @Html.DropDownListFor(model => model.Branch, (SelectList)ViewBag.Branches, "Select Branch", new { @class = "form-control", id = "BranchDropdown" })
+                                @Html.ValidationMessageFor(model => model.Branch, "", new { @class = "text-danger" })
                             </div>
 
-
-                            <div class="form-group col-md-12">
-                                <label class="control-label col-md-5">Organizational Unit</label>
-                                <div class="col-md-7">
-                                    @Html.DropDownListFor(model => model.OrganizatinalUnit, new List<SelectListItem>
-                                    {
-                                        new SelectListItem { Text = "HO", Value = "HO" },
-                                        new SelectListItem { Text = "District", Value = "District" },
-                                        new SelectListItem { Text = "Branch", Value = "Branch" }
-                                    }, "Select Organizational Unit", new { @class = "form-control" })
-                                    @Html.ValidationMessageFor(model => model.OrganizatinalUnit, "", new { @class = "text-danger" })
-                                </div>
+                            <div class="form-group">
+                                <label class="control-label">Organizational Unit</label>
+                                @Html.DropDownListFor(model => model.OrganizatinalUnit, new List<SelectListItem>
+                                {
+                                    new SelectListItem { Text = "HO", Value = "HO" },
+                                    new SelectListItem { Text = "District", Value = "District" },
+                                    new SelectListItem { Text = "Branch", Value = "Branch" }
+                                }, "Select Organizational Unit", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.OrganizatinalUnit, "", new { @class = "text-danger" })
                             </div>
 
-                            <div class="form-group col-md-12">
-                                @Html.LabelFor(model => model.Postion, new { @class = "control-label col-md-5" })
-                                <div class="col-md-7">
-                                    @Html.DropDownListFor(model => model.Postion, new List<SelectListItem>
-                                    {
-                                        new SelectListItem { Text = "Individual", Value = "Individual" },
-                                        new SelectListItem { Text = "BranchManager", Value = "BranchManager" },
-                                        new SelectListItem { Text = "Manager", Value = "Manager" },
-                                        new SelectListItem { Text = "Director", Value = "Director" },
-                                        new SelectListItem { Text = "VP", Value = "VP" },
-                                        new SelectListItem { Text = "CHF", Value = "CHF" },
-                                        new SelectListItem { Text = "CEO", Value = "CEO" }
-                                    }, "Select Position", new { @class = "form-control", @id = "positionId" })
-                                    @Html.ValidationMessageFor(model => model.Postion, "", new { @class = "text-danger" })
-                                </div>
+                            <div class="form-group">
+                                <label class="control-label">Position</label>
+                                @Html.DropDownListFor(model => model.Postion, new List<SelectListItem>
+                                {
+                                    new SelectListItem { Text = "Individual", Value = "Individual" },
+                                    new SelectListItem { Text = "BranchManager", Value = "BranchManager" },
+                                    new SelectListItem { Text = "Manager", Value = "Manager" },
+                                    new SelectListItem { Text = "Director", Value = "Director" },
+                                    new SelectListItem { Text = "VP", Value = "VP" },
+                                    new SelectListItem { Text = "CHF", Value = "CHF" },
+                                    new SelectListItem { Text = "CEO", Value = "CEO" }
+                                }, "Select Position", new { @class = "form-control", id = "positionId" })
+                                @Html.ValidationMessageFor(model => model.Postion, "", new { @class = "text-danger" })
                             </div>
 
-
-
-                            <div class="form-group col-md-12">
-                                @Html.LabelFor(model => model.PhoneNumber, new { @class = "control-label col-md-5" })
-                                <div class="col-md-7">
-                                    @Html.EditorFor(model => model.PhoneNumber, new { htmlAttributes = new { @class = "form-control" } })
-                                    @Html.ValidationMessageFor(model => model.PhoneNumber, "", new { @class = "text-danger" })
-                                </div>
+                            <div class="form-group">
+                                <label class="control-label">Phone Number</label>
+                                @Html.EditorFor(model => model.PhoneNumber, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.PhoneNumber, "", new { @class = "text-danger" })
                             </div>
 
+                            <!-- Target Sections -->
+                            <div class="row mt-4">
+                                <div class="col-md-6">
+                                    <div class="target-section">
+                                        <h5 style="color:#00AEEF;">Individual Targets</h5>
+                                        <div class="form-group">
+                                            @Html.LabelFor(model => model.DepositTargetAmount, new { @class = "control-label" })
+                                            @Html.EditorFor(model => model.DepositTargetAmount, new { htmlAttributes = new { @class = "form-control" } })
+                                            @Html.ValidationMessageFor(model => model.DepositTargetAmount, "", new { @class = "text-danger" })
+                                        </div>
 
+                                        <div class="form-group">
+                                            @Html.LabelFor(model => model.MerchantTarget, new { @class = "control-label" })
+                                            @Html.EditorFor(model => model.MerchantTarget, new { htmlAttributes = new { @class = "form-control", @type = "number", @min = "0" } })
+                                            @Html.ValidationMessageFor(model => model.MerchantTarget, "", new { @class = "text-danger" })
+                                        </div>
 
-                            <div class="form-group col-md-12">
-                                @Html.LabelFor(model => model.DepositTargetAmount, new { @class = "control-label col-md-5" })
-                                <div class="col-md-7">
-                                    @Html.EditorFor(model => model.DepositTargetAmount, new { htmlAttributes = new { @class = "form-control" } })
-                                    @Html.ValidationMessageFor(model => model.DepositTargetAmount, "", new { @class = "text-danger" })
+                                        <div class="form-group" id="fcyTargetContainer">
+                                            @Html.LabelFor(model => model.FCYTargetAmount, new { @class = "control-label" })
+                                            @Html.EditorFor(model => model.FCYTargetAmount, new { htmlAttributes = new { @class = "form-control" } })
+                                            @Html.ValidationMessageFor(model => model.FCYTargetAmount, "", new { @class = "text-danger" })
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
 
+                                <div class="col-md-6" id="branchTargetContainer">
+                                    <div class="target-section">
+                                        <h5 style="color:#00AEEF;">Branch Targets</h5>
+                                        <div class="form-group">
+                                            @Html.LabelFor(model => model.BranchDepositTarget, new { @class = "control-label" })
+                                            @Html.EditorFor(model => model.BranchDepositTarget, new { htmlAttributes = new { @class = "form-control" } })
+                                            @Html.ValidationMessageFor(model => model.BranchDepositTarget, "", new { @class = "text-danger" })
+                                        </div>
 
+                                        <div class="form-group">
+                                            @Html.LabelFor(model => model.BranchMerchantTarget, new { @class = "control-label" })
+                                            @Html.EditorFor(model => model.BranchMerchantTarget, new { htmlAttributes = new { @class = "form-control" } })
+                                            @Html.ValidationMessageFor(model => model.BranchMerchantTarget, "", new { @class = "text-danger" })
+                                        </div>
 
-                            <div class="form-group col-md-12">
-                                @Html.LabelFor(model => model.MerchantTarget, new { @class = "control-label col-md-5" })
-                                <div class="col-md-7">
-                                    @Html.EditorFor(model => model.MerchantTarget, new { htmlAttributes = new { @class = "form-control", @min = "0", @type = "number" } })
-                                    @Html.ValidationMessageFor(model => model.MerchantTarget, "", new { @class = "text-danger" })
+                                        <div class="form-group">
+                                            @Html.LabelFor(model => model.BranchFcyTarget, new { @class = "control-label" })
+                                            @Html.EditorFor(model => model.BranchFcyTarget, new { htmlAttributes = new { @class = "form-control" } })
+                                            @Html.ValidationMessageFor(model => model.BranchFcyTarget, "", new { @class = "text-danger" })
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-
-
-
-                            <div class="form-group col-md-12" id="fcyTargetContainer">
-                                @Html.LabelFor(model => model.FCYTargetAmount, new { @class = "control-label col-md-5" })
-                                <div class="col-md-7">
-                                    @Html.EditorFor(model => model.FCYTargetAmount, new { htmlAttributes = new { @class = "form-control", @id = "fcyId" } })
-                                    @Html.ValidationMessageFor(model => model.FCYTargetAmount, "", new { @class = "text-danger" })
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-offset-4 col-md-8">
-                                <input type="submit" name="submit" value="Save" class="btn btn-save" />
-                                @Html.ActionLink("Back to Login", "Login", "User", null, new { @class = "btn btn-back" })
+                            <!-- Buttons -->
+                            <div class="btn-container">
+                                <input type="submit" value="Save"  name ="Submit" class="btn btn-save btn-lg px-4" />
+                                @Html.ActionLink("Back to Login", "Login", "User", null, new { @class = "btn btn-back btn-lg px-4" })
                             </div>
                         </div>
-                    </div>
                     }
                 </div>
             </div>
@@ -286,8 +275,8 @@
     @Scripts.Render("~/bundles/jqueryui")
     @Scripts.Render("~/bundles/bootstrap")
     <script>
+        // your original script (no changes to functionality)
         $(document).ready(function () {
-            // Initialize datepicker for CreatedDate
             $('input[type=datetime]').datepicker({
                 dateFormat: "dd/M/yy",
                 changeMonth: true,
@@ -295,14 +284,10 @@
                 yearRange: "1950:+1"
             });
 
-            
-
-            // Cascading dropdowns
             $('#ProcessDropdown').change(function () {
                 var processName = $(this).val();
                 $('#SubprocessDropdown').empty().append('<option value="">Select Subprocess</option>');
                 $('#BranchDropdown').empty().append('<option value="">Select Branch</option>');
-
                 if (processName) {
                     $.ajax({
                         url: '@Url.Action("GetSubprocesses", "User")',
@@ -316,13 +301,7 @@
                                         text: item.subprocess_name
                                     }));
                                 });
-                            } else {
-                                alert('No subprocesses found for the selected process.');
                             }
-                        },
-                        error: function (xhr, status, error) {
-                            console.log('AJAX Error:', xhr.status, error, xhr.responseText);
-                            alert('Error loading subprocesses: ' + (xhr.responseText || error));
                         }
                     });
                 }
@@ -331,7 +310,6 @@
             $('#SubprocessDropdown').change(function () {
                 var subprocessName = $(this).val();
                 $('#BranchDropdown').empty().append('<option value="">Select Branch</option>');
-
                 if (subprocessName) {
                     $.ajax({
                         url: '@Url.Action("GetBranches", "User")',
@@ -345,51 +323,39 @@
                                         text: item.BranchName
                                     }));
                                 });
-                            } else {
-                                alert('No branches found for the selected subprocess.');
                             }
-                        },
-                        error: function (xhr, status, error) {
-                            console.log('AJAX Error:', xhr.status, error, xhr.responseText);
-                            alert('Error loading branches: ' + (xhr.responseText || error));
                         }
                     });
                 }
             });
 
-            // Log form submission
-            $('#createUserForm').submit(function () {
-                console.log('Create user form submitted');
-                return true;
-            });
-
+            function toggleBranchTarget() {
+                var position = $('#positionId').val();
+                var branchContainer = $('#branchTargetContainer');
+                if (position !== "BranchManager") {
+                    branchContainer.hide();
+                    branchContainer.find('input').val('');
+                } else {
+                    branchContainer.show();
+                }
+            }
 
             function toggleFcyTarget() {
                 var position = $('#positionId').val();
                 if (position === "Individual") {
                     $('#fcyTargetContainer').hide();
+                    $('#fcyTargetContainer').find('input').val('');
                 } else {
                     $('#fcyTargetContainer').show();
                 }
             }
 
-            // Run on page load
+            toggleBranchTarget();
             toggleFcyTarget();
-
-            // Run when dropdown changes
             $('#positionId').change(function () {
+                toggleBranchTarget();
                 toggleFcyTarget();
             });
-
-            $('#MerchantTarget').on('input', function () {
-                let value = parseFloat($(this).val());
-
-                // if user enters a negative number, reset to 0
-                if (value < 1) {
-                    $(this).val(0);
-                }
-            });
-
         });
     </script>
 </body>

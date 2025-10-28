@@ -81,173 +81,224 @@ namespace TRMS.Controllers
                 return View(depositMerchantAgenet);
             }
 
-            if (submit.Equals("Validate"))
+            if (!string.IsNullOrEmpty(depositMerchantAgenet.ReferenceNumber) && submit == "Validate")
             {
-                string xmlResponse = soapServiceHelper.GetAccountBalance(depositMerchantAgenet.AccountNumber);
-                XmlDocument xmlDoc = new XmlDocument();
-                xmlDoc.LoadXml(xmlResponse);
-                XmlNamespaceManager nsManager = new XmlNamespaceManager(xmlDoc.NameTable);
-                nsManager.AddNamespace("S", "http://schemas.xmlsoap.org/soap/envelope/");
-                nsManager.AddNamespace("ns11", "http://temenos.com/TWSMMT");
-                nsManager.AddNamespace("ns7", "http://temenos.com/ACCTBALCTS");
-
-                // Check the success status from the XML
-                var statusNode = xmlDoc.SelectSingleNode("//S:Body/ns11:MMTACCTBALANCEResponse/Status/successIndicator", nsManager);
-
-                if (statusNode != null && statusNode.InnerText == "Success")
+                try
                 {
-                    var accountNode = xmlDoc.SelectSingleNode("//S:Body/ns11:MMTACCTBALANCEResponse/ACCTBALCTSType/ns7:gACCTBALCTSDetailType/ns7:mACCTBALCTSDetailType", nsManager);
-
-                    if (accountNode != null)
+                    // Fetch and parse account balance
+                    var balanceResponse = soapServiceHelper.GetAccountBalance(depositMerchantAgenet.AccountNumber);
+                    if (string.IsNullOrEmpty(balanceResponse))
                     {
-                        // Check if the child nodes are not null before accessing their InnerText
-                        var accountNoNode = accountNode.SelectSingleNode("ns7:AcctNo", nsManager);
-                        string accountNo = accountNoNode != null ? accountNoNode.InnerText : "Account Number Not Found";
+                        TempData["ErrorMessage"] = "Failed to retrieve account balance.";
+                        return View(depositMerchantAgenet);
+                    }
 
-                        var accountNameNode = accountNode.SelectSingleNode("ns7:Name", nsManager);
-                        string accountName = accountNameNode != null ? accountNameNode.InnerText : "Account Name Not Found";
+                    var balanceDoc = new XmlDocument();
+                    balanceDoc.LoadXml(balanceResponse);
+                    var nsManager = new XmlNamespaceManager(balanceDoc.NameTable);
+                    nsManager.AddNamespace("S", "http://schemas.xmlsoap.org/soap/envelope/");
+                    nsManager.AddNamespace("ns11", "http://temenos.com/TWSMMT");
+                    nsManager.AddNamespace("ns7", "http://temenos.com/ACCTBALCTS");
 
-                        var workingBalNode = accountNode.SelectSingleNode("ns7:WorkingBal", nsManager);
-                        string workingBal = workingBalNode != null ? workingBalNode.InnerText : "Working Balance Not Found";
-                        workingBal = workingBal.Replace(",", string.Empty);
-                        ViewBag.AccountHolder = accountName;
-                        ViewBag.AccountBalance = workingBal;
+                    // Check balance API status
+                    var statusNode = balanceDoc.SelectSingleNode("//S:Body/ns11:MMTACCTBALANCEResponse/Status/successIndicator", nsManager);
+                    if (statusNode?.InnerText != "Success")
+                    {
+                        TempData["ErrorMessage"] = "Failed to retrieve account details or invalid account number.";
+                        return View(depositMerchantAgenet);
+                    }
 
+                    // Extract account details
+                    var accountNode = balanceDoc.SelectSingleNode("//S:Body/ns11:MMTACCTBALANCEResponse/ACCTBALCTSType/ns7:gACCTBALCTSDetailType/ns7:mACCTBALCTSDetailType", nsManager);
+                    if (accountNode == null)
+                    {
+                        TempData["ErrorMessage"] = "Account details not found in the response.";
+                        return View(depositMerchantAgenet);
+                    }
+
+                    var accountNo = accountNode.SelectSingleNode("ns7:AcctNo", nsManager)?.InnerText ?? "Account Number Not Found";
+                    var accountName = accountNode.SelectSingleNode("ns7:Name", nsManager)?.InnerText ?? "Account Name Not Found";
+                    var workingBalance = accountNode.SelectSingleNode("ns7:WorkingBal", nsManager)?.InnerText.Replace(",", "") ?? "Working Balance Not Found";
+
+                    // Store account details in ViewBag
+                    ViewBag.AccountHolder = accountName;
+                    ViewBag.AccountBalance = workingBalance;
+
+                    // Fetch and parse transaction details by reference
+                    var transactionResponse = callbyReference.GetAccountinformationByrefrence(depositMerchantAgenet.ReferenceNumber);
+                    if (string.IsNullOrEmpty(transactionResponse))
+                    {
+                        ViewBag.ReferenceExists = false;
+                        TempData["ErrorMessage"] = "Failed to retrieve transaction details or invalid reference number.";
+                        return View(depositMerchantAgenet);
+                    }
+
+                    var transactionDoc = new XmlDocument();
+                    transactionDoc.LoadXml(transactionResponse);
+
+                    var transactionNsManager = new XmlNamespaceManager(transactionDoc.NameTable);
+                    transactionNsManager.AddNamespace("S", "http://schemas.xmlsoap.org/soap/envelope/");
+                    transactionNsManager.AddNamespace("ns3", "http://temenos.com/FTTTTXNDETAIL");
+                    transactionNsManager.AddNamespace("ns4", "http://temenos.com/TWSTXNDETAIL");
+
+                    // ✅ Check transaction API status
+                    var transactionStatusNode = transactionDoc.SelectSingleNode("//S:Body/ns4:CBOTXNDETAILResponse/Status/successIndicator", transactionNsManager);
+                    if (transactionStatusNode?.InnerText != "Success")
+                    {
+                        ViewBag.ReferenceExists = false;
+                        TempData["ErrorMessage"] = "Transaction reference not found or invalid.";
+                        return View(depositMerchantAgenet);
+                    }
+
+                    // ✅ Select all transaction detail nodes
+                    var transactionNodes = transactionDoc.SelectNodes("//S:Body/ns4:CBOTXNDETAILResponse/FTTTTXNDETAILType/ns3:gFTTTTXNDETAILDetailType/ns3:mFTTTTXNDETAILDetailType", transactionNsManager);
+                    if (transactionNodes == null || transactionNodes.Count == 0)
+                    {
+                        ViewBag.ReferenceExists = false;
+                        TempData["ErrorMessage"] = "No transaction details found in the response.";
+                        return View(depositMerchantAgenet);
+                    }
+
+                    // ✅ Extract reference type
+                    string referenceNumber = depositMerchantAgenet.ReferenceNumber?.Trim() ?? "";
+                    string refType = referenceNumber.Length >= 2 ? referenceNumber.Substring(0, 2).ToUpper() : "";
+                    bool isFT = refType == "FT";
+                    bool isTT = refType == "TT";
+                    //bool isTF = refType == "TF";
+                    bool isDC = refType == "DC";
+
+                    var transactionDetails = new List<dynamic>();
+                    string debitAccount = "";
+                    string creditAccount = "";
+                    string amount = "";
+                    string txnRef = "";
+                    string currency = "";
+                    string txnDate = "";
+
+                    foreach (XmlNode txnNode in transactionNodes)
+                    {
+                        var refValue = txnNode.SelectSingleNode("ns3:TXNREF", transactionNsManager)?.InnerText ?? "";
+                        var marker = txnNode.SelectSingleNode("ns3:DRCRMARKER", transactionNsManager)?.InnerText ?? "";
+                        var account = txnNode.SelectSingleNode("ns3:Account", transactionNsManager)?.InnerText ?? "";
+                        var amt = txnNode.SelectSingleNode("ns3:Amount", transactionNsManager)?.InnerText ?? "";
+                        var curr = txnNode.SelectSingleNode("ns3:Currency", transactionNsManager)?.InnerText ?? "";
+                        var date = txnNode.SelectSingleNode("ns3:TXNDATE", transactionNsManager)?.InnerText ?? "";
+
+                        transactionDetails.Add(new
+                        {
+                            TXNREF = refValue,
+                            DRCRMARKER = marker,
+                            Account = account,
+                            Amount = amt,
+                            Currency = curr,
+                            TXNDATE = date
+                        });
+
+                        // Assign based on type
+                        if (isFT)
+                        {
+                            // Identify debit and credit accounts
+                            if (marker == "DEBIT")
+                                debitAccount = account;
+                            else if (marker == "CREDIT")
+                                creditAccount = account;
+
+                            // ✅ Capture amount: take whichever node has a non-empty value
+                            if (string.IsNullOrEmpty(amount) && !string.IsNullOrEmpty(amt))
+                                amount = amt;
+                            else if (!string.IsNullOrEmpty(amt))
+                                amount = amt; // overwrite only if current node has valid amount
+
+                            txnRef = refValue;
+                            currency = curr;
+                            txnDate = date;
+                        }
+                        else if (isTT)
+                        {
+                            // TT transactions have only one record
+                            debitAccount = "";
+                            creditAccount = account;
+                            amount = amt;
+                            txnRef = refValue;
+                            currency = curr;
+                            txnDate = date;
+                        }
+                        else if (isDC)
+                        {
+                            // TT transactions have only one record
+                            debitAccount = "";
+                            creditAccount = account;
+                            amount = amt;
+                            txnRef = refValue;
+                            currency = curr;
+                            txnDate = date;
+                        }
+                    }
+
+                    // ✅ Populate ViewBag for UI
+                    ViewBag.TransactionDetails = transactionDetails;
+                    ViewBag.DebitAccount = debitAccount;
+                    ViewBag.CreditAccount = creditAccount;
+                    ViewBag.TransactionAmount = amount;
+                    ViewBag.TXNREF = txnRef;
+                    ViewBag.Currency = currency;
+                    ViewBag.TXNDATE = txnDate;
+
+                    // ✅ Validate account number
+                    if ((isFT) && accountNo != creditAccount)
+                    {
+                        TempData["AccountMismatch"] = true;
+                        ViewBag.ReferenceExists = false;
+                        TempData["ErrorMessage"] = "Account number from transaction details does not match the provided account number.";
+                        return View(depositMerchantAgenet);
+                    }
+                    else if (isTT && accountNo != creditAccount)
+                    {
+                        TempData["AccountMismatch"] = true;
+                        ViewBag.ReferenceExists = false;
+                        TempData["ErrorMessage"] = "Account number does not match transaction account for TT reference.";
+                        return View(depositMerchantAgenet);
+                    }
+                    else if (isDC && accountNo != creditAccount)
+                    {
+                        TempData["AccountMismatch"] = true;
+                        ViewBag.ReferenceExists = false;
+                        TempData["ErrorMessage"] = "Account number does not match transaction account for DC reference.";
+                        return View(depositMerchantAgenet);
                     }
                     else
                     {
-                        ViewBag.AccountHolder = "Account details not found in the XML response.";
+                        TempData["AccountMismatch"] = false;
                     }
 
+                    // ✅ Extract numeric value of amount
+                    var amountMatch = Regex.Match(amount, @"\d+(\.\d+)?");
+                    amount = amountMatch.Success ? amountMatch.Value : "Not Found";
+
+                    // ✅ Set success info
+                    ViewBag.ReferenceExists = true;
+                    ViewBag.TransactionAmount = amount;
+                    ViewBag.TransactionReference = txnRef;
+
+                    // Populate dropdowns and return
+
+                    return View(depositMerchantAgenet);
 
                 }
-                else
+                catch (XmlException ex)
                 {
-                    ViewBag.AccountBalance = "Failed to retrieve account details or status not 'Success'.";
-                }
-
-
-
-                // Fetch and parse transaction details by reference
-                var transactionResponse = callbyReference.GetAccountinformationByrefrence(depositMerchantAgenet.ReferenceNumber);
-                if (string.IsNullOrEmpty(transactionResponse))
-                {
-                    ViewBag.ReferenceExists = false;
-                    TempData["ErrorMessage"] = "Failed to retrieve transaction details or invalid reference number.";
+                    TempData["ErrorMessage"] = $"Error parsing API response: {ex.Message}";
                     return View(depositMerchantAgenet);
                 }
-
-
-                var transactionDoc = new XmlDocument();
-                transactionDoc.LoadXml(transactionResponse);
-
-                var transactionNsManager = new XmlNamespaceManager(transactionDoc.NameTable);
-                transactionNsManager.AddNamespace("S", "http://schemas.xmlsoap.org/soap/envelope/");
-                transactionNsManager.AddNamespace("ns3", "http://temenos.com/FTTTTXNDETAIL");
-                transactionNsManager.AddNamespace("ns4", "http://temenos.com/TWSTXNDETAIL");
-
-                // ✅ Check transaction API status
-                var transactionStatusNode = transactionDoc.SelectSingleNode("//S:Body/ns4:CBOTXNDETAILResponse/Status/successIndicator", transactionNsManager);
-                if (transactionStatusNode?.InnerText != "Success")
+                catch (Exception ex)
                 {
-                    ViewBag.ReferenceExists = false;
-                    TempData["ErrorMessage"] = "Transaction reference not found or invalid.";
+                    TempData["ErrorMessage"] = $"An unexpected error occurred: {ex.Message}";
+                    //PopulateUserDropdown();
                     return View(depositMerchantAgenet);
                 }
-
-                // ✅ Select all transaction detail nodes
-                var transactionNodes = transactionDoc.SelectNodes("//S:Body/ns4:CBOTXNDETAILResponse/FTTTTXNDETAILType/ns3:gFTTTTXNDETAILDetailType/ns3:mFTTTTXNDETAILDetailType", transactionNsManager);
-
-                if (transactionNodes == null || transactionNodes.Count == 0)
-                {
-                    ViewBag.ReferenceExists = false;
-                    TempData["ErrorMessage"] = "No transaction details found in the response.";
-                    return View(depositMerchantAgenet);
-                }
-
-                // ✅ Extract all transaction details
-                var transactionDetails = new List<dynamic>();
-                string debitAccount = "";
-                string creditAccount = "";
-                string debitAmount = "";
-                string creditAmount = "";
-                string txnRef = "";
-                string currency = "";
-                string txnDate = "";
-
-                foreach (XmlNode txnNode in transactionNodes)
-                {
-                    var refValue = txnNode.SelectSingleNode("ns3:TXNREF", transactionNsManager)?.InnerText ?? "";
-                    var marker = txnNode.SelectSingleNode("ns3:DRCRMARKER", transactionNsManager)?.InnerText ?? "";
-                    var account = txnNode.SelectSingleNode("ns3:Account", transactionNsManager)?.InnerText ?? "";
-                    var amount = txnNode.SelectSingleNode("ns3:Amount", transactionNsManager)?.InnerText ?? "";
-                    var curr = txnNode.SelectSingleNode("ns3:Currency", transactionNsManager)?.InnerText ?? "";
-                    var date = txnNode.SelectSingleNode("ns3:TXNDATE", transactionNsManager)?.InnerText ?? "";
-
-                    transactionDetails.Add(new
-                    {
-                        TXNREF = refValue,
-                        DRCRMARKER = marker,
-                        Account = account,
-                        Amount = amount,
-                        Currency = curr,
-                        TXNDATE = date
-                    });
-
-                    // Identify debit and credit accounts
-                    if (marker == "DEBIT")
-                    {
-                        debitAccount = account;
-                        debitAmount = amount;
-                    }
-                    else if (marker == "CREDIT")
-                    {
-                        creditAccount = account;
-                        creditAmount = amount;
-                    }
-
-                    // Common fields
-                    txnRef = refValue;
-                    currency = curr;
-                    txnDate = date;
-                }
-
-                // ✅ Example: display or pass to View
-                ViewBag.TransactionDetails = transactionDetails;
-                ViewBag.DebitAccount = debitAccount;
-                ViewBag.CreditAccount = creditAccount;
-                ViewBag.DebitAmount = debitAmount;
-                ViewBag.CreditAmount = creditAmount;
-                ViewBag.TXNREF = txnRef;
-                ViewBag.Currency = currency;
-                ViewBag.TXNDATE = txnDate;
-
-
-                // Optionally, pass to your View
-                ViewBag.TransactionDetails = transactionDetails;
-
-
-                // Validate account number match
-                if (depositMerchantAgenet.AccountNumber != creditAccount)
-                {
-                    ViewBag.ReferenceExists = false;
-                    TempData["ErrorMessage"] = "Account number from transaction details does not match the provided account number.";
-                    return View(depositMerchantAgenet);
-                }
-
-                // Parse transaction amount
-                var amountMatch = Regex.Match(debitAmount, @"\d+(\.\d+)?");
-                debitAmount = amountMatch.Success ? amountMatch.Value : "Not Found";
-
-                // Store transaction details in ViewBag
-                ViewBag.ReferenceExists = true;
-                ViewBag.TransactionAmount = debitAmount;
-                ViewBag.Currency = currency;
-                ViewBag.TransactionReference = txnRef;
-
-
-                return View(depositMerchantAgenet);
             }
+
+
             else
             {
                 // Check for reference number duplication
@@ -290,6 +341,14 @@ namespace TRMS.Controllers
                             return RedirectToAction("login", "User");
                         }
 
+                        if (depositMerchantAgenet.DepositType == "Branch")
+                        {
+                            depositMerchantAgenet.DepositType = "Branch";
+                        }
+                        else
+                        {
+                            depositMerchantAgenet.DepositType = "Individual";
+                        }
                         depositMerchantAgenet.IntialAccountBalance = depositMerchantAgenet.AccountBalance;
                         depositMerchantAgenet.AccountBalance = depositMerchantAgenet.AccountBalance;
                         depositMerchantAgenet.District = Session["District"].ToString();
@@ -297,7 +356,16 @@ namespace TRMS.Controllers
                         depositMerchantAgenet.Process = Session["Process"]?.ToString() ?? string.Empty;
                         depositMerchantAgenet.CreatedDate = DateTime.Now;
                         db.DepositMerchantAgenets.Add(depositMerchantAgenet);
-                        db.SaveChanges();
+
+
+                    if (TempData["AccountMismatch"] != null && (bool)TempData["AccountMismatch"] == true)
+                    {
+                        // 🧠 Keep the flag for next request (since TempData clears after reading)
+                        TempData.Keep("AccountMismatch");
+                        TempData["ErrorMessage"] = "Cannot save — account number mismatch detected. Please revalidate.";
+                        return View(depositMerchantAgenet);
+                    }
+                    db.SaveChanges();
 
                     TempData["SuccessMessage"] = "Transaction saved successfully!";
                     ModelState.Clear();

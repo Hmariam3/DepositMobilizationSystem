@@ -18,7 +18,7 @@ namespace TRMS.Models
         public string AccountNumber { get; set; }
         [Required(ErrorMessage = "The {0} Field Is Required")]
         [Display(Name = "Refernce Number")]
-        [StringLength(12, ErrorMessage = "The {0} Exceded The Maximum Characters Allowed.")]
+        [StringLength(20, ErrorMessage = "The {0} Exceded The Maximum Characters Allowed.")]
         public string RefernceNumber { get; set; }
     }
 }

@@ -10,15 +10,22 @@
     @Scripts.Render("~/bundles/modernizr")
     <!-- Font Awesome -->
     <!-- Ionicons -->
-    <script src="~/admin-lte/plugins/datatables.net/js/jquery.dataTables.min.js"></script>
+
     <link rel="stylesheet" href="admin-lte/plugins/Ionicons/css/ionicons.min.css">
+    <link href="~/admin-lte/js/pages/jquery.dataTables.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/plugins/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="~/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" />
+    <link rel="stylesheet" href="~/dist/css/bootstrap-select.min.css" />
+
+
+    <script src="~/admin-lte/plugins/datatables.net/js/jquery.dataTables.min.js"></script>
     <script src="~/admin-lte/js/pages/jquery.dataTables.min.js"></script>
     <script src="~/Content/jquery-3.6.0.min.js"></script>
-    <link href="~/admin-lte/js/pages/jquery.dataTables.min.css" rel="stylesheet" />
- 
+    <script src="~/dist/js/bootstrap-select.min.js"></script>
+
     <style>
     </style>
-    
+
 </head>
 <body class="hold-transition skin-red sidebar-mini">
     <div class="wrapper" style="margin-top:2px;">
@@ -80,14 +87,15 @@
                                 </li>
                                 <!-- Menu Body -->
                                 <!-- Menu Footer-->
-                                <li class="user-footer" style="background-color:#f0ce0d">
-                                    @*<div class="pull-left">
-                                        <a href="~/Users/ChangePassword" class="btn btn-default btn-flat">Change Password</a>
-                                    </div>*@
-                                    <div class="pull-right">
-                                        <a href="~/User/Logout" class="btn btn-default btn-flat">Logout</a>
+                                <li class="user-footer" style="background-color: #e0f7fa; padding: 12px 15px; border-top: 2px solid #00acc1;">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        @Html.ActionLink("Update Profile", "UpdateProfile", "User", new { id = Session["Userid"] }, new { @class = "btn btn-info btn-sm text-white fw-bold", style = "background-color:#00acc1; border:none; border-radius:5px; width:120px;" })
+                                        <a href="~/User/Logout" class="btn btn-sm fw-bold text-white" style="background-color:red; border:none; border-radius:5px; color:white; width:100px;">Logout</a>
                                     </div>
                                 </li>
+
+
+
                             </ul>
                         </li>
 
@@ -185,20 +193,6 @@
 
                                 </ul>
                             </li>
-
-                            @*<li class="treeview">
-                    <a href="#">
-                        <i class="fa fa-shield"></i> <span>FCY  Target </span>
-                        <span class="pull-right-container">
-                            <i class="fa fa-angle-left pull-right"></i>
-                        </span>
-                    </a>
-                    <ul class="treeview-menu">
-                        <li><a href="~/Fcy_Branch/Create">Add Target</a></li>
-                        <li><a href="~/Fcy_Branch/Index">View  Fcy</a></li>
-
-                    </ul>
-                </li>*@
 
                             <li class="treeview">
                                 <a href="#">
@@ -472,6 +466,46 @@
                             <li class="active"><a href="~/Home/BydistrictReport"><i class="fa fa-home"></i><span> Bank Dashbord</span></a></li>
                             <li class="treeview">
                                 <a href="#">
+                                    <i class="fa fa-shield"></i> <span>Deposit Plan</span>
+                                    <span class="pull-right-container">
+                                        <i class="fa fa-angle-left pull-right"></i>
+                                    </span>
+                                </a>
+                                <ul class="treeview-menu">
+                                    <li><a href="~/DepositPlans/Create">Add New</a></li>
+                                    <li><a href="~/DepositPlans/Index">View Deposit Plan</a></li>
+
+                                </ul>
+                            </li>
+                            <li class="treeview">
+                                <a href="#">
+                                    <i class="fa fa-shield"></i> <span>Merchant </span>
+                                    <span class="pull-right-container">
+                                        <i class="fa fa-angle-left pull-right"></i>
+                                    </span>
+                                </a>
+                                <ul class="treeview-menu">
+                                    <li><a href="~/DepositMerchantAgenets/Create">Add New</a></li>
+                                    <li><a href="~/DepositMerchantAgenets/Index">View  Deposit</a></li>
+
+                                </ul>
+                            </li>
+
+                            <li class="treeview">
+                                <a href="#">
+                                    <i class="fa fa-shield"></i> <span>FCY Deposit </span>
+                                    <span class="pull-right-container">
+                                        <i class="fa fa-angle-left pull-right"></i>
+                                    </span>
+                                </a>
+                                <ul class="treeview-menu">
+                                    <li><a href="~/DepositFCies/Create">Add New</a></li>
+                                    <li><a href="~/DepositFCies/Index">View  Deposit</a></li>
+
+                                </ul>
+                            </li>
+                            <li class="treeview">
+                                <a href="#">
                                     <i class="fa fa-shield"></i> <span>Report</span>
                                     <span class="pull-right-container">
                                         <i class="fa fa-angle-left pull-right"></i>
@@ -500,6 +534,47 @@
                             <li class="active"><a href="~/Home/Dashboard"><i class="fa fa-home"></i><span> Main Dashbord</span></a></li>
                             <li class="active"><a href="~/Home/index"><i class="fa fa-home"></i><span> User Dashbord</span></a></li>
                             <li class="active"><a href="~/Home/BydistrictReport"><i class="fa fa-home"></i><span> Bank Dashbord</span></a></li>
+                            <li class="treeview">
+                                <a href="#">
+                                    <i class="fa fa-shield"></i> <span>Deposit Plan</span>
+                                    <span class="pull-right-container">
+                                        <i class="fa fa-angle-left pull-right"></i>
+                                    </span>
+                                </a>
+                                <ul class="treeview-menu">
+                                    @*<li><a href="~/UserProfile/Create"> User Profile</a></li>*@
+                                    <li><a href="~/DepositPlans/Create">Add New</a></li>
+                                    <li><a href="~/DepositPlans/Index">View Deposit Plan</a></li>
+
+                                </ul>
+                            </li>
+                            <li class="treeview">
+                                <a href="#">
+                                    <i class="fa fa-shield"></i> <span>Merchant </span>
+                                    <span class="pull-right-container">
+                                        <i class="fa fa-angle-left pull-right"></i>
+                                    </span>
+                                </a>
+                                <ul class="treeview-menu">
+                                    <li><a href="~/DepositMerchantAgenets/Create">Add New</a></li>
+                                    <li><a href="~/DepositMerchantAgenets/Index">View  Deposit</a></li>
+
+                                </ul>
+                            </li>
+
+                            <li class="treeview">
+                                <a href="#">
+                                    <i class="fa fa-shield"></i> <span>FCY Deposit </span>
+                                    <span class="pull-right-container">
+                                        <i class="fa fa-angle-left pull-right"></i>
+                                    </span>
+                                </a>
+                                <ul class="treeview-menu">
+                                    <li><a href="~/DepositFCies/Create">Add New</a></li>
+                                    <li><a href="~/DepositFCies/Index">View  Deposit</a></li>
+
+                                </ul>
+                            </li>
                             <li class="treeview">
                                 <a href="#">
                                     <i class="fa fa-shield"></i> <span>Report</span>
@@ -667,7 +742,7 @@
     </script>
 
 
-        <script>
+ <script>
     $(document).ready(function () {
         $('#employeeDT').DataTable({
             "paging": true,      // Enable pagination

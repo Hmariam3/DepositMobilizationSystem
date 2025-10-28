@@ -675,6 +675,78 @@ namespace UserProfile.Controllers
             {
                 // Skip Password validation for AD users
                 ModelState.Remove("Password");
+                if (string.IsNullOrEmpty(model.Postion))
+                {
+                    TempData["ErrorMessage"] = "Please Choose your Position.";
+                    // Repopulate dropdowns
+                    ViewBag.Processes = new SelectList(db.Processes
+                        .Select(p => new { Value = p.process_name, Text = p.process_name })
+                        .ToList(), "Value", "Text", model.Process);
+                    ViewBag.Subprocesses = new SelectList(db.Subprocesses
+                        .Where(s => s.Process.process_name == model.Process)
+                        .Select(s => new { Value = s.subprocess_name, Text = s.subprocess_name })
+                        .ToList(), "Value", "Text", model.District);
+                    ViewBag.Branches = new SelectList(db.Branches
+                        .Where(b => b.Subprocess.subprocess_name == model.District)
+                        .Select(b => new { Value = b.BranchName, Text = b.BranchName })
+                        .ToList(), "Value", "Text", model.Branch);
+                    return View(model);
+                }
+
+                if (string.IsNullOrEmpty(model.UserName) || string.IsNullOrEmpty(model.FullName))
+                {
+                    TempData["ErrorMessage"] = "Your Full Information is Mandatory";
+                    // Repopulate dropdowns
+                    ViewBag.Processes = new SelectList(db.Processes
+                        .Select(p => new { Value = p.process_name, Text = p.process_name })
+                        .ToList(), "Value", "Text", model.Process);
+                    ViewBag.Subprocesses = new SelectList(db.Subprocesses
+                        .Where(s => s.Process.process_name == model.Process)
+                        .Select(s => new { Value = s.subprocess_name, Text = s.subprocess_name })
+                        .ToList(), "Value", "Text", model.District);
+                    ViewBag.Branches = new SelectList(db.Branches
+                        .Where(b => b.Subprocess.subprocess_name == model.District)
+                        .Select(b => new { Value = b.BranchName, Text = b.BranchName })
+                        .ToList(), "Value", "Text", model.Branch);
+                    return View(model);
+                }
+
+               if (string.IsNullOrEmpty(model.Process))
+                {
+                    TempData["ErrorMessage"] = "Please Choose your Process.";
+                    // Repopulate dropdowns
+                    ViewBag.Processes = new SelectList(db.Processes
+                        .Select(p => new { Value = p.process_name, Text = p.process_name })
+                        .ToList(), "Value", "Text", model.Process);
+                    ViewBag.Subprocesses = new SelectList(db.Subprocesses
+                        .Where(s => s.Process.process_name == model.Process)
+                        .Select(s => new { Value = s.subprocess_name, Text = s.subprocess_name })
+                        .ToList(), "Value", "Text", model.District);
+                    ViewBag.Branches = new SelectList(db.Branches
+                        .Where(b => b.Subprocess.subprocess_name == model.District)
+                        .Select(b => new { Value = b.BranchName, Text = b.BranchName })
+                        .ToList(), "Value", "Text", model.Branch);
+                    return View(model);
+                }
+
+                if (string.IsNullOrEmpty(model.PhoneNumber))
+                {
+                    TempData["ErrorMessage"] = "Please fill your PhoneNumber.";
+                    // Repopulate dropdowns
+                    ViewBag.Processes = new SelectList(db.Processes
+                        .Select(p => new { Value = p.process_name, Text = p.process_name })
+                        .ToList(), "Value", "Text", model.Process);
+                    ViewBag.Subprocesses = new SelectList(db.Subprocesses
+                        .Where(s => s.Process.process_name == model.Process)
+                        .Select(s => new { Value = s.subprocess_name, Text = s.subprocess_name })
+                        .ToList(), "Value", "Text", model.District);
+                    ViewBag.Branches = new SelectList(db.Branches
+                        .Where(b => b.Subprocess.subprocess_name == model.District)
+                        .Select(b => new { Value = b.BranchName, Text = b.BranchName })
+                        .ToList(), "Value", "Text", model.Branch);
+                    return View(model);
+                }
+
                 if (ModelState.IsValid)
                 {
                     // Check for UserName uniqueness
@@ -696,6 +768,85 @@ namespace UserProfile.Controllers
                         return View(model);
                     }
 
+                    if (model.Postion == "Director" && model.District == null)
+                    {
+
+                        TempData["ErrorMessage"] = "Please Choose your Subprocess or District.";
+                        // Repopulate dropdowns
+                        ViewBag.Processes = new SelectList(db.Processes
+                            .Select(p => new { Value = p.process_name, Text = p.process_name })
+                            .ToList(), "Value", "Text", model.Process);
+                        ViewBag.Subprocesses = new SelectList(db.Subprocesses
+                            .Where(s => s.Process.process_name == model.Process)
+                            .Select(s => new { Value = s.subprocess_name, Text = s.subprocess_name })
+                            .ToList(), "Value", "Text", model.District);
+                        ViewBag.Branches = new SelectList(db.Branches
+                            .Where(b => b.Subprocess.subprocess_name == model.District)
+                            .Select(b => new { Value = b.BranchName, Text = b.BranchName })
+                            .ToList(), "Value", "Text", model.Branch);
+                        return View(model);
+                    }
+
+                    else if (model.Postion == "Individual" || model.Postion == "Manager" || model.Postion == "BranchManager")
+                    {
+                        if (model.Process == null || model.District == null || model.Branch == null) {
+                            TempData["ErrorMessage"] = "Please fill your Process or District or Branch";
+                            // Repopulate dropdowns
+                            ViewBag.Processes = new SelectList(db.Processes
+                                .Select(p => new { Value = p.process_name, Text = p.process_name })
+                                .ToList(), "Value", "Text", model.Process);
+                            ViewBag.Subprocesses = new SelectList(db.Subprocesses
+                                .Where(s => s.Process.process_name == model.Process)
+                                .Select(s => new { Value = s.subprocess_name, Text = s.subprocess_name })
+                                .ToList(), "Value", "Text", model.District);
+                            ViewBag.Branches = new SelectList(db.Branches
+                                .Where(b => b.Subprocess.subprocess_name == model.District)
+                                .Select(b => new { Value = b.BranchName, Text = b.BranchName })
+                                .ToList(), "Value", "Text", model.Branch);
+                            return View(model);
+                        }
+
+                    }
+
+                    if (model.DepositTargetAmount == null || model.MerchantTarget == null)
+                    {
+                        TempData["ErrorMessage"] = "Please Fill Your Target.";
+                        // Repopulate dropdowns
+                        ViewBag.Processes = new SelectList(db.Processes
+                            .Select(p => new { Value = p.process_name, Text = p.process_name })
+                            .ToList(), "Value", "Text", model.Process);
+                        ViewBag.Subprocesses = new SelectList(db.Subprocesses
+                            .Where(s => s.Process.process_name == model.Process)
+                            .Select(s => new { Value = s.subprocess_name, Text = s.subprocess_name })
+                            .ToList(), "Value", "Text", model.District);
+                        ViewBag.Branches = new SelectList(db.Branches
+                            .Where(b => b.Subprocess.subprocess_name == model.District)
+                            .Select(b => new { Value = b.BranchName, Text = b.BranchName })
+                            .ToList(), "Value", "Text", model.Branch);
+                        return View(model);
+                    }
+
+                    if (model.Postion == "BranchManager")
+                    {
+                        if (model.BranchDepositTarget == null || model.BranchFcyTarget == null || model.BranchMerchantTarget == null)
+                        {
+                            TempData["ErrorMessage"] = "Please Fill the Branch Target.";
+                            // Repopulate dropdowns
+                            ViewBag.Processes = new SelectList(db.Processes
+                                .Select(p => new { Value = p.process_name, Text = p.process_name })
+                                .ToList(), "Value", "Text", model.Process);
+                            ViewBag.Subprocesses = new SelectList(db.Subprocesses
+                                .Where(s => s.Process.process_name == model.Process)
+                                .Select(s => new { Value = s.subprocess_name, Text = s.subprocess_name })
+                                .ToList(), "Value", "Text", model.District);
+                            ViewBag.Branches = new SelectList(db.Branches
+                                .Where(b => b.Subprocess.subprocess_name == model.District)
+                                .Select(b => new { Value = b.BranchName, Text = b.BranchName })
+                                .ToList(), "Value", "Text", model.Branch);
+                            return View(model);
+                        }
+
+                    }
                     try
                     {
                         // Set CreatedDate if not provided
@@ -737,6 +888,155 @@ namespace UserProfile.Controllers
             return View(model);
         }
 
+
+
+        // Helper – fills ViewBag dropdowns (shared by GET & POST)
+        private void PopulateDropdowns(User model)
+        {
+            ViewBag.Processes = new SelectList(
+                db.Processes
+                  .Select(p => new { Value = p.process_name, Text = p.process_name })
+                  .ToList(),
+                "Value", "Text", model.Process);
+
+            ViewBag.Subprocesses = new SelectList(
+                db.Subprocesses
+                  .Where(s => s.Process.process_name == model.Process)
+                  .Select(s => new { Value = s.subprocess_name, Text = s.subprocess_name })
+                  .ToList(),
+                "Value", "Text", model.District);
+
+            ViewBag.Branches = new SelectList(
+                db.Branches
+                  .Where(b => b.Subprocess.subprocess_name == model.District)
+                  .Select(b => new { Value = b.BranchName, Text = b.BranchName })
+                  .ToList(),
+                "Value", "Text", model.Branch);
+        }
+        // ---------------------------------------------------
+        // GET: User/Edit/{id}
+        [HttpGet]
+        public ActionResult UpdateProfile(int id)
+        {
+            var user = db.Users.Find(id);
+            if (user == null) return HttpNotFound();
+
+            PopulateDropdowns(user);
+            return View(user);
+        }
+        // POST: User/Edit
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult UpdateProfile(User model)
+        {
+            // ---- 1. Keep AD fields untouched (they are hidden/read-only) ----
+            ModelState.Remove("UserName");
+            ModelState.Remove("FullName");
+            ModelState.Remove("MailAdress");
+            ModelState.Remove("Password");          // AD users have no password
+
+            // ---- 2. Custom required checks (same as Create) ----
+            if (string.IsNullOrEmpty(model.Postion))
+            {
+                TempData["ErrorMessage"] = "Please choose your Position.";
+                PopulateDropdowns(model);
+                return View(model);
+            }
+
+            if (string.IsNullOrEmpty(model.Process))
+            {
+                TempData["ErrorMessage"] = "Please choose your Process.";
+                PopulateDropdowns(model);
+                return View(model);
+            }
+
+            if (string.IsNullOrEmpty(model.PhoneNumber))
+            {
+                TempData["ErrorMessage"] = "Please fill your Phone Number.";
+                PopulateDropdowns(model);
+                return View(model);
+            }
+
+            // ---- 3. Position-specific required fields ----
+            if (model.Postion == "Director" && string.IsNullOrEmpty(model.District))
+            {
+                TempData["ErrorMessage"] = "Director must select a Subprocess/District.";
+                PopulateDropdowns(model);
+                return View(model);
+            }
+
+            if (new[] { "Individual", "Manager", "BranchManager" }.Contains(model.Postion) &&
+                (string.IsNullOrEmpty(model.Process) ||
+                 string.IsNullOrEmpty(model.District) ||
+                 string.IsNullOrEmpty(model.Branch)))
+            {
+                TempData["ErrorMessage"] = "Process, District and Branch are required for the selected position.";
+                PopulateDropdowns(model);
+                return View(model);
+            }
+
+            // ---- 4. Individual targets (always required) ----
+            if (model.DepositTargetAmount == null || model.MerchantTarget == null)
+            {
+                TempData["ErrorMessage"] = "Please fill your individual targets.";
+                PopulateDropdowns(model);
+                return View(model);
+            }
+
+            // ---- 5. Branch-Manager extra targets ----
+            if (model.Postion == "BranchManager" &&
+                (model.BranchDepositTarget == null ||
+                 model.BranchMerchantTarget == null ||
+                 model.BranchFcyTarget == null))
+            {
+                TempData["ErrorMessage"] = "Please fill all Branch targets.";
+                PopulateDropdowns(model);
+                return View(model);
+            }
+
+            // ---- 6. Final ModelState check ----
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Please correct the errors in the form.";
+                PopulateDropdowns(model);
+                return View(model);
+            }
+
+            try
+            {
+                // Keep the original AD values (they are hidden, but we copy them back)
+                var dbUser = db.Users.Find(model.ID);
+                if (dbUser == null) return HttpNotFound();
+
+                // Copy only the fields the user is allowed to edit
+                dbUser.Process = model.Process;
+                dbUser.District = model.District;
+                dbUser.Branch = model.Branch;
+                dbUser.OrganizatinalUnit = model.OrganizatinalUnit;
+                dbUser.Postion = model.Postion;
+                dbUser.PhoneNumber = model.PhoneNumber;
+
+                // Targets
+                dbUser.DepositTargetAmount = model.DepositTargetAmount;
+                dbUser.MerchantTarget = model.MerchantTarget;
+                dbUser.FCYTargetAmount = model.FCYTargetAmount;
+
+                dbUser.BranchDepositTarget = model.BranchDepositTarget;
+                dbUser.BranchMerchantTarget = model.BranchMerchantTarget;
+                dbUser.BranchFcyTarget = model.BranchFcyTarget;
+
+                db.SaveChanges();
+
+                TempData["SuccessMessage"] = "Profile updated successfully! Please SignIn Again";
+                return RedirectToAction("Login", "User");  // <-- change to whatever you need
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error saving changes: {ex.Message}";
+                PopulateDropdowns(model);
+                return View(model);
+            }
+        }
         // GET: User/GetSubprocesses
         [HttpGet]
         public JsonResult GetSubprocesses(string processName)

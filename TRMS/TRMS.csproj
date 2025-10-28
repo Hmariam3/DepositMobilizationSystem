@@ -252,6 +252,9 @@
     <Compile Include="Models\DistrictPlan.cs">
       <DependentUpon>Target.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\ECO.cs">
+      <DependentUpon>Target.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\Fcy_Branch.cs">
       <DependentUpon>Target.tt</DependentUpon>
     </Compile>
@@ -9562,6 +9565,7 @@
     <Content Include="Views\DepositVPReport\VPPlanReport.cshtml" />
     <Content Include="Views\DepositVPReport\VPAgenetReport.cshtml" />
     <Content Include="Views\DepositVPReport\VPFcyReport.cshtml" />
+    <Content Include="Views\User\UpdateProfile.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -27,7 +27,7 @@ namespace TRMS.Controllers
                 string position = Session["Position"].ToString();
                 if (role == "Maker" || role == "Admin")
                 {
-                    string branch = Session["UserHomeBranch"].ToString();
+                    //string branch = Session["UserHomeBranch"].ToString();
                     decimal AssinedTargetdeposit = db.Users.Where(u => u.UserName.Trim() == UserName.Trim()).Select(d => (decimal?)d.DepositTargetAmount).Sum() ?? 0;
                     ViewBag.AssinedTargetdeposit = AssinedTargetdeposit;
 
@@ -88,16 +88,18 @@ namespace TRMS.Controllers
 
 
                     //user branch progress
-
+                    string branch = Session["UserHomeBranch"]?.ToString() ?? "";
                     decimal branchProgressDep = 0;
                     decimal avargaeUserProgressDeposit = 0;
-                    // Calculate progress for deposit 
-                    decimal branchTarget = db.Users.Where(u => u.Branch.Trim() == branch.Trim()).Select(d => (decimal?)d.DepositTargetAmount).Sum() ?? 0;
-                    decimal branchAchieved = db.DepositPlans.Where(u => u.Branch.Trim() == branch.Trim()).Select(d => (decimal?)d.Amount).Sum() ?? 0;
-                    branchProgressDep = branchTarget > 0 ? (branchAchieved / branchTarget) * 100 : 0;
-                    avargaeUserProgressDeposit = (progressPercent + branchProgressDep) / 2;
-
-        
+                    if (branch != null || branch != "")
+                    {
+                        
+                        // Calculate progress for deposit 
+                        decimal branchTarget = db.Users.Where(u => u.Branch.Trim() == branch.Trim()).Select(d => (decimal?)d.DepositTargetAmount).Sum() ?? 0;
+                        decimal branchAchieved = db.DepositPlans.Where(u => u.Branch.Trim() == branch.Trim()).Select(d => (decimal?)d.Amount).Sum() ?? 0;
+                        branchProgressDep = branchTarget > 0 ? (branchAchieved / branchTarget) * 100 : 0;
+                        avargaeUserProgressDeposit = (progressPercent + branchProgressDep) / 2;
+                    }
 
                     // Pass values to view
                     ViewBag.ProgressPercent = progressPercent;
@@ -171,11 +173,15 @@ namespace TRMS.Controllers
                     // Calculate progress for Merchant 
                     decimal branchProgressMer = 0;
                     decimal avargaeUserProgressMerchant = 0;
-                    decimal branchTargetMer = db.Users.Where(u => u.Branch.Trim() == branch.Trim()).Select(d => (decimal?)d.MerchantTarget).Sum() ?? 0;
-                    int branchAchievedmerc = db.DepositMerchantAgenets.Where(u => u.Branch == branch.Trim()).Select(u => u.LinkAccount).Distinct().Count();
-                    branchProgressMer = branchTargetMer > 0 ? (branchAchievedmerc / branchTargetMer) * 100 : 0;
-                    avargaeUserProgressMerchant = (progressPercentAgent + branchProgressMer) / 2;
 
+                    if (branch != null || branch != "")
+                    {
+
+                        decimal branchTargetMer = db.Users.Where(u => u.Branch.Trim() == branch.Trim()).Select(d => (decimal?)d.MerchantTarget).Sum() ?? 0;
+                        int branchAchievedmerc = db.DepositMerchantAgenets.Where(u => u.Branch == branch.Trim()).Select(u => u.LinkAccount).Distinct().Count();
+                        branchProgressMer = branchTargetMer > 0 ? (branchAchievedmerc / branchTargetMer) * 100 : 0;
+                        avargaeUserProgressMerchant = (progressPercentAgent + branchProgressMer) / 2;
+                    }
 
                     // Pass values to view
                     ViewBag.progressPercentAgent = progressPercentAgent;
@@ -238,11 +244,14 @@ namespace TRMS.Controllers
                     // Calculate progress for Fcy 
                     decimal branchProgressFCy = 0;
                     decimal avargaeUserProgressFcy = 0;
-                    decimal branchTargetFcy = db.Users.Where(u => u.Branch.Trim() == branch.Trim()).Select(d => (decimal?)d.FCYTargetAmount).Sum() ?? 0;
-                    decimal branchAchievedFcy = db.DepositFCies.Where(u => u.Branch.Trim() == branch.Trim()).Select(d => (decimal?)d.TransactionAmount).Sum() ?? 0;
-                    branchProgressFCy = branchTargetFcy > 0 ? (branchAchievedFcy / branchTargetFcy) * 100 : 0;
-                    avargaeUserProgressFcy = (progressPercentFCY + branchProgressFCy) / 2;
 
+                    if (branch != null || branch != "")
+                    {
+                        decimal branchTargetFcy = db.Users.Where(u => u.Branch.Trim() == branch.Trim()).Select(d => (decimal?)d.FCYTargetAmount).Sum() ?? 0;
+                        decimal branchAchievedFcy = db.DepositFCies.Where(u => u.Branch.Trim() == branch.Trim()).Select(d => (decimal?)d.TransactionAmount).Sum() ?? 0;
+                        branchProgressFCy = branchTargetFcy > 0 ? (branchAchievedFcy / branchTargetFcy) * 100 : 0;
+                        avargaeUserProgressFcy = (progressPercentFCY + branchProgressFCy) / 2;
+                    }
                     // Pass values to view
                     ViewBag.progressPercentFCY = progressPercentFCY;
                     ViewBag.avargaeUserProgressFcy = avargaeUserProgressFcy;

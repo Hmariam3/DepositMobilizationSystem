@@ -120,7 +120,7 @@
                     <div class="form-group col-md-5">
                         <label class="control-label col-md-5">Amount</label>
                         <div class="col-md-7">
-                            @Html.EditorFor(model => model.Target, new { htmlAttributes = new { @class = "form-control", @Value = ViewBag.DebitAmount, @readonly = "readonly" } })
+                            @Html.EditorFor(model => model.Target, new { htmlAttributes = new { @class = "form-control", @Value = ViewBag.TransactionAmount, @readonly = "readonly" } })
                             @*@Html.ValidationMessageFor(model => model.Target, "", new { @class = "text-danger" })*@
                         </div>
                     </div>
@@ -167,15 +167,30 @@
                             }, "Select QR Option", new { @class = "form-control" })
                             @Html.ValidationMessageFor(model => model.QR, "", new { @class = "text-danger" })
                         </div>
+
                     </div>
-                    <div class="form-group col-md-5">
-                        @Html.LabelFor(model => model.Narative, new { @class = "control-label col-md-5" })
-                        <div class="col-md-7">
-                            @Html.TextAreaFor(model => model.Narative, new { @class = "form-control", rows = 4 })
-                            @Html.ValidationMessageFor(model => model.Narative, "", new { @class = "text-danger" })
+                    @if (Session["Position"].ToString() == "BranchManager")
+                    {
+                        <!-- Deposit Type -->
+                        <div class="form-group col-md-5">
+                            <label class="control-label col-md-5">Deposit Type</label>
+                            <div class="col-md-7">
+                                @Html.DropDownListFor(
+                                 model => model.DepositType,
+                                 new SelectList(new[] { "Individual", "Branch" }),
+                                 "Select Deposit For",
+                                 new { @class = "form-control", id = "DepositTypeSelect" })
+                            </div>
+                        </div>
+                    }
+                        <div class="form-group col-md-5">
+                            @Html.LabelFor(model => model.Narative, new { @class = "control-label col-md-5" })
+                            <div class="col-md-7">
+                                @Html.TextAreaFor(model => model.Narative, new { @class = "form-control", rows = 4 })
+                                @Html.ValidationMessageFor(model => model.Narative, "", new { @class = "text-danger" })
+                            </div>
                         </div>
                     </div>
-                </div>
 
 
                 <div class="form-group">

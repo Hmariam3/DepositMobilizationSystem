@@ -91,7 +91,6 @@ namespace TRMS.Controllers
                     return View(depositFCY);
                 }
 
-
                 var transactionDoc = new XmlDocument();
                 transactionDoc.LoadXml(transactionResponse);
 
@@ -111,7 +110,6 @@ namespace TRMS.Controllers
 
                 // ✅ Select all transaction detail nodes
                 var transactionNodes = transactionDoc.SelectNodes("//S:Body/ns4:CBOTXNDETAILResponse/FTTTTXNDETAILType/ns3:gFTTTTXNDETAILDetailType/ns3:mFTTTTXNDETAILDetailType", transactionNsManager);
-
                 if (transactionNodes == null || transactionNodes.Count == 0)
                 {
                     ViewBag.ReferenceExists = false;
@@ -119,12 +117,18 @@ namespace TRMS.Controllers
                     return View(depositFCY);
                 }
 
-                // ✅ Extract all transaction details
+                // ✅ Extract reference type
+                string referenceNumber = depositFCY.RefernceNumber?.Trim() ?? "";
+                string refType = referenceNumber.Length >= 2 ? referenceNumber.Substring(0, 2).ToUpper() : "";
+                //bool isFT = refType == "FT";
+                //bool isTT = refType == "TT";
+                bool isTF = refType == "TF";
+
+
                 var transactionDetails = new List<dynamic>();
                 string debitAccount = "";
                 string creditAccount = "";
-                string debitAmount = "";
-                string creditAmount = "";
+                string amount = "";
                 string txnRef = "";
                 string currency = "";
                 string txnDate = "";
@@ -134,7 +138,7 @@ namespace TRMS.Controllers
                     var refValue = txnNode.SelectSingleNode("ns3:TXNREF", transactionNsManager)?.InnerText ?? "";
                     var marker = txnNode.SelectSingleNode("ns3:DRCRMARKER", transactionNsManager)?.InnerText ?? "";
                     var account = txnNode.SelectSingleNode("ns3:Account", transactionNsManager)?.InnerText ?? "";
-                    var amount = txnNode.SelectSingleNode("ns3:Amount", transactionNsManager)?.InnerText ?? "";
+                    var amt = txnNode.SelectSingleNode("ns3:Amount", transactionNsManager)?.InnerText ?? "";
                     var curr = txnNode.SelectSingleNode("ns3:Currency", transactionNsManager)?.InnerText ?? "";
                     var date = txnNode.SelectSingleNode("ns3:TXNDATE", transactionNsManager)?.InnerText ?? "";
 
@@ -143,65 +147,69 @@ namespace TRMS.Controllers
                         TXNREF = refValue,
                         DRCRMARKER = marker,
                         Account = account,
-                        Amount = amount,
+                        Amount = amt,
                         Currency = curr,
                         TXNDATE = date
                     });
 
-                    // Identify debit and credit accounts
-                    if (marker == "DEBIT")
+                    // Assign based on type
+                    if (isTF)
                     {
-                        debitAccount = account;
-                        debitAmount = amount;
-                    }
-                    else if (marker == "CREDIT")
-                    {
+                        // TT transactions have only one record
+                        debitAccount = "";
                         creditAccount = account;
-                        creditAmount = amount;
+                        amount = amt;
+                        txnRef = refValue;
+                        currency = curr;
+                        txnDate = date;
                     }
-
-                    // Common fields
-                    txnRef = refValue;
-                    currency = curr;
-                    txnDate = date;
                 }
 
-                // ✅ Example: display or pass to View
+                // ✅ Populate ViewBag for UI
                 ViewBag.TransactionDetails = transactionDetails;
                 ViewBag.DebitAccount = debitAccount;
                 ViewBag.CreditAccount = creditAccount;
-                ViewBag.DebitAmount = debitAmount;
-                ViewBag.CreditAmount = creditAmount;
+                ViewBag.TransactionAmount = amount;
                 ViewBag.TXNREF = txnRef;
                 ViewBag.Currency = currency;
                 ViewBag.TXNDATE = txnDate;
 
-
-                // Optionally, pass to your View
-                ViewBag.TransactionDetails = transactionDetails;
-
-
-                // Validate account number match
-                if (depositFCY.AccountNumber != creditAccount)
+                // ✅ Validate account number
+                if ((isTF) && depositFCY.AccountNumber != creditAccount)
                 {
+                    TempData["AccountMismatch"] = true;
                     ViewBag.ReferenceExists = false;
                     TempData["ErrorMessage"] = "Account number from transaction details does not match the provided account number.";
                     return View(depositFCY);
                 }
+                else
+                {
+                    TempData["AccountMismatch"] = false;
+                }
 
-                // Parse transaction amount
-                var amountMatch = Regex.Match(debitAmount, @"\d+(\.\d+)?");
-                debitAmount = amountMatch.Success ? amountMatch.Value : "Not Found";
+                // ✅ Extract numeric value of amount
+                var amountMatch = Regex.Match(amount, @"\d+(\.\d+)?");
+                amount = amountMatch.Success ? amountMatch.Value : "Not Found";
 
-                // Store transaction details in ViewBag
+                // ✅ Set success info
                 ViewBag.ReferenceExists = true;
-                ViewBag.TransactionAmount = debitAmount;
-                ViewBag.Currency = currency;
+                ViewBag.TransactionAmount = amount;
                 ViewBag.TransactionReference = txnRef;
+
+                // Populate dropdowns and return
+
                 return View(depositFCY);
+
             }
             else
             {
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                    TempData["ErrorMessage"] = "Model validation failed: " + string.Join(", ", errors);
+                    return View(depositFCY);
+                }
+
 
                 if (ModelState.IsValid)
                 {
@@ -212,7 +220,12 @@ namespace TRMS.Controllers
                     }
                     if (depositFCY.Currecy == null)
                     {
-                        TempData["ErrorMessage"] = "Please Enter   Transaction Currecy!";
+                        TempData["ErrorMessage"] = "Please Enter Transaction Currecy!";
+                        return View(depositFCY);
+                    }
+                    if (depositFCY.Currecy == "ETB")
+                    {
+                        TempData["ErrorMessage"] = "The Currency Type should be Foreign!";
                         return View(depositFCY);
                     }
                     depositFCY.User = Session["UserName"].ToString();
@@ -234,12 +247,29 @@ namespace TRMS.Controllers
                     {
                         return RedirectToAction("login", "User");
                     }
+
+                    if (depositFCY.DepositType == "Branch")
+                    {
+                        depositFCY.DepositType = "Branch";
+                    }
+                    else
+                    {
+                        depositFCY.DepositType = "Individual";
+                    }
                     depositFCY.Process = Session["Process"]?.ToString() ?? string.Empty;
                     depositFCY.District = Session["District"].ToString();
                     depositFCY.Branch = Session["UserHomeBranch"].ToString();
                     depositFCY.Target = 0;
                     depositFCY.CreatedDate = DateTime.Now;
                     db.DepositFCies.Add(depositFCY);
+
+                    if (TempData["AccountMismatch"] != null && (bool)TempData["AccountMismatch"] == true)
+                    {
+                        // 🧠 Keep the flag for next request (since TempData clears after reading)
+                        TempData.Keep("AccountMismatch");
+                        TempData["ErrorMessage"] = "Cannot save — account number mismatch detected. Please revalidate.";
+                        return View(depositFCY);
+                    }
                     db.SaveChanges();
 
                     TempData["successRes"] = "Transaction saved successfully!";
