@@ -22,6 +22,7 @@ namespace TRMS.Models
         public decimal Amount { get; set; }
         public string AccountNumber { get; set; }
         public string ReferenceNumber { get; set; }
+        public Nullable<System.DateTime> RefDate { get; set; }
         public string AccountHolder { get; set; }
         public decimal IntialAccountBalance { get; set; }
         public decimal AccountBalance { get; set; }
@@ -29,6 +30,7 @@ namespace TRMS.Models
         public string User { get; set; }
         public System.DateTime CreatedDate { get; set; }
         public string DepositType { get; set; }
+        public Nullable<decimal> Prev_Ini_Bal { get; set; }
     
         public virtual User User1 { get; set; }
     }

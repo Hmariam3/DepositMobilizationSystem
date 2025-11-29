@@ -67,10 +67,10 @@ namespace TRMS.ADautho
             {
                 using (var entry = new DirectoryEntry(eldapurl, username, password))
                 {
-                    var nativeObject = entry.NativeObject; // Test authentication
+                    var nativeObject = entry.NativeObject; // ✅ Test authentication
                     adUser.IsAuthenticated = true;
 
-                    // Fetch additional user details
+                    // ✅ Create a DirectorySearcher instance
                     var searcher = new DirectorySearcher(entry)
                     {
                         Filter = $"(&(objectCategory=user)(sAMAccountName={username}))"
@@ -78,20 +78,34 @@ namespace TRMS.ADautho
                     searcher.PropertiesToLoad.Add("samAccountName");
                     searcher.PropertiesToLoad.Add("displayName");
                     searcher.PropertiesToLoad.Add("mail");
+                    searcher.PropertiesToLoad.Add("department");
+                    searcher.PropertiesToLoad.Add("title");
 
                     var result = searcher.FindOne();
+
+                    // ✅ If not found by sAMAccountName, try by mail
+                    if (result == null)
+                    {
+                        searcher.Filter = $"(&(objectCategory=user)(mail={username}))";
+                        result = searcher.FindOne();
+                    }
+
+                    // ✅ Extract user details if found
                     if (result != null)
                     {
                         DirectoryEntry userEntry = result.GetDirectoryEntry();
                         adUser.FullName = userEntry.Properties["displayName"]?.Value?.ToString() ?? "";
                         adUser.MailAdress = userEntry.Properties["mail"]?.Value?.ToString() ?? "";
+                        adUser.UserName = userEntry.Properties["samAccountName"]?.Value?.ToString() ?? username;
                     }
                 }
             }
             catch (Exception ex)
             {
-                adUser.ErrorMessage = "Invalid username or password: " + ex.Message;
+                adUser.IsAuthenticated = false;
+                adUser.ErrorMessage = ex.Message;
             }
+
 
             return adUser;
         }

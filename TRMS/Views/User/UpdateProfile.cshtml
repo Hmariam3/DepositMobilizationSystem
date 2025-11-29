@@ -1,353 +1,506 @@
 ﻿@model TRMS.Models.User
-
 @{
     ViewBag.Title = "Edit Profile";
-    Layout = "~/Views/Shared/_Layout.cshtml";              // keep the same layout as Create
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>@ViewBag.Title</title>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    @Styles.Render("~/Content/css")
-    @Styles.Render("~/Content/cssjqryUi")
-    <link rel="stylesheet" href="/admin-lte/plugins/Ionicons/css/ionicons.min.css">
-    <style>
-        /* ---- SAME CSS you already have in Create ---- */
+
+<style>
+    :root {
+        --primary: #00AEEF;
+        --primary-dark: #008cc7;
+        --primary-gradient: linear-gradient(135deg, #00AEEF, #0077b6);
+        --success: #198754;
+        --danger: #dc3545;
+        --warning: #ffc107;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --gray: #6c757d;
+        --border-radius: 1rem;
+        --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
 
 
-        .panel {
-            max-width: 1200px;
-            margin: auto;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,.1);
+
+    .edit-container {
+        max-width: 1300px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .page-header h1 {
+        font-weight: 800;
+        font-size: 2.2rem;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: 0.5px;
+        margin: 0;
+    }
+
+    .page-header p {
+        color: var(--gray);
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+    }
+
+    .user-summary-card,
+    .form-card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .user-summary-card:hover,
+    .form-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-header {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 1rem 2rem;
+        text-align: center;
+        font-weight: 600;
+        font-size: 1.3rem;
+        letter-spacing: 0.5px;
+    }
+
+    .card-header i {
+        margin-right: 0.5rem;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px dashed #e9ecef;
+        font-size: 0.95rem;
+    }
+
+    .info-item:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: var(--dark);
+    }
+
+    .info-value {
+        color: var(--primary);
+        font-weight: 500;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-control,
+    .select2-container--bootstrap-5 .select2-selection {
+        border-radius: 0.75rem;
+        border: 1px solid #ced4da;
+        padding: 0.65rem 1rem;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus,
+    .select2-container--bootstrap-5 .select2-selection:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.2rem rgba(0, 174, 239, 0.25);
+    }
+
+    .select2-container--bootstrap-5 .select2-selection {
+        height: calc(3.5rem + 2px);
+        padding-top: 0.375rem;
+        padding-bottom: 0.375rem;
+    }
+
+    .target-section h5 {
+        color: var(--primary);
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--primary);
+        display: inline-block;
+    }
+
+    .btn-container {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .btn-save {
+        background: var(--primary-gradient);
+        border: none;
+        color: white;
+        padding: 0.75rem 2rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 174, 239, 0.4);
+    }
+
+    .btn-back {
+        background: #6c757d;
+        color: white;
+        padding: 0.75rem 2rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-back:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+
+    .alert {
+        border-radius: 0.75rem;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        border: none;
+        font-weight: 500;
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        color: #155724;
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        color: #721c24;
+    }
+
+    @@media (max-width: 992px) {
+        .edit-container {
+            padding: 1rem;
         }
-
-        .panel-heading {
-            background: #00AEEF;
-            color: #fff;
-            padding: 15px;
-            text-align: center;
-        }
-
-        hr {
-            border: 1px solid #00AEEF;
-            margin: 0;
-        }
-
-        .panel-body {
-            padding: 30px;
-        }
-
-        .alert {
-            margin: 20px auto;
-            width: 90%;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .info-card {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-            .info-card h4 {
-                color: #00AEEF;
-                margin-bottom: 15px;
-            }
-
-            .info-card label {
-                font-weight: 600;
-                color: #333;
-            }
-
-        .target-section {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 6px rgba(0,0,0,.05);
-            margin-top: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .control-label {
-            font-weight: 600;
-            color: #444;
-        }
-
-        .btn-save {
-            background: #00AEEF;
-            color: #fff;
-            border: none;
-        }
-
-            .btn-save:hover {
-                background: #0092ce;
-            }
-
-        .btn-back {
-            background: #333;
-            color: #fff;
-            border: none;
-        }
-
-            .btn-back:hover {
-                background: #555;
-            }
-
         .btn-container {
-            text-align: center;
-            margin-top: 25px;
+            flex-direction: column;
         }
-    </style>
-</head>
-<body>
+        .btn-save, .btn-back {
+            width: 100%;
+        }
+    }
 
+    @@media (max-width: 768px) {
+        .page-header h1 {
+            font-size: 1.8rem;
+        }
+        .card-body {
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+<div class="edit-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>Update Profile</h1>
+        <p>Edit your profile, targets, and organizational details</p>
+    </div>
+
+    <!-- Messages -->
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger"><strong>Error!</strong> @TempData["ErrorMessage"]</div>
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Error!</strong> @TempData["ErrorMessage"]
+        </div>
     }
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success"><strong>Success!</strong> @TempData["SuccessMessage"]</div>
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle me-2"></i>
+            <strong>Success!</strong> @TempData["SuccessMessage"]
+        </div>
     }
 
-    <div class="panel panel-default">
-        <div class="panel-heading"><h3>Update Profile</h3></div>
-        <hr />
-
-        <div class="panel-body">
-            <div class="row">
-
-                <!-- LEFT – AD Summary (read-only) -->
-                <div class="col-md-5">
-                    <div class="info-card">
-                        <h4>User Information (AD)</h4>
-                        <p><label>Username:</label> @Model.UserName</p>
-                        <p><label>Full Name:</label> @Model.FullName</p>
-                        <p><label>Email:</label> @Model.MailAdress</p>
-                        <p><label>Organizational Unit:</label> @Model.OrganizatinalUnit</p>
-                        <p><label>Position:</label> @Model.Postion</p>
+    <div class="row g-4">
+        <!-- Left: AD User Info Summary (Read-only) -->
+        <div class="col-lg-5">
+            <div class="user-summary-card">
+                <div class="card-header">
+                    <i class="fas fa-user-circle"></i> Active Directory Info
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <span class="info-label">Username:</span>
+                        <span class="info-value">@Model.UserName</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Full Name:</span>
+                        <span class="info-value">@Model.FullName</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">@Model.MailAdress</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Org Unit:</span>
+                        <span class="info-value">@Model.OrganizatinalUnit</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Position:</span>
+                        <span class="info-value">@Model.Postion</span>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <!-- RIGHT – Editable Form -->
-                <div class="col-md-7">
-                    @using (Html.BeginForm("UpdateProfile", "User", FormMethod.Post, new { id = "editUserForm" }))
+        <!-- Right: Editable Form -->
+        <div class="col-lg-7">
+            <div class="form-card">
+                <div class="card-header">
+                    <i class="fas fa-edit"></i> Edit Profile & Targets
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginForm("UpdateProfile", "User", FormMethod.Post, new { id = "editUserForm", @class = "needs-validation", novalidate = "novalidate" }))
                     {
                         @Html.AntiForgeryToken()
-                        @Html.HiddenFor(m => m.ID) <!-- important -->
+                        @Html.HiddenFor(m => m.ID)
                         @Html.HiddenFor(m => m.UserName)
                         @Html.HiddenFor(m => m.FullName)
                         @Html.HiddenFor(m => m.MailAdress)
 
-                        <div class="form-horizontal form-group-sm">
-                            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger small" })
 
+                        <div class="row g-3">
                             <!-- Process -->
-                            <div class="form-group">
-                                <label class="control-label">Process</label>
-                                @Html.DropDownListFor(m => m.Process,
-                                    (SelectList)ViewBag.Processes,
-                                    "Select Process",
-                                    new { @class = "form-control", id = "ProcessDropdown" })
-                                @Html.ValidationMessageFor(m => m.Process, "", new { @class = "text-danger" })
+                            <div class="col-md-6">
+                                <label class="form-label">Process <span class="text-danger">*</span></label>
+                                @Html.DropDownListFor(m => m.Process, (SelectList)ViewBag.Processes, "Select Process", new { @class = "form-select select2", id = "ProcessDropdown" })
+                                @Html.ValidationMessageFor(m => m.Process, "", new { @class = "text-danger small mt-1" })
                             </div>
 
                             <!-- Subprocess/District -->
-                            <div class="form-group">
-                                <label class="control-label">Subprocess/District</label>
-                                @Html.DropDownListFor(m => m.District,
-                                    (SelectList)ViewBag.Subprocesses,
-                                    "Select Subprocess",
-                                    new { @class = "form-control", id = "SubprocessDropdown" })
-                                @Html.ValidationMessageFor(m => m.District, "", new { @class = "text-danger" })
+                            <div class="col-md-6">
+                                <label class="form-label">Subprocess/District <span class="text-danger">*</span></label>
+                                @Html.DropDownListFor(m => m.District, (SelectList)ViewBag.Subprocesses, "Select Subprocess", new { @class = "form-select select2", id = "SubprocessDropdown" })
+                                @Html.ValidationMessageFor(m => m.District, "", new { @class = "text-danger small mt-1" })
                             </div>
 
                             <!-- Branch -->
-                            <div class="form-group">
-                                <label class="control-label">Team/Branch</label>
-                                @Html.DropDownListFor(m => m.Branch,
-                                    (SelectList)ViewBag.Branches,
-                                    "Select Branch",
-                                    new { @class = "form-control", id = "BranchDropdown" })
-                                @Html.ValidationMessageFor(m => m.Branch, "", new { @class = "text-danger" })
+                            <div class="col-md-6">
+                                <label class="form-label">Team/Branch <span class="text-danger">*</span></label>
+                                @Html.DropDownListFor(m => m.Branch, (SelectList)ViewBag.Branches, "Select Branch", new { @class = "form-select select2", id = "BranchDropdown" })
+                                @Html.ValidationMessageFor(m => m.Branch, "", new { @class = "text-danger small mt-1" })
                             </div>
 
-                            <!-- Organizational Unit (same static list) -->
-                            <div class="form-group">
-                                <label class="control-label">Organizational Unit</label>
-                                @Html.DropDownListFor(m => m.OrganizatinalUnit,
-                                    new List<SelectListItem>
-                                    {
-                                        new SelectListItem { Text = "HO", Value = "HO" },
-                                        new SelectListItem { Text = "District", Value = "District" },
-                                        new SelectListItem { Text = "Branch", Value = "Branch" }
-                                    },
-                                    "Select Organizational Unit",
-                                    new { @class = "form-control" })
-                                @Html.ValidationMessageFor(m => m.OrganizatinalUnit, "", new { @class = "text-danger" })
+                            <!-- Organizational Unit -->
+                            <div class="col-md-6">
+                                <label class="form-label">Organizational Unit <span class="text-danger">*</span></label>
+                                @Html.DropDownListFor(m => m.OrganizatinalUnit, new List<SelectListItem>
+                                {
+                                    new SelectListItem { Text = "HO", Value = "HO" },
+                                    new SelectListItem { Text = "District", Value = "District" },
+                                    new SelectListItem { Text = "Branch", Value = "Branch" }
+                                }, "Select Unit", new { @class = "form-select select2" })
+                                @Html.ValidationMessageFor(m => m.OrganizatinalUnit, "", new { @class = "text-danger small mt-1" })
                             </div>
 
                             <!-- Position -->
-                            <div class="form-group">
-                                <label class="control-label">Position</label>
-                                @Html.DropDownListFor(m => m.Postion,
-                                    new List<SelectListItem>
-                                    {
-                                        new SelectListItem { Text = "Individual", Value = "Individual" },
-                                        new SelectListItem { Text = "BranchManager", Value = "BranchManager" },
-                                        new SelectListItem { Text = "Manager", Value = "Manager" },
-                                        new SelectListItem { Text = "Director", Value = "Director" },
-                                        new SelectListItem { Text = "VP", Value = "VP" },
-                                        new SelectListItem { Text = "CHF", Value = "CHF" },
-                                        new SelectListItem { Text = "CEO", Value = "CEO" }
-                                    },
-                                    "Select Position",
-                                    new { @class = "form-control", id = "positionId" })
-                                @Html.ValidationMessageFor(m => m.Postion, "", new { @class = "text-danger" })
+                            <div class="col-md-6">
+                                <label class="form-label">Position <span class="text-danger">*</span></label>
+                                @Html.DropDownListFor(m => m.Postion, new List<SelectListItem>
+                                {
+                                    new SelectListItem { Text = "Individual", Value = "Individual" },
+                                    new SelectListItem { Text = "BranchManager", Value = "BranchManager" },
+                                    new SelectListItem { Text = "Manager", Value = "Manager" },
+                                    new SelectListItem { Text = "Director", Value = "Director" },
+                                    new SelectListItem { Text = "VP", Value = "VP" },
+                                    new SelectListItem { Text = "CHF", Value = "CHF" },
+                                    new SelectListItem { Text = "CEO", Value = "CEO" }
+                                }, "Select Position", new { @class = "form-select select2", id = "positionId" })
+                                @Html.ValidationMessageFor(m => m.Postion, "", new { @class = "text-danger small mt-1" })
                             </div>
 
-                            <!-- Phone -->
-                            <div class="form-group">
-                                <label class="control-label">Phone Number</label>
-                                @Html.EditorFor(m => m.PhoneNumber, new { htmlAttributes = new { @class = "form-control" } })
-                                @Html.ValidationMessageFor(m => m.PhoneNumber, "", new { @class = "text-danger" })
+                            <!-- Phone Number -->
+                            <div class="col-md-6">
+                                <label class="form-label">Phone Number</label>
+                                @Html.EditorFor(m => m.PhoneNumber, new { htmlAttributes = new { @class = "form-control", placeholder = "e.g. +251911234567" } })
+                                @Html.ValidationMessageFor(m => m.PhoneNumber, "", new { @class = "text-danger small mt-1" })
                             </div>
+                        </div>
 
-                            <!-- ==== TARGETS ==== -->
-                            <div class="row mt-4">
-                                <div class="col-md-6">
-                                    <div class="target-section">
-                                        <h5 style="color:#00AEEF;">Individual Targets</h5>
-
-                                        <div class="form-group">
-                                            @Html.LabelFor(m => m.DepositTargetAmount, new { @class = "control-label" })
-                                            @Html.EditorFor(m => m.DepositTargetAmount, new { htmlAttributes = new { @class = "form-control" } })
-                                            @Html.ValidationMessageFor(m => m.DepositTargetAmount, "", new { @class = "text-danger" })
-                                        </div>
-
-                                        <div class="form-group">
-                                            @Html.LabelFor(m => m.MerchantTarget, new { @class = "control-label" })
-                                            @Html.EditorFor(m => m.MerchantTarget,
-                                                new { htmlAttributes = new { @class = "form-control", @type = "number", @min = "0" } })
-                                            @Html.ValidationMessageFor(m => m.MerchantTarget, "", new { @class = "text-danger" })
-                                        </div>
-
-                                        <div class="form-group" id="fcyTargetContainer">
-                                            @Html.LabelFor(m => m.FCYTargetAmount, new { @class = "control-label" })
-                                            @Html.EditorFor(m => m.FCYTargetAmount, new { htmlAttributes = new { @class = "form-control" } })
-                                            @Html.ValidationMessageFor(m => m.FCYTargetAmount, "", new { @class = "text-danger" })
-                                        </div>
+                        <!-- Target Sections -->
+                        <div class="row mt-4 g-4">
+                            <!-- Individual Targets -->
+                            <div class="col-md-6">
+                                <div class="target-section">
+                                    <h5>Individual Targets</h5>
+                                    <div class="mb-3">
+                                        @Html.LabelFor(m => m.DepositTargetAmount, new { @class = "form-label" })
+                                        @Html.EditorFor(m => m.DepositTargetAmount, new { htmlAttributes = new { @class = "form-control", placeholder = "0.00" } })
+                                        @Html.ValidationMessageFor(m => m.DepositTargetAmount, "", new { @class = "text-danger small mt-1" })
                                     </div>
-                                </div>
-
-                                <div class="col-md-6" id="branchTargetContainer">
-                                    <div class="target-section">
-                                        <h5 style="color:#00AEEF;">Branch Targets</h5>
-
-                                        <div class="form-group">
-                                            @Html.LabelFor(m => m.BranchDepositTarget, new { @class = "control-label" })
-                                            @Html.EditorFor(m => m.BranchDepositTarget, new { htmlAttributes = new { @class = "form-control" } })
-                                            @Html.ValidationMessageFor(m => m.BranchDepositTarget, "", new { @class = "text-danger" })
-                                        </div>
-
-                                        <div class="form-group">
-                                            @Html.LabelFor(m => m.BranchMerchantTarget, new { @class = "control-label" })
-                                            @Html.EditorFor(m => m.BranchMerchantTarget, new { htmlAttributes = new { @class = "form-control" } })
-                                            @Html.ValidationMessageFor(m => m.BranchMerchantTarget, "", new { @class = "text-danger" })
-                                        </div>
-
-                                        <div class="form-group">
-                                            @Html.LabelFor(m => m.BranchFcyTarget, new { @class = "control-label" })
-                                            @Html.EditorFor(m => m.BranchFcyTarget, new { htmlAttributes = new { @class = "form-control" } })
-                                            @Html.ValidationMessageFor(m => m.BranchFcyTarget, "", new { @class = "text-danger" })
-                                        </div>
+                                    <div class="mb-3">
+                                        @Html.LabelFor(m => m.MerchantTarget, new { @class = "form-label" })
+                                        @Html.EditorFor(m => m.MerchantTarget, new { htmlAttributes = new { @class = "form-control", @type = "number", @min = "0", placeholder = "0" } })
+                                        @Html.ValidationMessageFor(m => m.MerchantTarget, "", new { @class = "text-danger small mt-1" })
+                                    </div>
+                                    <div class="mb-3" id="fcyTargetContainer">
+                                        @Html.LabelFor(m => m.FCYTargetAmount, new { @class = "form-label" })
+                                        @Html.EditorFor(m => m.FCYTargetAmount, new { htmlAttributes = new { @class = "form-control", placeholder = "0.00" } })
+                                        @Html.ValidationMessageFor(m => m.FCYTargetAmount, "", new { @class = "text-danger small mt-1" })
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- ==== BUTTONS ==== -->
-                            <div class="btn-container">
-                                <input type="submit" value="Save Changes" class="btn btn-save btn-lg px-4" />
-                                @Html.ActionLink("Cancel", "Index", "Home", null,
-                                    new { @class = "btn btn-back btn-lg px-4" })
+                            <!-- Branch Targets -->
+                            <div class="col-md-6" id="branchTargetContainer">
+                                <div class="target-section">
+                                    <h5>Branch Targets</h5>
+                                    <div class="mb-3">
+                                        @Html.LabelFor(m => m.BranchDepositTarget, new { @class = "form-label" })
+                                        @Html.EditorFor(m => m.BranchDepositTarget, new { htmlAttributes = new { @class = "form-control", placeholder = "0.00" } })
+                                        @Html.ValidationMessageFor(m => m.BranchDepositTarget, "", new { @class = "text-danger small mt-1" })
+                                    </div>
+                                    <div class="mb-3">
+                                        @Html.LabelFor(m => m.BranchMerchantTarget, new { @class = "form-label" })
+                                        @Html.EditorFor(m => m.BranchMerchantTarget, new { htmlAttributes = new { @class = "form-control", placeholder = "0" } })
+                                        @Html.ValidationMessageFor(m => m.BranchMerchantTarget, "", new { @class = "text-danger small mt-1" })
+                                    </div>
+                                    <div class="mb-3">
+                                        @Html.LabelFor(m => m.BranchFcyTarget, new { @class = "form-label" })
+                                        @Html.EditorFor(m => m.BranchFcyTarget, new { htmlAttributes = new { @class = "form-control", placeholder = "0.00" } })
+                                        @Html.ValidationMessageFor(m => m.BranchFcyTarget, "", new { @class = "text-danger small mt-1" })
+                                    </div>
+                                </div>
                             </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="btn-container">
+                            <input type="submit" value="Save Changes" class="btn btn-save" />
+                            @Html.ActionLink("Cancel", "Index", "Home", null, new { @class = "btn btn-back" })
                         </div>
                     }
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/jqueryui")
-    @Scripts.Render("~/bundles/bootstrap")
-    <script>
-    $(function () {
-        // ----- cascading dropdowns (identical to Create) -----
+
+<script>
+    $(document).ready(function () {
+        // Initialize Select2
+        $('.select2').select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            placeholder: function () {
+                return $(this).data('placeholder');
+            }
+        });
+
+        // Cascading Dropdowns
         $('#ProcessDropdown').change(function () {
-            var process = $(this).val();
-            $('#SubprocessDropdown').empty().append('<option value="">Select Subprocess</option>');
-            $('#BranchDropdown').empty().append('<option value="">Select Branch</option>');
-            if (process) {
-                $.get('@Url.Action("GetSubprocesses","User")', { processName: process })
+            const processName = $(this).val();
+            const $subprocess = $('#SubprocessDropdown');
+            const $branch = $('#BranchDropdown');
+
+            $subprocess.empty().append('<option value="">Select Subprocess</option>').val('').trigger('change');
+            $branch.empty().append('<option value="">Select Branch</option>').val('').trigger('change');
+
+            if (processName) {
+                $.get('@Url.Action("GetSubprocesses", "User")', { processName: processName })
                     .done(function (data) {
-                        $.each(data, function (i, it) {
-                            $('#SubprocessDropdown').append($('<option>', {
-                                value: it.subprocess_name,
-                                text: it.subprocess_name
-                            }));
-                        });
+                        if (data && data.length > 0) {
+                            $.each(data, function (i, item) {
+                                $subprocess.append($('<option>', {
+                                    value: item.subprocess_name,
+                                    text: item.subprocess_name
+                                }));
+                            });
+                        }
                     });
             }
         });
 
         $('#SubprocessDropdown').change(function () {
-            var sub = $(this).val();
-            $('#BranchDropdown').empty().append('<option value="">Select Branch</option>');
-            if (sub) {
-                $.get('@Url.Action("GetBranches","User")', { subprocessName: sub })
+            const subprocessName = $(this).val();
+            const $branch = $('#BranchDropdown');
+            $branch.empty().append('<option value="">Select Branch</option>').val('').trigger('change');
+
+            if (subprocessName) {
+                $.get('@Url.Action("GetBranches", "User")', { subprocessName: subprocessName })
                     .done(function (data) {
-                        $.each(data, function (i, it) {
-                            $('#BranchDropdown').append($('<option>', {
-                                value: it.BranchName,
-                                text: it.BranchName
-                            }));
-                        });
+                        if (data && data.length > 0) {
+                            $.each(data, function (i, item) {
+                                $branch.append($('<option>', {
+                                    value: item.BranchName,
+                                    text: item.BranchName
+                                }));
+                            });
+                        }
                     });
             }
         });
 
-        // ----- hide/show Branch targets & FCY target -----
-        function toggleBranchTarget() {
-            var pos = $('#positionId').val();
-            $('#branchTargetContainer').toggle(pos === "BranchManager");
-            if (pos !== "BranchManager") $('#branchTargetContainer input').val('');
-        }
-        function toggleFcyTarget() {
-            var pos = $('#positionId').val();
-            $('#fcyTargetContainer').toggle(pos !== "Individual");
-            if (pos === "Individual") $('#fcyTargetContainer input').val('');
+        // Toggle Targets based on Position
+        function toggleTargets() {
+            const position = $('#positionId').val();
+            const $branchContainer = $('#branchTargetContainer');
+            const $fcyContainer = $('#fcyTargetContainer');
+
+            // Branch Targets
+            if (position === 'BranchManager') {
+                $branchContainer.slideDown();
+            } else {
+                $branchContainer.slideUp();
+                $branchContainer.find('input').val('');
+            }
+
+            // FCY Target
+            if (position === 'Individual') {
+                $fcyContainer.slideUp();
+                $fcyContainer.find('input').val('');
+            } else {
+                $fcyContainer.slideDown();
+            }
         }
 
-        toggleBranchTarget();
-        toggleFcyTarget();
-        $('#positionId').on('change', function () {
-            toggleBranchTarget();
-            toggleFcyTarget();
+        // Initialize
+        toggleTargets();
+        $('#positionId').on('change', toggleTargets);
+
+        // Form Validation
+        const form = document.getElementById('editUserForm');
+        form.addEventListener('submit', function (e) {
+            if (!form.checkValidity()) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            form.classList.add('was-validated');
         });
     });
-    </script>
-</body>
-</html>
+</script>

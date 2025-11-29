@@ -24,7 +24,7 @@ namespace TRMS.Controllers
         {
             ViewBag.District = db.DepositPlans.Select(t => t.District).Distinct().ToList();
             var transactions = db.DepositPlans.AsQueryable();
-            decimal totalAmount = 0;
+            decimal totalAmount = transactions.Sum(s => s.AccountBalance - s.IntialAccountBalance + s.Amount);
 
             if (!string.IsNullOrEmpty(district))
             {
@@ -32,31 +32,42 @@ namespace TRMS.Controllers
                 if (district == "All")
                 {
 
-                    totalAmount = transactions.Sum(s => s.AccountBalance-s.IntialAccountBalance);
+                    totalAmount = transactions.Sum(s => s.AccountBalance-s.IntialAccountBalance + s.Amount);
                 }
                 else
                 {
                     transactions = transactions.Where(t => t.District.Trim() == district.Trim());
-                    totalAmount = transactions.Where(t => t.District.Trim() == district.Trim()).Select(t => (decimal?)t.AccountBalance - t.IntialAccountBalance).Sum() ?? 0m;
+                    totalAmount = transactions.Where(t => t.District.Trim() == district.Trim()).Select(t => (decimal?)t.AccountBalance - t.IntialAccountBalance + t.Amount).Sum() ?? 0m;
                 }
-
-              
-
             }
 
             if (startDate.HasValue && endDate.HasValue)
             {
                 transactions = transactions.Where(t => t.CreatedDate >= startDate && t.CreatedDate <= endDate);
-                totalAmount = transactions.Where(t => t.CreatedDate >= startDate && t.CreatedDate <= endDate).Sum(u=> (decimal?)u.AccountBalance-u.IntialAccountBalance) ?? 0m;
+                totalAmount = transactions.Where(t => t.CreatedDate >= startDate && t.CreatedDate <= endDate).Sum(u=> (decimal?)u.AccountBalance-u.IntialAccountBalance + u.Amount) ?? 0m;
             }
             ViewBag.totalAmount = totalAmount;
             ViewBag.District = db.DepositPlans.Select(t => t.District).Distinct().ToList();
-            return View(transactions.ToList());
+
+
+            var transactionList = transactions.ToList();
+
+            // 🔹 Create a dictionary: Username → DepositTargetAmount
+            var userTargets = db.Users
+                .Where(u => u.DepositTargetAmount != null && u.UserName != null)
+                .AsEnumerable() // switch to LINQ-to-Objects
+                .GroupBy(u => u.UserName.Trim(), StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First().DepositTargetAmount);
+
+
+            // Store it in ViewBag for lookup in the view
+            ViewBag.UserTargets = userTargets;
+
+            return View(transactionList);
         }
 
         public ActionResult TopPerformerDistrict()
-        {
-            
+        {          
             return View();
         }
 
@@ -66,19 +77,19 @@ namespace TRMS.Controllers
         {
            
             var transactions = db.DepositMerchantAgenets.AsQueryable();
-            decimal totalAmount = 0;
+            decimal totalAmount = transactions.Sum(s => s.AccountBalance - s.IntialAccountBalance + s.Target);
 
             if (!string.IsNullOrEmpty(district))
             {
                 if (district == "All")
                 {
 
-                    totalAmount = transactions.Sum(s => s.AccountBalance - s.IntialAccountBalance);
+                    totalAmount = transactions.Sum(s => s.AccountBalance - s.IntialAccountBalance + s.Target);
                 }
                 else
                 {
                     transactions = transactions.Where(t => t.District.Trim() == district.Trim());
-                    totalAmount = transactions.Where(t => t.District.Trim() == district.Trim()).Select(t => (decimal?)t.AccountBalance - t.IntialAccountBalance).Sum() ?? 0m;
+                    totalAmount = transactions.Where(t => t.District.Trim() == district.Trim()).Select(t => (decimal?)t.AccountBalance - t.IntialAccountBalance + t.Target).Sum() ?? 0m;
                 }
 
 
@@ -87,11 +98,25 @@ namespace TRMS.Controllers
             if (startDate.HasValue && endDate.HasValue)
             {
                 transactions = transactions.Where(t => t.CreatedDate >= startDate && t.CreatedDate <= endDate);
-                totalAmount = transactions.Where(t => t.CreatedDate >= startDate && t.CreatedDate <= endDate).Sum(u => (decimal?)u.AccountBalance- u.IntialAccountBalance) ?? 0m;
+                totalAmount = transactions.Where(t => t.CreatedDate >= startDate && t.CreatedDate <= endDate).Sum(u => (decimal?)u.AccountBalance- u.IntialAccountBalance + u.Target) ?? 0m;
             }
             ViewBag.totalAmount = totalAmount;
             ViewBag.District = db.DepositMerchantAgenets.Select(t => t.District).Distinct().ToList();
-            return View(transactions.ToList());
+
+            var transactionList = transactions.ToList();
+
+            // 🔹 Create a dictionary: Username → DepositTargetAmount
+            var userTargets = db.Users
+                .Where(u => u.MerchantTarget != null && u.UserName != null)
+                .AsEnumerable() // switch to LINQ-to-Objects
+                .GroupBy(u => u.UserName.Trim(), StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First().MerchantTarget);
+
+
+            // Store it in ViewBag for lookup in the view
+            ViewBag.UserTargets = userTargets;
+
+            return View(transactionList);
         }
 
  
@@ -100,7 +125,7 @@ namespace TRMS.Controllers
         {
          
             var transactions = db.DepositFCies.AsQueryable();
-            decimal totalAmount = 0;
+            decimal totalAmount = transactions?.Sum(s => s.TransactionAmount) ?? 0;
 
             if (!string.IsNullOrEmpty(district))
             {
@@ -178,21 +203,35 @@ namespace TRMS.Controllers
 
             using (var wb = new XLWorkbook()) // Create workbook
             {
-                var ws = wb.Worksheets.Add("Bank District Report"); // Add sheet
+                var ws = wb.Worksheets.Add("Bank District Report"); // Add worksheet
 
-                // Table headers
+                // ==============================
+                // 1️⃣ HEADERS
+                // ==============================
                 ws.Cell(1, 1).Value = "NO";
-                ws.Cell(1, 2).Value = "District";
-                ws.Cell(1, 3).Value = "Branch";
-                ws.Cell(1, 4).Value = "Target";
-                ws.Cell(1, 5).Value = "Account Number";
-                ws.Cell(1, 6).Value = "Account Holder";
-                ws.Cell(1, 7).Value = "Intial Account Balance";
-                ws.Cell(1, 8).Value = "Account Balance";
-                ws.Cell(1, 9).Value = "Collected Amount";
-                ws.Cell(1, 10).Value = "Maker";
-                ws.Cell(1, 11).Value = "Transaction Date";
+                ws.Cell(1, 2).Value = "Process";
+                ws.Cell(1, 3).Value = "District/Subprocess";
+                ws.Cell(1, 4).Value = "Branch/Team";
+                ws.Cell(1, 5).Value = "Deposited Amount";
+                ws.Cell(1, 6).Value = "Account Number";
+                ws.Cell(1, 7).Value = "Account Holder";
+                ws.Cell(1, 8).Value = "Initial Account Balance";
+                ws.Cell(1, 9).Value = "Current Account Balance";
+                ws.Cell(1, 10).Value = "Collected Amount";
+                ws.Cell(1, 11).Value = "Narrative";
+                ws.Cell(1, 12).Value = "Maker";
+                ws.Cell(1, 13).Value = "Transaction Date";
+                ws.Cell(1, 14).Value = "Deposit Type";
 
+                // Style header row
+                var headerRange = ws.Range("A1:N1");
+                headerRange.Style.Font.Bold = true;
+                headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
+
+                // ==============================
+                // 2️⃣ ROWS
+                // ==============================
                 int row = 2;
                 int no = 1;
                 decimal collectedAmount;
@@ -200,54 +239,72 @@ namespace TRMS.Controllers
                 foreach (var item in transactions)
                 {
                     ws.Cell(row, 1).Value = no;
-                    ws.Cell(row, 2).Value = item.District;
-                    ws.Cell(row, 3).Value = item.Branch;
-                    ws.Cell(row, 4).Value = item.Amount;
-                    ws.Cell(row, 4).Style.NumberFormat.Format = "#,##0.00";
-                    ws.Cell(row, 5).Value = item.AccountNumber;
-                    ws.Cell(row, 6).Value = item.AccountHolder;
+                    ws.Cell(row, 2).Value = item.Process;
+                    ws.Cell(row, 3).Value = item.District;
+                    ws.Cell(row, 4).Value = item.Branch;
 
-                    ws.Cell(row, 7).Value = item.IntialAccountBalance;
-                    ws.Cell(row, 7).Style.NumberFormat.Format = "#,##0.00";
+                    ws.Cell(row, 5).Value = item.Amount;
+                    ws.Cell(row, 5).Style.NumberFormat.Format = "#,##0.00";
 
-                    ws.Cell(row, 8).Value = item.AccountBalance;
+                    ws.Cell(row, 6).Value = item.AccountNumber;
+                    ws.Cell(row, 7).Value = item.AccountHolder;
+
+                    ws.Cell(row, 8).Value = item.IntialAccountBalance;
                     ws.Cell(row, 8).Style.NumberFormat.Format = "#,##0.00";
 
-                    collectedAmount = item.AccountBalance - item.IntialAccountBalance;
-                    ws.Cell(row, 9).Value = collectedAmount;
+                    ws.Cell(row, 9).Value = item.AccountBalance;
                     ws.Cell(row, 9).Style.NumberFormat.Format = "#,##0.00";
 
-                    ws.Cell(row, 10).Value = item.User;
-                    ws.Cell(row, 11).Value = item.CreatedDate.ToString("yyyy-MM-dd");
+                    collectedAmount = item.AccountBalance - item.IntialAccountBalance + item.Amount;
+                    ws.Cell(row, 10).Value = collectedAmount;
+                    ws.Cell(row, 10).Style.NumberFormat.Format = "#,##0.00";
+
+                    ws.Cell(row, 11).Value = item.Narative;
+                    ws.Cell(row, 12).Value = item.User;
+                    ws.Cell(row, 13).Value = item.CreatedDate.ToString("yyyy-MM-dd");
+                    ws.Cell(row, 14).Value = item.DepositType;
 
                     row++;
                     no++;
                 }
 
+                // ==============================
+                // 3️⃣ TOTAL ROW
+                // ==============================
+                ws.Cell(row, 4).Value = "TOTALS:";
+                ws.Cell(row, 4).Style.Font.Bold = true;
 
-                // Add total amount at the end of the table
-                ws.Cell(row, 3).Value = "Total Amount";  // Label for the total
-                ws.Cell(row, 4).Value = totalAmount;     // Total amount sum
-                ws.Cell(row, 4).Style.NumberFormat.Format = "#,##0.00"; // Formatting for currency
+                ws.Cell(row, 5).Value = transactions.Sum(x => x.Amount);
+                ws.Cell(row, 5).Style.NumberFormat.Format = "#,##0.00";
+                ws.Cell(row, 5).Style.Font.Bold = true;
 
-                // intial balance
-                ws.Cell(row, 7).Value = totalAmountintialBalance;     // Total amount sum
-                ws.Cell(row, 7).Style.NumberFormat.Format = "#,##0.00"; // Formatting for currency
-                                                                        // currenet balance
-                ws.Cell(row, 8).Value = totalAmountCurrentBalance;     // Total amount sum
-                ws.Cell(row, 8).Style.NumberFormat.Format = "#,##0.00"; // Formatting for currency
+                ws.Cell(row, 8).Value = transactions.Sum(x => x.IntialAccountBalance);
+                ws.Cell(row, 8).Style.NumberFormat.Format = "#,##0.00";
+                ws.Cell(row, 8).Style.Font.Bold = true;
 
-                ws.Cell(row, 9).Value = totalCollectedAmount;
+                ws.Cell(row, 9).Value = transactions.Sum(x => x.AccountBalance);
                 ws.Cell(row, 9).Style.NumberFormat.Format = "#,##0.00";
+                ws.Cell(row, 9).Style.Font.Bold = true;
 
-                ws.Columns().AdjustToContents(); // Autofit column widths
+                ws.Cell(row, 10).Value = transactions.Sum(x => x.AccountBalance - x.IntialAccountBalance + x.Amount);
+                ws.Cell(row, 10).Style.NumberFormat.Format = "#,##0.00";
+                ws.Cell(row, 10).Style.Font.Bold = true;
 
-                var stream = new MemoryStream(); // Create memory stream
-                wb.SaveAs(stream, false); // **Fix: Prevent stream from closing**
-                stream.Position = 0; // Reset stream position
+                // ==============================
+                // 4️⃣ FORMATTING & EXPORT
+                // ==============================
+                ws.Columns().AdjustToContents(); // Auto-fit columns
+                ws.SheetView.FreezeRows(1);      // Freeze header row
 
-                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "District Customer Account Report.xlsx");
+                var stream = new MemoryStream();
+                wb.SaveAs(stream, false); // Prevent closing stream
+                stream.Position = 0;
+
+                return File(stream,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "Bank Level Deposit Report.xlsx");
             }
+
 
 
         }
@@ -293,79 +350,115 @@ namespace TRMS.Controllers
 
             using (var wb = new XLWorkbook()) // Create workbook
             {
-                var ws = wb.Worksheets.Add("District Agenet Report"); // Add sheet
+                var ws = wb.Worksheets.Add("Bank Level Merchant Report"); // Add worksheet
 
-                // Table headers
+                // ==============================
+                // 1️⃣ HEADERS
+                // ==============================
                 ws.Cell(1, 1).Value = "NO";
-                ws.Cell(1, 2).Value = "District";
-                ws.Cell(1, 3).Value = "Branch";
-                ws.Cell(1, 4).Value = "Target";
-                ws.Cell(1, 5).Value = "Account Number";
-                ws.Cell(1, 6).Value = "Account Holder";
-                ws.Cell(1, 7).Value = "Intial Account Balance";
-                ws.Cell(1, 8).Value = "Account Balance";
-                ws.Cell(1, 9).Value = "Actual Collected Amount";
-                ws.Cell(1, 10).Value = "Merchant Type";
-                ws.Cell(1, 11).Value = "Business Type";
-                ws.Cell(1, 12).Value = "QR";
-                ws.Cell(1, 13).Value = "Maker";
-                ws.Cell(1, 14).Value = "Transaction Date";
+                ws.Cell(1, 2).Value = "Process";
+                ws.Cell(1, 3).Value = "District/Subprocess";
+                ws.Cell(1, 4).Value = "Branch/Team";
+                ws.Cell(1, 5).Value = "Amount";
+                ws.Cell(1, 6).Value = "Merchant ID";
+                ws.Cell(1, 7).Value = "Account Number";
+                ws.Cell(1, 8).Value = "Account Holder";
+                ws.Cell(1, 9).Value = "Initial Account Balance";
+                ws.Cell(1, 10).Value = "Current Account Balance";
+                ws.Cell(1, 11).Value = "Actual Collected Amount";
+                ws.Cell(1, 12).Value = "Merchant Type";
+                ws.Cell(1, 13).Value = "Business Type";
+                ws.Cell(1, 14).Value = "QR";
+                ws.Cell(1, 15).Value = "Narrative";
+                ws.Cell(1, 16).Value = "Created By";
+                ws.Cell(1, 17).Value = "Created Date";
+                ws.Cell(1, 18).Value = "Deposit Type";
 
+                // Style header row (bold, centered, background)
+                var headerRange = ws.Range("A1:R1");
+                headerRange.Style.Font.Bold = true;
+                headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
+
+                // ==============================
+                // 2️⃣ ROWS
+                // ==============================
                 int row = 2;
                 int no = 1;
                 decimal collectedAmount;
+
                 foreach (var item in transactions)
                 {
                     ws.Cell(row, 1).Value = no;
-                    ws.Cell(row, 2).Value = item.District;
-                    ws.Cell(row, 3).Value = item.Branch;
-                    ws.Cell(row, 4).Value = item.Target;
-                    ws.Cell(row, 4).Style.NumberFormat.Format = "#,##0.00";
-                    ws.Cell(row, 5).Value = item.AccountNumber;
-                    ws.Cell(row, 6).Value = item.AccountHolder;
+                    ws.Cell(row, 2).Value = item.Process;
+                    ws.Cell(row, 3).Value = item.District;
+                    ws.Cell(row, 4).Value = item.Branch;
 
-                    ws.Cell(row, 7).Value = item.IntialAccountBalance;
-                    ws.Cell(row, 7).Style.NumberFormat.Format = "#,##0.00";
-                    ws.Cell(row, 8).Value = item.AccountBalance;
-                    ws.Cell(row, 8).Style.NumberFormat.Format = "#,##0.00";
+                    ws.Cell(row, 5).Value = item.Target;
+                    ws.Cell(row, 5).Style.NumberFormat.Format = "#,##0.00";
 
-                    collectedAmount = item.AccountBalance - item.IntialAccountBalance;
-                    ws.Cell(row, 9).Value = collectedAmount;
+                    ws.Cell(row, 6).Value = item.LinkAccount;
+                    ws.Cell(row, 7).Value = item.AccountNumber;
+                    ws.Cell(row, 8).Value = item.AccountHolder;
+
+                    ws.Cell(row, 9).Value = item.IntialAccountBalance;
                     ws.Cell(row, 9).Style.NumberFormat.Format = "#,##0.00";
-                    ws.Cell(row, 10).Value = item.Merchant_Type;
-                    ws.Cell(row, 11).Value = item.Business_Type;
-                    ws.Cell(row, 12).Value = item.QR;
-                    ws.Cell(row, 13).Value = item.CreatedBY;
-                    ws.Cell(row, 14).Value = item.CreatedDate.ToString("yyyy-MM-dd"); // Prevents null error
+
+                    ws.Cell(row, 10).Value = item.AccountBalance;
+                    ws.Cell(row, 10).Style.NumberFormat.Format = "#,##0.00";
+
+                    collectedAmount = item.AccountBalance - item.IntialAccountBalance + item.Target;
+                    ws.Cell(row, 11).Value = collectedAmount;
+                    ws.Cell(row, 11).Style.NumberFormat.Format = "#,##0.00";
+
+                    ws.Cell(row, 12).Value = item.Merchant_Type;
+                    ws.Cell(row, 13).Value = item.Business_Type;
+                    ws.Cell(row, 14).Value = item.QR;
+                    ws.Cell(row, 15).Value = item.Narative;
+                    ws.Cell(row, 16).Value = item.CreatedBY;
+                    ws.Cell(row, 17).Value = item.CreatedDate.ToString("yyyy-MM-dd");
+                    ws.Cell(row, 18).Value = item.DepositType;
+
                     row++;
                     no++;
                 }
 
-                // Add total amount at the end of the table
-                ws.Cell(row, 3).Value = "Total Amount";  // Label for the total
-                ws.Cell(row, 4).Value = totalAmount;     // Total amount sum
-                ws.Cell(row, 4).Style.NumberFormat.Format = "#,##0.00"; // Formatting for currency
+                // ==============================
+                // 3️⃣ TOTAL ROW
+                // ==============================
+                ws.Cell(row, 4).Value = "TOTALS:";
+                ws.Cell(row, 4).Style.Font.Bold = true;
 
-                // intial balance
-                ws.Cell(row, 7).Value = totalAmountintialBalance;     // Total amount sum
-                ws.Cell(row, 7).Style.NumberFormat.Format = "#,##0.00"; // Formatting for currency
-                                                                        // currenet balance
-                ws.Cell(row, 8).Value = totalAmountCurrentBalance;     // Total amount sum
-                ws.Cell(row, 8).Style.NumberFormat.Format = "#,##0.00"; // Formatting for currency
+                ws.Cell(row, 5).Value = transactions.Sum(x => x.Target);
+                ws.Cell(row, 5).Style.NumberFormat.Format = "#,##0.00";
+                ws.Cell(row, 5).Style.Font.Bold = true;
 
-                ws.Cell(row, 9).Value = totalCollectedAmount;     // Total amount sum
-                ws.Cell(row, 9).Style.NumberFormat.Format = "#,##0.00"; // Formatting for currency
+                ws.Cell(row, 9).Value = transactions.Sum(x => x.IntialAccountBalance);
+                ws.Cell(row, 9).Style.NumberFormat.Format = "#,##0.00";
+                ws.Cell(row, 9).Style.Font.Bold = true;
 
+                ws.Cell(row, 10).Value = transactions.Sum(x => x.AccountBalance);
+                ws.Cell(row, 10).Style.NumberFormat.Format = "#,##0.00";
+                ws.Cell(row, 10).Style.Font.Bold = true;
 
-                ws.Columns().AdjustToContents(); // Autofit column widths
+                ws.Cell(row, 11).Value = transactions.Sum(x => x.AccountBalance - x.IntialAccountBalance + x.Target);
+                ws.Cell(row, 11).Style.NumberFormat.Format = "#,##0.00";
+                ws.Cell(row, 11).Style.Font.Bold = true;
 
-                var stream = new MemoryStream(); // Create memory stream
-                wb.SaveAs(stream, false); // **Fix: Prevent stream from closing**
-                stream.Position = 0; // Reset stream position
+                // ==============================
+                // 4️⃣ FORMAT & EXPORT
+                // ==============================
+                ws.Columns().AdjustToContents(); // Auto-fit column widths
+                ws.SheetView.FreezeRows(1);      // Freeze header row
 
-                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "District Agenet and Merchant Report.xlsx");
+                var stream = new MemoryStream();
+                wb.SaveAs(stream, false);
+                stream.Position = 0;
+
+                return File(stream,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "Bank Level Merchant Report.xlsx");
             }
-
 
         }
 
@@ -402,47 +495,84 @@ namespace TRMS.Controllers
 
             using (var wb = new XLWorkbook()) // Create workbook
             {
-                var ws = wb.Worksheets.Add("District  Fcy Report"); // Add sheet
+                var ws = wb.Worksheets.Add("Bank Level FCY Report"); // Add worksheet
 
-                // Table headers
+                // ==============================
+                // 1️⃣ HEADERS
+                // ==============================
                 ws.Cell(1, 1).Value = "NO";
-                ws.Cell(1, 2).Value = "District";
-                ws.Cell(1, 3).Value = "Branch";
-                ws.Cell(1, 4).Value = "Transaction Amount";
-                ws.Cell(1, 5).Value = "Account Number";
-                ws.Cell(1, 6).Value = "Transaction Refernce";
-                ws.Cell(1, 7).Value = "Maker";
-                ws.Cell(1, 8).Value = "Transaction Date";
+                ws.Cell(1, 2).Value = "Process";
+                ws.Cell(1, 3).Value = "District/Subprocess";
+                ws.Cell(1, 4).Value = "Branch/Team";
+                ws.Cell(1, 5).Value = "Currency";
+                ws.Cell(1, 6).Value = "Account Number";
+                ws.Cell(1, 7).Value = "Reference Number";
+                ws.Cell(1, 8).Value = "Transaction Amount";
+                ws.Cell(1, 9).Value = "Narrative";
+                ws.Cell(1, 10).Value = "Maker";
+                ws.Cell(1, 11).Value = "Created Date";
+                ws.Cell(1, 12).Value = "Deposit Type";
 
+                // Style header row
+                var headerRange = ws.Range("A1:M1");
+                headerRange.Style.Font.Bold = true;
+                headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
+
+                // ==============================
+                // 2️⃣ ROWS
+                // ==============================
                 int row = 2;
                 int no = 1;
+
                 foreach (var item in transactions)
                 {
                     ws.Cell(row, 1).Value = no;
-                    ws.Cell(row, 2).Value = item.District;
-                    ws.Cell(row, 3).Value = item.Branch;
-                    ws.Cell(row, 4).Value = item.TransactionAmount;
-                    ws.Cell(row, 4).Style.NumberFormat.Format = "#,##0.00";
-                    ws.Cell(row, 5).Value = item.AccountNumber;
-                    ws.Cell(row, 6).Value = item.RefernceNumber;
-                    ws.Cell(row, 9).Value = item.User;
-                    ws.Cell(row, 10).Value = item.CreatedDate.ToString("yyyy-MM-dd"); // Prevents null error
+                    ws.Cell(row, 2).Value = item.Process;
+                    ws.Cell(row, 3).Value = item.District;
+                    ws.Cell(row, 4).Value = item.Branch;
+
+                    ws.Cell(row, 5).Value = item.Currecy;
+                    ws.Cell(row, 6).Value = item.AccountNumber;
+                    ws.Cell(row, 7).Value = item.RefernceNumber;
+
+                    ws.Cell(row, 8).Value = item.TransactionAmount;
+                    ws.Cell(row, 8).Style.NumberFormat.Format = "#,##0.00";
+
+                    ws.Cell(row, 9).Value = item.Narative;
+                    ws.Cell(row, 10).Value = item.User;
+                    ws.Cell(row, 11).Value = item.CreatedDate.ToString("yyyy-MM-dd");
+                    ws.Cell(row, 12).Value = item.DepositType;
+
                     row++;
                     no++;
                 }
 
-                // Add total amount at the end of the table
-                ws.Cell(row, 3).Value = "Total Amount";  // Label for the total
-                ws.Cell(row, 4).Value = totalAmount;     // Total amount sum
-                ws.Cell(row, 4).Style.NumberFormat.Format = "#,##0.00"; // Formatting for currency
-                ws.Columns().AdjustToContents(); // Autofit column widths
+                // ==============================
+                // 3️⃣ TOTAL ROW
+                // ==============================
+                ws.Cell(row, 7).Value = "TOTAL TRANSACTION AMOUNT:";
+                ws.Cell(row, 7).Style.Font.Bold = true;
 
-                var stream = new MemoryStream(); // Create memory stream
-                wb.SaveAs(stream, false); // **Fix: Prevent stream from closing**
-                stream.Position = 0; // Reset stream position
+                ws.Cell(row, 8).Value = transactions.Sum(x => x.TransactionAmount);
+                ws.Cell(row, 8).Style.NumberFormat.Format = "#,##0.00";
+                ws.Cell(row, 8).Style.Font.Bold = true;
 
-                return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "District Fcy Report.xlsx");
+                // ==============================
+                // 4️⃣ FORMATTING & EXPORT
+                // ==============================
+                ws.Columns().AdjustToContents(); // Auto-fit all columns
+                ws.SheetView.FreezeRows(1);      // Freeze header row
+
+                var stream = new MemoryStream();
+                wb.SaveAs(stream, false); // Prevents stream from closing
+                stream.Position = 0;
+
+                return File(stream,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "Bank Level FCY Report.xlsx");
             }
+
 
 
         }
@@ -502,7 +632,7 @@ namespace TRMS.Controllers
             document.Add(table);
             document.Close();
 
-            return File(stream.ToArray(), "application/pdf", "Indvisual Transactions Report.pdf");
+            return File(stream.ToArray(), "application/pdf", "Indvidual Transactions Report.pdf");
         }
     }
 }

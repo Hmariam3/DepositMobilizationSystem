@@ -17,7 +17,7 @@ namespace TRMS.Models
         public decimal Amount { get; set; }
        
         [Required(ErrorMessage = "The {0} Field Is Required")]
-        [StringLength(13, ErrorMessage = "The {0} Exceded The Maximum Characters Allowed.")]
+        [StringLength(30, ErrorMessage = "The {0} Exceded The Maximum Characters Allowed.")]
         [Display(Name = "Account Number")]
         public string AccountNumber { get; set; }
         

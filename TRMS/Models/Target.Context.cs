@@ -41,5 +41,6 @@ namespace TRMS.Models
         public virtual DbSet<Transaction> Transactions { get; set; }
         public virtual DbSet<UserEngagement> UserEngagements { get; set; }
         public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<DepositPlanupdated> DepositPlanupdateds { get; set; }
     }
 }

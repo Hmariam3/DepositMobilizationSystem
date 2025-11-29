@@ -16,12 +16,24 @@ namespace TRMS.Controllers
     public class DepositFCiesController : Controller
     {
         private TRMSEntities db = new TRMSEntities();
-       callAccountwithRefrenece callbyRefrence = new callAccountwithRefrenece();
+        callAccountwithRefrenece callbyRefrence = new callAccountwithRefrenece();
         // GET: DepositFCies
         public ActionResult Index()
         {
-            var depositFCies = db.DepositFCies.Include(d => d.User1);
-            return View(depositFCies.ToList());
+            if (Session["UserName"] == null)
+            {
+                return RedirectToAction("login", "User");
+            }
+            else
+            {
+                string UserName = Session["UserName"].ToString();
+                var transactions = db.DepositFCies.Where(t => t.User == UserName).ToList();
+                if (transactions == null)
+                {
+                    transactions = new List<DepositFCY>();
+                }
+                return View(transactions);
+            }
         }
 
         // GET: DepositFCies/Details/5
@@ -42,7 +54,7 @@ namespace TRMS.Controllers
         // GET: DepositFCies/Create
         public ActionResult Create()
         {
-         
+
             return View();
         }
 
@@ -63,7 +75,7 @@ namespace TRMS.Controllers
                 TempData["errorRes"] = "Please Refernce  Number!";
                 return View(depositFCY);
             }
-            var  arefreneceExist = db.DepositFCies.Where(t => t.RefernceNumber.Trim() == depositFCY.RefernceNumber.Trim()).ToList();
+            var arefreneceExist = db.DepositFCies.Where(t => t.RefernceNumber.Trim() == depositFCY.RefernceNumber.Trim()).ToList();
             if (arefreneceExist.Count() >= 1)
             {
                 // Ensure transaction is not null before accessing ReferenceNumber
@@ -78,7 +90,7 @@ namespace TRMS.Controllers
                 TempData["ErrorMessage"] = "Refernce Number  duplication!" + "Registerd BY " + createdBy + "  " + "And  Phone Number is " + phoneNumber;
                 return View(depositFCY);
             }
-         
+
             if (submit.Equals("Validate"))
             {
 
@@ -120,7 +132,7 @@ namespace TRMS.Controllers
                 // ✅ Extract reference type
                 string referenceNumber = depositFCY.RefernceNumber?.Trim() ?? "";
                 string refType = referenceNumber.Length >= 2 ? referenceNumber.Substring(0, 2).ToUpper() : "";
-                //bool isFT = refType == "FT";
+                bool isFT = refType == "FT";
                 //bool isTT = refType == "TT";
                 bool isTF = refType == "TF";
 
@@ -138,16 +150,19 @@ namespace TRMS.Controllers
                     var refValue = txnNode.SelectSingleNode("ns3:TXNREF", transactionNsManager)?.InnerText ?? "";
                     var marker = txnNode.SelectSingleNode("ns3:DRCRMARKER", transactionNsManager)?.InnerText ?? "";
                     var account = txnNode.SelectSingleNode("ns3:Account", transactionNsManager)?.InnerText ?? "";
-                    var amt = txnNode.SelectSingleNode("ns3:Amount", transactionNsManager)?.InnerText ?? "";
+                    var amtRaw = txnNode.SelectSingleNode("ns3:Amount", transactionNsManager)?.InnerText ?? "";
                     var curr = txnNode.SelectSingleNode("ns3:Currency", transactionNsManager)?.InnerText ?? "";
                     var date = txnNode.SelectSingleNode("ns3:TXNDATE", transactionNsManager)?.InnerText ?? "";
+
+                    // ✅ Clean amount: remove leading currency letters (e.g., "EUR624.42" → "624.42")
+                    string amtClean = Regex.Replace(amtRaw, @"^[A-Za-z]+", "").Trim();
 
                     transactionDetails.Add(new
                     {
                         TXNREF = refValue,
                         DRCRMARKER = marker,
                         Account = account,
-                        Amount = amt,
+                        Amount = amtClean,
                         Currency = curr,
                         TXNDATE = date
                     });
@@ -155,12 +170,42 @@ namespace TRMS.Controllers
                     // Assign based on type
                     if (isTF)
                     {
-                        // TT transactions have only one record
-                        debitAccount = "";
-                        creditAccount = account;
-                        amount = amt;
+                        // TF transactions have only one record
+                        //debitAccount = "";
+                        //creditAccount = account;
+                        //amount = amtClean;
+                        //txnRef = refValue;
+                        //currency = curr;
+                        //txnDate = date;
+
+                        if (!string.IsNullOrEmpty(account) && account == depositFCY.AccountNumber)
+                        {
+                            // Only pick the matching CREDIT account
+                            creditAccount = account;
+                            if (string.IsNullOrEmpty(amount) && !string.IsNullOrEmpty(amtClean))
+                                amount = amtClean;
+
+                            txnRef = refValue;
+                            currency = curr;
+                            txnDate = date;
+                        }
+                    }                        // Assign based on type
+                    else if (isFT)
+                    {
+                        // Identify debit and credit accounts
+                        if (marker == "DEBIT")
+                        {
+                            debitAccount = account;
+                            amount = amtClean;
+                            currency = curr;
+                        }
+                        else if (marker == "CREDIT")
+                        {
+                            creditAccount = account;
+                        }
+
+
                         txnRef = refValue;
-                        currency = curr;
                         txnDate = date;
                     }
                 }
@@ -176,6 +221,13 @@ namespace TRMS.Controllers
 
                 // ✅ Validate account number
                 if ((isTF) && depositFCY.AccountNumber != creditAccount)
+                {
+                    TempData["AccountMismatch"] = true;
+                    ViewBag.ReferenceExists = false;
+                    TempData["ErrorMessage"] = "Account number from transaction details does not match the provided account number.";
+                    return View(depositFCY);
+                }
+                if ((isFT) && depositFCY.AccountNumber != creditAccount)
                 {
                     TempData["AccountMismatch"] = true;
                     ViewBag.ReferenceExists = false;
@@ -256,9 +308,10 @@ namespace TRMS.Controllers
                     {
                         depositFCY.DepositType = "Individual";
                     }
-                    depositFCY.Process = Session["Process"]?.ToString() ?? string.Empty;
-                    depositFCY.District = Session["District"].ToString();
-                    depositFCY.Branch = Session["UserHomeBranch"].ToString();
+
+                    depositFCY.Process = Session["Process"] as string ?? string.Empty;
+                    depositFCY.District = Session["District"] as string ?? string.Empty;
+                    depositFCY.Branch = Session["UserHomeBranch"] as string ?? string.Empty;
                     depositFCY.Target = 0;
                     depositFCY.CreatedDate = DateTime.Now;
                     db.DepositFCies.Add(depositFCY);

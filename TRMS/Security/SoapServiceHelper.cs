@@ -12,27 +12,56 @@ namespace TRMS.Security
     {
         public string GetAccountBalance(string accountNumber)
         {
-            var url = "http://10.1.126.12:8050/TWSMMT/services";
+            var url = "http://10.1.126.12:8040/TWSTXNDETAIL/services";
+            //string soapXml = $@"
+            //    <soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:tws='http://temenos.com/TWSMMT'>
+            //       <soapenv:Header/>
+            //       <soapenv:Body>
+            //          <tws:MMTACCTBALANCE>
+            //             <WebRequestCommon>
+            //                <company></company>
+            //                <password>BAPPT@1234</password>
+            //                <userName>BACKOFAP</userName>
+            //             </WebRequestCommon>
+            //             <ACCTBALCTSType>
+            //                <enquiryInputCollection>
+            //                   <columnName>ACCOUNT.NUMBER</columnName>
+            //                   <criteriaValue>{accountNumber}</criteriaValue>
+            //                   <operand>EQ</operand>
+            //                </enquiryInputCollection>
+            //             </ACCTBALCTSType>
+            //          </tws:MMTACCTBALANCE>
+            //       </soapenv:Body>
+            //    </soapenv:Envelope>";
+
             string soapXml = $@"
-<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:tws='http://temenos.com/TWSMMT'>
-   <soapenv:Header/>
-   <soapenv:Body>
-      <tws:MMTACCTBALANCE>
-         <WebRequestCommon>
-            <company></company>
-            <password>BAPPT@1234</password>
-            <userName>BACKOFAP</userName>
-         </WebRequestCommon>
-         <ACCTBALCTSType>
-            <enquiryInputCollection>
-               <columnName>ACCOUNT.NUMBER</columnName>
-               <criteriaValue>{accountNumber}</criteriaValue>
-               <operand>EQ</operand>
-            </enquiryInputCollection>
-         </ACCTBALCTSType>
-      </tws:MMTACCTBALANCE>
-   </soapenv:Body>
-</soapenv:Envelope>";
+            <soapenv:Envelope
+	        xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:tws='http://temenos.com/TWSTXNDETAIL'>
+	        <soapenv:Header/>
+	        <soapenv:Body>
+		        <tws:ACCOUNTBALANCEINFO>
+			        <WebRequestCommon>
+				        <!--Optional:-->
+				        <company></company>
+				        <password>BAPPT@1234</password>
+				        <userName>BACKOFAP</userName>
+			        </WebRequestCommon>
+			        <ACCTBALINFOType>
+				        <!--Zero or more repetitions:-->
+				        <enquiryInputCollection>
+					        <!--Optional:-->
+					        <columnName>ACCOUNT.NUMBER</columnName>
+					        <!--Optional:-->
+					        <criteriaValue>{accountNumber}</criteriaValue>
+					        <!--Optional:-->
+					        <operand>EQ</operand>
+				        </enquiryInputCollection>
+			        </ACCTBALINFOType>
+		        </tws:ACCOUNTBALANCEINFO>
+	        </soapenv:Body>
+        </soapenv:Envelope> ";
+
+
 
             using (var client = new HttpClient())
             {

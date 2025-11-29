@@ -49,6 +49,28 @@ namespace TRMS.Security
                 return responseContent;
             }
         }
+
+
+        public string GetPreviousBalance(string accountNumber, string referenceNumber)
+        {
+            // Build URL with parameters
+            string url = $"http://10.1.130.17:5107/TransactionReferences?accountNumber={accountNumber}&ref_no={referenceNumber}";
+
+            using (var client = new HttpClient())
+            {
+                var request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri(url),
+                    Method = HttpMethod.Get
+                };
+
+                // Send the request synchronously (same as your old code)
+                var response = client.SendAsync(request).GetAwaiter().GetResult();
+                var responseContent = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+
+                return responseContent;
+            }
+        }
     }
 
 }

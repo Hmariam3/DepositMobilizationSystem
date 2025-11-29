@@ -10,6 +10,7 @@ using System.Xml;
 using TRMS.Models;
 using TRMS.Security;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json.Linq;
 
 namespace TRMS.Controllers
 {
@@ -81,6 +82,8 @@ namespace TRMS.Controllers
                 return View(depositMerchantAgenet);
             }
 
+
+
             if (!string.IsNullOrEmpty(depositMerchantAgenet.ReferenceNumber) && submit == "Validate")
             {
                 try
@@ -95,13 +98,14 @@ namespace TRMS.Controllers
 
                     var balanceDoc = new XmlDocument();
                     balanceDoc.LoadXml(balanceResponse);
+
                     var nsManager = new XmlNamespaceManager(balanceDoc.NameTable);
                     nsManager.AddNamespace("S", "http://schemas.xmlsoap.org/soap/envelope/");
-                    nsManager.AddNamespace("ns11", "http://temenos.com/TWSMMT");
-                    nsManager.AddNamespace("ns7", "http://temenos.com/ACCTBALCTS");
+                    nsManager.AddNamespace("ns2", "http://temenos.com/ACCTBALINFO");
+                    nsManager.AddNamespace("ns4", "http://temenos.com/TWSTXNDETAIL");
 
                     // Check balance API status
-                    var statusNode = balanceDoc.SelectSingleNode("//S:Body/ns11:MMTACCTBALANCEResponse/Status/successIndicator", nsManager);
+                    var statusNode = balanceDoc.SelectSingleNode("//S:Body/ns4:ACCOUNTBALANCEINFOResponse/Status/successIndicator", nsManager);
                     if (statusNode?.InnerText != "Success")
                     {
                         TempData["ErrorMessage"] = "Failed to retrieve account details or invalid account number.";
@@ -109,20 +113,21 @@ namespace TRMS.Controllers
                     }
 
                     // Extract account details
-                    var accountNode = balanceDoc.SelectSingleNode("//S:Body/ns11:MMTACCTBALANCEResponse/ACCTBALCTSType/ns7:gACCTBALCTSDetailType/ns7:mACCTBALCTSDetailType", nsManager);
+                    var accountNode = balanceDoc.SelectSingleNode("//S:Body/ns4:ACCOUNTBALANCEINFOResponse/ACCTBALINFOType/ns2:gACCTBALINFODetailType/ns2:mACCTBALINFODetailType", nsManager);
                     if (accountNode == null)
                     {
                         TempData["ErrorMessage"] = "Account details not found in the response.";
                         return View(depositMerchantAgenet);
                     }
 
-                    var accountNo = accountNode.SelectSingleNode("ns7:AcctNo", nsManager)?.InnerText ?? "Account Number Not Found";
-                    var accountName = accountNode.SelectSingleNode("ns7:Name", nsManager)?.InnerText ?? "Account Name Not Found";
-                    var workingBalance = accountNode.SelectSingleNode("ns7:WorkingBal", nsManager)?.InnerText.Replace(",", "") ?? "Working Balance Not Found";
+                    var accountNo = accountNode.SelectSingleNode("ns2:AcctNo", nsManager)?.InnerText ?? "Account Number Not Found";
+                    var accountName = accountNode.SelectSingleNode("ns2:Name", nsManager)?.InnerText ?? "Account Name Not Found";
+                    var workingBalance = accountNode.SelectSingleNode("ns2:WorkingBal", nsManager)?.InnerText.Replace(",", "") ?? "Working Balance Not Found";
 
                     // Store account details in ViewBag
                     ViewBag.AccountHolder = accountName;
                     ViewBag.AccountBalance = workingBalance;
+
 
                     // Fetch and parse transaction details by reference
                     var transactionResponse = callbyReference.GetAccountinformationByrefrence(depositMerchantAgenet.ReferenceNumber);
@@ -180,16 +185,18 @@ namespace TRMS.Controllers
                         var refValue = txnNode.SelectSingleNode("ns3:TXNREF", transactionNsManager)?.InnerText ?? "";
                         var marker = txnNode.SelectSingleNode("ns3:DRCRMARKER", transactionNsManager)?.InnerText ?? "";
                         var account = txnNode.SelectSingleNode("ns3:Account", transactionNsManager)?.InnerText ?? "";
-                        var amt = txnNode.SelectSingleNode("ns3:Amount", transactionNsManager)?.InnerText ?? "";
+                        var amtRaw = txnNode.SelectSingleNode("ns3:Amount", transactionNsManager)?.InnerText ?? "";
                         var curr = txnNode.SelectSingleNode("ns3:Currency", transactionNsManager)?.InnerText ?? "";
                         var date = txnNode.SelectSingleNode("ns3:TXNDATE", transactionNsManager)?.InnerText ?? "";
+
+                        string amtClean = Regex.Replace(amtRaw, @"^[A-Za-z]+", "").Trim();
 
                         transactionDetails.Add(new
                         {
                             TXNREF = refValue,
                             DRCRMARKER = marker,
                             Account = account,
-                            Amount = amt,
+                            Amount = amtClean,
                             Currency = curr,
                             TXNDATE = date
                         });
@@ -204,10 +211,10 @@ namespace TRMS.Controllers
                                 creditAccount = account;
 
                             // ✅ Capture amount: take whichever node has a non-empty value
-                            if (string.IsNullOrEmpty(amount) && !string.IsNullOrEmpty(amt))
-                                amount = amt;
-                            else if (!string.IsNullOrEmpty(amt))
-                                amount = amt; // overwrite only if current node has valid amount
+                            if (string.IsNullOrEmpty(amount) && !string.IsNullOrEmpty(amtClean))
+                                amount = amtClean;
+                            else if (!string.IsNullOrEmpty(amtClean))
+                                amount = amtClean; // overwrite only if current node has valid amount
 
                             txnRef = refValue;
                             currency = curr;
@@ -218,7 +225,7 @@ namespace TRMS.Controllers
                             // TT transactions have only one record
                             debitAccount = "";
                             creditAccount = account;
-                            amount = amt;
+                            amount = amtClean;
                             txnRef = refValue;
                             currency = curr;
                             txnDate = date;
@@ -228,7 +235,7 @@ namespace TRMS.Controllers
                             // TT transactions have only one record
                             debitAccount = "";
                             creditAccount = account;
-                            amount = amt;
+                            amount = amtClean;
                             txnRef = refValue;
                             currency = curr;
                             txnDate = date;
@@ -280,6 +287,26 @@ namespace TRMS.Controllers
                     ViewBag.TransactionAmount = amount;
                     ViewBag.TransactionReference = txnRef;
 
+
+
+                    // Fetch previous balance (string JSON)
+                    string json = callbyReference.GetPreviousBalance(depositMerchantAgenet.AccountNumber, depositMerchantAgenet.ReferenceNumber);
+                    decimal opening = 0;
+                    if (!string.IsNullOrEmpty(json))
+                    {
+                        // Parse JSON array
+                        JArray arr = JArray.Parse(json);
+
+                        if (arr.Count > 0)
+                        {
+                            JObject txn = (JObject)arr[0];
+
+                            opening = (decimal?)txn["openingBalance"] ?? 0;
+
+                        }
+                    }
+                    ViewBag.PreviousBalance = opening;
+
                     // Populate dropdowns and return
 
                     return View(depositMerchantAgenet);
@@ -297,8 +324,6 @@ namespace TRMS.Controllers
                     return View(depositMerchantAgenet);
                 }
             }
-
-
             else
             {
                 // Check for reference number duplication
@@ -349,31 +374,38 @@ namespace TRMS.Controllers
                         {
                             depositMerchantAgenet.DepositType = "Individual";
                         }
+                        if (depositMerchantAgenet.LinkAccount == null)
+                        {
+                            TempData["errorRes"] = "Please Enter Merchant ID!";
+                            return View(depositMerchantAgenet);
+                        }
                         depositMerchantAgenet.IntialAccountBalance = depositMerchantAgenet.AccountBalance;
                         depositMerchantAgenet.AccountBalance = depositMerchantAgenet.AccountBalance;
-                        depositMerchantAgenet.District = Session["District"].ToString();
-                        depositMerchantAgenet.Branch = Session["UserHomeBranch"].ToString();
-                        depositMerchantAgenet.Process = Session["Process"]?.ToString() ?? string.Empty;
-                        depositMerchantAgenet.CreatedDate = DateTime.Now;
+                        depositMerchantAgenet.Process = Session["Process"] as string ?? string.Empty;
+                        depositMerchantAgenet.District = Session["District"] as string ?? string.Empty;
+                        depositMerchantAgenet.Branch = Session["UserHomeBranch"] as string ?? string.Empty;
+
+
+                    depositMerchantAgenet.CreatedDate = DateTime.Now;
                         db.DepositMerchantAgenets.Add(depositMerchantAgenet);
 
 
-                    if (TempData["AccountMismatch"] != null && (bool)TempData["AccountMismatch"] == true)
-                    {
-                        // 🧠 Keep the flag for next request (since TempData clears after reading)
-                        TempData.Keep("AccountMismatch");
-                        TempData["ErrorMessage"] = "Cannot save — account number mismatch detected. Please revalidate.";
-                        return View(depositMerchantAgenet);
-                    }
-                    db.SaveChanges();
+                        if (TempData["AccountMismatch"] != null && (bool)TempData["AccountMismatch"] == true)
+                        {
+                            // 🧠 Keep the flag for next request (since TempData clears after reading)
+                            TempData.Keep("AccountMismatch");
+                            TempData["ErrorMessage"] = "Cannot save — account number mismatch detected. Please revalidate.";
+                            return View(depositMerchantAgenet);
+                        }
+                        db.SaveChanges();
 
-                    TempData["SuccessMessage"] = "Transaction saved successfully!";
-                    ModelState.Clear();
+                        TempData["SuccessMessage"] = "Transaction saved successfully!";
+                        ModelState.Clear();
 
-                    depositMerchantAgenet = new DepositMerchantAgenet(); // Reinitialize model
+                        depositMerchantAgenet = new DepositMerchantAgenet(); // Reinitialize model
                         return View(depositMerchantAgenet);
                     
-                }
+                    }
             }
             return View(depositMerchantAgenet);
         }

@@ -1,94 +1,387 @@
-﻿
-@model TRMS.Models.User
+﻿@model TRMS.Models.User
 @{
     ViewBag.Title = "Login";
     Layout = null;
+
 }
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>@ViewBag.Title</title>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-    @Styles.Render("~/Content/css")
-    @Scripts.Render("~/bundles/modernizr")
-    <link rel="stylesheet" href="/admin-lte/plugins/Ionicons/css/ionicons.min.css">
-    <!--[if lt IE 9]>
-    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
-</head>
-<body>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Deposit Mobilization System - Login</title>
 
-        @using (Html.BeginForm("Login", "User", FormMethod.Post, new { id = "loginForm" }))
-        {
-            @Html.AntiForgeryToken()
-            <div class="form-horizontal  col-md-5" style="margin-top: 12rem; margin-left: 45rem;">
-                <div class="panel panel-default">
-
-                    @if (TempData["SuccessMessage"] != null)
-                    {
-                        <div class="alert alert-success">
-                            <strong>Success!</strong> @TempData["SuccessMessage"]
-                        </div>
-                    }
-
-                    <div class="panel-heading text-center" style="background-color:#00AEEF;color:white;font-size:30px;">
-                        <b>Login Page</b>
-                    </div>
-                    <div class="panel-body">
-                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                        <div class="form-group">
-                            @Html.LabelFor(model => model.UserName, htmlAttributes: new { @class = "control-label col-md-2" })
-                            <div class="col-md-7">
-                                @Html.EditorFor(model => model.UserName, new { htmlAttributes = new { @class = "form-control form-control-sm" } })
-                                @Html.ValidationMessageFor(model => model.UserName, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            @Html.LabelFor(model => model.Password, htmlAttributes: new { @class = "control-label col-md-2" })
-                            <div class="col-md-7">
-                                @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @class = "form-control form-control-sm", @type = "password", @id = "password" } })
-                                @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
-                                <div class="text-danger">
-                                    @ViewBag.Error
-                                    @TempData["LoginError"]
-                                </div>
-                            </div>
-                            <div class="input-group-append">
-                                <span class="input-group-text" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
-                                    <i id="togglePassword" class="fa fa-eye-slash" style="cursor: pointer; font-size: 20px;"></i>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-md-offset-2 col-md-10">
-                                <input type="submit" value="Login" class="btn btn-default" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <link rel="stylesheet" href="~/plugins/fontawesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="~/plugins/fontawesome-free/css/all.min.css" />
+    <style>
+        :root {
+            --primary: #00ADEF;
+            --primary-dark: #0095d1;
+            --gray-light: #f8f9fa;
+            --text-dark: #1f2937;
+            --error: #dc3545;
+            --success: #198754;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --light: #f8f9fa;
+            --dark: #212529;
         }
 
-        @Scripts.Render("~/bundles/jquery")
-        <script>
-            $(document).ready(function () {
-                $("#togglePassword").click(function () {
-                    var passwordField = $("#password");
-                    var icon = $(this);
-                    if (passwordField.attr("type") === "password") {
-                        passwordField.attr("type", "text");
-                        icon.removeClass("fa-eye-slash").addClass("fa-eye");
-                    } else {
-                        passwordField.attr("type", "password");
-                        icon.removeClass("fa-eye").addClass("fa-eye-slash");
-                    }
-                });
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-                $("#loginForm").submit(function () {
-                    console.log("Login form submitted to /User/Login");
-                    return true; // Ensure default form submission
-                });
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            background: var(--primary);
+            padding: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+            /* Subtle Infinity Background */
+            body::before {
+                content: '∞';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 150vw; /* Increase until it fully covers */
+                color: rgba(255, 255, 255, 0.5);
+                z-index: -1;
+                font-family: Arial, sans-serif;
+                font-weight: bold;
+                opacity: 0.4;
+                line-height: 1;
+                white-space: nowrap;
+            }
+        /* Compact Container */
+        .login-container {
+            max-width: 900px;
+            width: 90%;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+            display: flex;
+            flex-direction: row;
+            transition: all 0.3s ease;
+            z-index: 1;
+        }
+
+            .login-container:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 16px 35px rgba(0, 0, 0, 0.25);
+            }
+
+        /* Image Section (Compact) */
+        .image-section {
+            flex: 1;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(0, 173, 239, 0.08), rgba(0, 86, 179, 0.08));
+        }
+
+            .image-section img {
+                max-width: 100%;
+                height: 100%;
+                border-radius: 12px;
+                box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+                transition: transform 0.4s ease;
+            }
+
+                .image-section img:hover {
+                    transform: scale(1.04);
+                }
+
+        /* Form Section (Compact) */
+        .form-section {
+            flex: 1;
+            padding: 40px 30px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+            .form-header h1 {
+                color: var(--primary);
+                font-size: 28px;
+                font-weight: 700;
+                margin-bottom: 8px;
+                letter-spacing: -0.3px;
+            }
+
+            .form-header p {
+                color: #666;
+                font-size: 14px;
+                line-height: 1.5;
+            }
+
+        .form-group {
+            margin-bottom: 18px;
+            position: relative;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 8px;
+                color: var(--text-dark);
+                font-weight: 600;
+                font-size: 0.85rem;
+                text-transform: uppercase;
+                letter-spacing: 0.4px;
+            }
+
+            .form-group input {
+                width: 100%;
+                padding: 12px 12px 12px 40px;
+                border: 2px solid #e1e1e1;
+                border-radius: 10px;
+                font-size: 14px;
+                background-color: #f8f9fa;
+                transition: all 0.3s;
+            }
+
+                .form-group input:focus {
+                    border-color: var(--primary);
+                    outline: none;
+                    box-shadow: 0 0 0 3px rgba(0, 173, 239, 0.15);
+                    background-color: white;
+                }
+
+            .form-group i {
+                position: absolute;
+                left: 12px;
+                top: 38px;
+                color: var(--primary);
+                font-size: 16px;
+                pointer-events: none;
+            }
+
+        .submit-btn {
+            width: 100%;
+            padding: 13px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-top: 8px;
+            position: relative;
+        }
+
+            .submit-btn:hover {
+                background: var(--primary-dark);
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(0, 173, 239, 0.3);
+            }
+
+            .submit-btn.loading::after {
+                content: '';
+                position: absolute;
+                width: 18px;
+                height: 18px;
+                top: 50%;
+                left: 50%;
+                margin: -9px 0 0 -9px;
+                border: 2.5px solid rgba(255,255,255,0.3);
+                border-radius: 50%;
+                border-top-color: #fff;
+                animation: spin 1s ease-in-out infinite;
+            }
+
+        .error-message {
+            color: var(--error);
+            font-size: 13px;
+            text-align: center;
+            padding: 10px;
+            background-color: rgba(220, 53, 69, 0.1);
+            border-radius: 8px;
+            margin: 12px 0;
+            border: 1px solid rgba(220, 53, 69, 0.2);
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #777;
+            font-size: 13px;
+            font-style: italic;
+        }
+        /* Unified Alert Design */
+        .custom-alert {
+            text-align: center;
+            font-size: 14px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin: 10px 0 18px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease;
+        }
+
+            .custom-alert.success {
+                background-color: rgba(25, 135, 84, 0.1);
+                border: 1px solid rgba(25, 135, 84, 0.3);
+                color: var(--success);
+            }
+
+            .custom-alert.error {
+                background-color: rgba(220, 53, 69, 0.1);
+                border: 1px solid rgba(220, 53, 69, 0.3);
+                color: var(--error);
+            }
+
+        /* Smooth Fade-in Animation */
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @@keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .login-container {
+                flex-direction: column;
+                max-width: 420px;
+            }
+
+            .image-section {
+                padding: 20px;
+                max-height: 180px;
+            }
+
+            .form-section {
+                padding: 30px 25px;
+            }
+
+            .form-header h1 {
+                font-size: 24px;
+            }
+
+            body::before {
+                font-size: 80vw;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .login-container {
+                width: 95%;
+                border-radius: 12px;
+            }
+
+            .form-section {
+                padding: 25px 20px;
+            }
+
+            .form-header h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Compact Image -->
+        <div class="image-section">
+            <img src="~/dist/assets/img/cashdeposit1.jpg" alt="DMS" />
+
+        </div>
+
+        <!-- Compact Form -->
+        <div class="form-section">
+            <div class="form-header">
+                    <h1>Deposit Mobilization System</h1>
+                    <p>Sign in to continue</p>
+            </div>
+            <!-- Unified Alert Section -->
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="custom-alert success">
+                    <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+                </div>
+            }
+            @if (TempData["LoginError"] != null)
+            {
+                <div class="custom-alert error">
+                    <i class="fas fa-exclamation-triangle me-2"></i>@TempData["LoginError"]
+                </div>
+            }
+
+            @using (Html.BeginForm("Login", "User", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <label asp-for="Username">Username</label>
+                    <i class="fas fa-user"></i>
+                    @Html.EditorFor(model => model.UserName, new { htmlAttributes = new { @class = "form-control", placeholder = "Username", required = "required", autofocus = "autofocus" } })
+                    @Html.ValidationMessageFor(model => model.UserName, "", new { @class = "text-danger small mt-1" })
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Password">Password</label>
+                    <i class="fas fa-lock"></i>
+                    @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @class = "form-control", @type = "password", @id = "password", placeholder = "Password", required = "required" } })
+                    @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger small mt-1" })
+                </div>
+
+                <!-- Submit -->
+                <div class="d-grid">
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                    </button>
+                </div>
+            }
+
+            <div class="form-footer">
+                Backoffice Applications Administration Team
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(function () {
+            $('form').on('submit', function () {
+                const $btn = $(this).find('.submit-btn');
+                $btn.addClass('loading').prop('disabled', true);
+                $btn.find('.btn-text').text('Signing In...');
             });
-        </script>
+        });
+    </script>
 </body>
+</html>

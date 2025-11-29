@@ -394,8 +394,14 @@ namespace UserProfile.Controllers
         // POST: User/Login
         [AllowAnonymous]
         [HttpPost]
+        [ValidateInput(false)]
+        [ValidateAntiForgeryToken]
         public ActionResult Login(User userInput)
         {
+            // ADD THESE TWO LINES – this is the correct, secure way in MVC
+            var unvalidatedForm = Request.Unvalidated.Form;
+            string rawPassword = unvalidatedForm["Password"];   // bypasses request validation for Password only
+
             string ip = Request.UserHostAddress; // Simplified GetClientIpAddress
             Session["Login"] = "0";
 
@@ -404,7 +410,7 @@ namespace UserProfile.Controllers
                 ViewBag.Error = "User Name cannot be empty.";
                 return View();
             }
-            if (string.IsNullOrEmpty(userInput.Password))
+            if (string.IsNullOrEmpty(rawPassword))
             {
                 ViewBag.Error = "Password cannot be empty.";
                 return View();
@@ -415,39 +421,57 @@ namespace UserProfile.Controllers
                 bool isAuthenticated = false;
                 ActiveDirectoryHelper.ADUser adUser = null;
 
-                // Check for hardcoded users (bypass AD for specific users)
-                if (userInput.UserName == "shimelislw1" || userInput.UserName == "DriversH1" ||
-                    userInput.UserName == "DriversHBI1" || userInput.UserName == "DriversHFE1" ||
-                    userInput.UserName == "bikiladch" || userInput.UserName == "hailemariamkM")
+
+                // ✅ List of local (non-AD) users allowed to log in directly from DB
+                var localUsers = new List<string>
+                    {
+                        "abdisawage","abelzebi","abenetatge","abrahfedu","abrekekege","alemleol","amanuegku","ashengogu",
+                        "asnamede","bayiskege","binifiab","birhaabo","bisragibe","dawittebe","dejehade","dimaamwa","diriduwa",
+                        "eliyadeti","elsatene","engedage","ermihal","estikema","esubagibi","eyobseha","firechge","gemehaay",
+                        "gadibehi","gelashgo","geledage","fayebewe","girmhuke","hikaaleje","kebegeyo","legearfi","oliyaalmu",
+                        "shelguche","shibebmi","shummara","surahuti","tadefide","tamiabge","tolagibi","waktimbe","wagageki",
+                        "wesefebe","yeromobu","solosubi","dereabte","yabstoof","dinafile","adefalbu", "dtarressa","zebba",
+                        "tayele","zgudito","meticha","lfila"
+                    };
+
+                // ✅ Check if the user is one of the local (non-AD) users
+                if (localUsers.Contains(userInput.UserName.Trim().ToLower()))
                 {
-                    var userid = db.Users.FirstOrDefault(id => id.UserName.Trim() == userInput.UserName.Trim() && id.Password.Trim() == userInput.Password.Trim());
-                    if (userid != null)
+                    var userRecord = db.Users
+                        .FirstOrDefault(u => u.UserName.Trim().ToLower() == userInput.UserName.Trim().ToLower()
+                                          && u.Password.Trim() == rawPassword.Trim());
+
+                    if (userRecord != null)
                     {
                         isAuthenticated = true;
                         adUser = new ActiveDirectoryHelper.ADUser
                         {
-                            UserName = userInput.UserName,
-                            FullName = userid.FullName,
-                            MailAdress = userid.MailAdress,
+                            UserName = userRecord.UserName,
+                            FullName = userRecord.FullName,
+                            MailAdress = userRecord.MailAdress,
                             IsAuthenticated = true
                         };
                     }
                     else
                     {
-                        ViewBag.Error = "Invalid username or password.";
+                        //ViewBag.Error = "Invalid username or password.";
+                        TempData["LoginError"] = "Invalid username or password.";
                         return View();
                     }
                 }
                 else
                 {
                     // Authenticate via Active Directory
-                    adUser = adHelper.AuthenticateUsers(userInput.UserName, userInput.Password);
+                    adUser = adHelper.AuthenticateUsers(userInput.UserName, rawPassword);
                     isAuthenticated = adUser.IsAuthenticated;
                 }
 
                 if (isAuthenticated)
                 {
-                    var user = db.Users.FirstOrDefault(u => u.UserName.Trim() == userInput.UserName.Trim());
+                    // ✅ Always use the sAMAccountName (username) returned from AD
+                    string normalizedUsername = adUser.UserName?.Trim().ToLower();
+                    // ✅ Look up the user by their AD username, even if they logged in using email
+                    var user = db.Users.FirstOrDefault(u => u.UserName.Trim().ToLower() == normalizedUsername);
                     if (user == null)
                     {
                         // User not in database, redirect to UserCreate with pre-filled data
@@ -479,12 +503,15 @@ namespace UserProfile.Controllers
                         // User exists, set session and redirect to dashboard
                         FormsAuthentication.SetAuthCookie(user.UserName.ToUpper(), false);
                         Session["UserName"] = user.UserName;
+                        Session["FullName"] = user.FullName;
                         Session["UserRole"] = user.Role;
                         Session["Userid"] = user.ID.ToString();
                         Session["UserHomeBranch"] = user.Branch;
                         Session["District"] = user.District;
                         Session["Process"] = user.Process;
                         Session["Position"] = user.Postion;
+                        Session["Email"] = user.MailAdress;
+                        Session["MemberSince"] = user.CreatedDate;
                         Session["Login"] = "1";
                         System.Web.HttpContext.Current.Cache["UserID"] = user.UserName;
                         return RedirectToAction("Index", "Home");
@@ -492,13 +519,15 @@ namespace UserProfile.Controllers
                 }
                 else
                 {
-                    ViewBag.Error = adUser?.ErrorMessage ?? "Invalid username or password.";
+                    //ViewBag.Error = adUser?.ErrorMessage ?? "Invalid username or password.";
+                    TempData["LoginError"] = "Invalid username or password.";
                     return View();
                 }
             }
             catch (Exception ex)
             {
                 ViewBag.Error = $"An error occurred: {ex.Message}. Contact the administrator.";
+                TempData["LoginError"] = $"An error occurred: {ex.Message}. Contact the administrator.";
                 return View();
             }
         }
@@ -768,7 +797,7 @@ namespace UserProfile.Controllers
                         return View(model);
                     }
 
-                    if (model.Postion == "Director" && model.District == null)
+                    if ((model.Postion == "Director" || model.Postion == "SeniorDirector") && model.District == null)
                     {
 
                         TempData["ErrorMessage"] = "Please Choose your Subprocess or District.";

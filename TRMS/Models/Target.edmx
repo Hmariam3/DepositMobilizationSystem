@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="TRMSModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="TRMSModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Branch">
           <Key>
             <PropertyRef Name="ID" />
@@ -83,6 +83,7 @@
           <Property Name="AccountNumber" Type="nvarchar(max)" Nullable="false" />
           <Property Name="ReferenceNumber" Type="nvarchar(max)" Nullable="false" />
           <Property Name="AccountHolder" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Prev_Ini_Bal" Type="decimal" Precision="18" Scale="2" />
           <Property Name="IntialAccountBalance" Type="decimal" Precision="18" Scale="2" Nullable="false" />
           <Property Name="AccountBalance" Type="decimal" Precision="18" Scale="2" Nullable="false" />
           <Property Name="Merchant_Type" Type="nvarchar(max)" />
@@ -105,13 +106,49 @@
           <Property Name="Amount" Type="decimal" Precision="18" Scale="2" Nullable="false" />
           <Property Name="AccountNumber" Type="nvarchar(max)" Nullable="false" />
           <Property Name="ReferenceNumber" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="RefDate" Type="date" />
           <Property Name="AccountHolder" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Prev_Ini_Bal" Type="decimal" Precision="18" Scale="2" />
           <Property Name="IntialAccountBalance" Type="decimal" Precision="18" Scale="2" Nullable="false" />
           <Property Name="AccountBalance" Type="decimal" Precision="18" Scale="2" Nullable="false" />
           <Property Name="Narative" Type="nvarchar(max)" />
           <Property Name="User" Type="nvarchar(max)" Nullable="false" />
           <Property Name="CreatedDate" Type="date" Nullable="false" />
           <Property Name="DepositType" Type="nvarchar(max)" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'TRMS.dbo.DepositPlanupdated' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="DepositPlanupdated">
+          <Key>
+            <PropertyRef Name="USERID" />
+            <PropertyRef Name="AMOUNT" />
+            <PropertyRef Name="REFERENCENUMBER" />
+            <PropertyRef Name="INTIALACCOUNTBALANCE" />
+            <PropertyRef Name="ACCOUNTBALANCE" />
+            <PropertyRef Name="CREATEDDATE" />
+            <PropertyRef Name="DID" />
+          </Key>
+          <Property Name="USERID" Type="decimal" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="PROCESS_" Type="varchar" MaxLength="4000" />
+          <Property Name="DISTRICT" Type="varchar" MaxLength="4000" />
+          <Property Name="BRANCH" Type="varchar" MaxLength="4000" />
+          <Property Name="AMOUNT" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="ACCOUNTNUMBER" Type="varchar" MaxLength="4000" />
+          <Property Name="REFERENCENUMBER" Type="varchar" MaxLength="4000" Nullable="false" />
+          <Property Name="REFDATE" Type="date" />
+          <Property Name="ACCOUNTHOLDER" Type="varchar" MaxLength="4000" />
+          <Property Name="INTIALACCOUNTBALANCE" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="ACCOUNTBALANCE" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="NARATIVE" Type="varchar" MaxLength="4000" />
+          <Property Name="USER_" Type="varchar" MaxLength="128" />
+          <Property Name="CREATEDDATE" Type="date" Nullable="false" />
+          <Property Name="DEPOSITTYPE" Type="varchar" MaxLength="4000" />
+          <Property Name="BOOKING_DATE" Type="decimal" Precision="38" Scale="0" />
+          <Property Name="STMT_ENTRY_ID" Type="varchar" MaxLength="128" />
+          <Property Name="TRANS_REFERENCE" Type="varchar(max)" />
+          <Property Name="CLOSING_BALANCE" Type="decimal" Precision="38" Scale="0" />
+          <Property Name="PREV_CLOSING_BALANCE" Type="decimal" Precision="38" Scale="0" />
+          <Property Name="DID" Type="decimal" Precision="38" Scale="0" Nullable="false" />
         </EntityType>
         <EntityType Name="DistrictPlan">
           <Key>
@@ -162,6 +199,16 @@
           <Property Name="process_name" Type="nvarchar" MaxLength="255" Nullable="false" />
           <Property Name="process_acrnm" Type="nvarchar" MaxLength="50" Nullable="false" />
         </EntityType>
+        <!--Errors Found During Generation:
+warning 6013: The table/view 'TRMS.dbo.ReferenceTable' does not have a primary key defined and no valid primary key could be inferred. This table/view has been excluded. To use the entity, you will need to review your schema, add the correct keys, and uncomment it.
+        <EntityType Name="ReferenceTable">
+          <Property Name="referenceNumber" Type="nvarchar" MaxLength="50" />
+        </EntityType>-->
+        <!--Errors Found During Generation:
+warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary key defined and no valid primary key could be inferred. This table/view has been excluded. To use the entity, you will need to review your schema, add the correct keys, and uncomment it.
+        <EntityType Name="ReverseReference">
+          <Property Name="referenceReverse" Type="nvarchar" MaxLength="50" />
+        </EntityType>-->
         <EntityType Name="Subprocess">
           <Key>
             <PropertyRef Name="subprocess_Id" />
@@ -234,7 +281,7 @@
           <Property Name="BranchMerchantTarget" Type="int" />
           <Property Name="BranchFcyTarget" Type="decimal" Precision="18" Scale="2" />
         </EntityType>
-        <Association Name="FK__Branch__SubProce__08B54D69">
+        <Association Name="FK__Branch__SubProce__6A30C649">
           <End Role="Subprocess" Type="Self.Subprocess" Multiplicity="0..1" />
           <End Role="Branch" Type="Self.Branch" Multiplicity="*" />
           <ReferentialConstraint>
@@ -246,7 +293,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__Subproces__proce__05D8E0BE">
+        <Association Name="FK__Subproces__proce__6FE99F9F">
           <End Role="Process" Type="Self.Process" Multiplicity="0..1" />
           <End Role="Subprocess" Type="Self.Subprocess" Multiplicity="*" />
           <ReferentialConstraint>
@@ -335,11 +382,36 @@
           <EntitySet Name="Transactions" EntityType="Self.Transactions" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UserEngagement" EntityType="Self.UserEngagement" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
-          <AssociationSet Name="FK__Branch__SubProce__08B54D69" Association="Self.FK__Branch__SubProce__08B54D69">
+          <EntitySet Name="DepositPlanupdated" EntityType="Self.DepositPlanupdated" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [DepositPlanupdated].[USERID] AS [USERID], 
+    [DepositPlanupdated].[PROCESS_] AS [PROCESS_], 
+    [DepositPlanupdated].[DISTRICT] AS [DISTRICT], 
+    [DepositPlanupdated].[BRANCH] AS [BRANCH], 
+    [DepositPlanupdated].[AMOUNT] AS [AMOUNT], 
+    [DepositPlanupdated].[ACCOUNTNUMBER] AS [ACCOUNTNUMBER], 
+    [DepositPlanupdated].[REFERENCENUMBER] AS [REFERENCENUMBER], 
+    [DepositPlanupdated].[REFDATE] AS [REFDATE], 
+    [DepositPlanupdated].[ACCOUNTHOLDER] AS [ACCOUNTHOLDER], 
+    [DepositPlanupdated].[INTIALACCOUNTBALANCE] AS [INTIALACCOUNTBALANCE], 
+    [DepositPlanupdated].[ACCOUNTBALANCE] AS [ACCOUNTBALANCE], 
+    [DepositPlanupdated].[NARATIVE] AS [NARATIVE], 
+    [DepositPlanupdated].[USER_] AS [USER_], 
+    [DepositPlanupdated].[CREATEDDATE] AS [CREATEDDATE], 
+    [DepositPlanupdated].[DEPOSITTYPE] AS [DEPOSITTYPE], 
+    [DepositPlanupdated].[BOOKING_DATE] AS [BOOKING_DATE], 
+    [DepositPlanupdated].[STMT_ENTRY_ID] AS [STMT_ENTRY_ID], 
+    [DepositPlanupdated].[TRANS_REFERENCE] AS [TRANS_REFERENCE], 
+    [DepositPlanupdated].[CLOSING_BALANCE] AS [CLOSING_BALANCE], 
+    [DepositPlanupdated].[PREV_CLOSING_BALANCE] AS [PREV_CLOSING_BALANCE], 
+    [DepositPlanupdated].[DID] AS [DID]
+    FROM [dbo].[DepositPlanupdated] AS [DepositPlanupdated]</DefiningQuery>
+          </EntitySet>
+          <AssociationSet Name="FK__Branch__SubProce__6A30C649" Association="Self.FK__Branch__SubProce__6A30C649">
             <End Role="Subprocess" EntitySet="Subprocess" />
             <End Role="Branch" EntitySet="Branch" />
           </AssociationSet>
-          <AssociationSet Name="FK__Subproces__proce__05D8E0BE" Association="Self.FK__Subproces__proce__05D8E0BE">
+          <AssociationSet Name="FK__Subproces__proce__6FE99F9F" Association="Self.FK__Subproces__proce__6FE99F9F">
             <End Role="Process" EntitySet="Process" />
             <End Role="Subprocess" EntitySet="Subprocess" />
           </AssociationSet>
@@ -364,8 +436,7 @@
             <End Role="DepositPlan" EntitySet="DepositPlan" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="TRMSModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -377,7 +448,7 @@
           <Property Name="BranchCode" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="BranchName" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="SubProcess_id" Type="Int32" />
-          <NavigationProperty Name="Subprocess" Relationship="Self.FK__Branch__SubProce__08B54D69" FromRole="Branch" ToRole="Subprocess" />
+          <NavigationProperty Name="Subprocess" Relationship="Self.FK__Branch__SubProce__693CA210" FromRole="Branch" ToRole="Subprocess" />
         </EntityType>
         <EntityType Name="BranchTarget">
           <Key>
@@ -461,6 +532,7 @@
           <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="0" />
           <Property Name="DepositType" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="User" Relationship="Self.FK_DepositMerchantAgenet_Users" FromRole="DepositMerchantAgenet" ToRole="Users" />
+          <Property Name="Prev_Ini_Bal" Type="Decimal" Precision="18" Scale="2" />
         </EntityType>
         <EntityType Name="DepositPlan">
           <Key>
@@ -474,6 +546,7 @@
           <Property Name="Amount" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
           <Property Name="AccountNumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="ReferenceNumber" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="RefDate" Type="DateTime" Precision="0" />
           <Property Name="AccountHolder" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="IntialAccountBalance" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
           <Property Name="AccountBalance" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
@@ -482,6 +555,7 @@
           <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="0" />
           <Property Name="DepositType" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="User1" Relationship="Self.FK_DepositPlan_Users" FromRole="DepositPlan" ToRole="Users" />
+          <Property Name="Prev_Ini_Bal" Type="Decimal" Precision="18" Scale="2" />
         </EntityType>
         <EntityType Name="DistrictPlan">
           <Key>
@@ -532,7 +606,7 @@
           <Property Name="proces_Id" Type="Int32" Nullable="false" />
           <Property Name="process_name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="process_acrnm" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
-          <NavigationProperty Name="Subprocesses" Relationship="Self.FK__Subproces__proce__05D8E0BE" FromRole="Process" ToRole="Subprocess" />
+          <NavigationProperty Name="Subprocesses" Relationship="Self.FK__Subproces__proce__6EF57B66" FromRole="Process" ToRole="Subprocess" />
         </EntityType>
         <EntityType Name="Subprocess">
           <Key>
@@ -542,8 +616,8 @@
           <Property Name="subprocess_name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="sunprocess_acrnm" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="process_Id" Type="Int32" />
-          <NavigationProperty Name="Branches" Relationship="Self.FK__Branch__SubProce__08B54D69" FromRole="Subprocess" ToRole="Branch" />
-          <NavigationProperty Name="Process" Relationship="Self.FK__Subproces__proce__05D8E0BE" FromRole="Subprocess" ToRole="Process" />
+          <NavigationProperty Name="Branches" Relationship="Self.FK__Branch__SubProce__693CA210" FromRole="Subprocess" ToRole="Branch" />
+          <NavigationProperty Name="Process" Relationship="Self.FK__Subproces__proce__6EF57B66" FromRole="Subprocess" ToRole="Process" />
         </EntityType>
         <EntityType Name="Transaction">
           <Key>
@@ -612,7 +686,7 @@
           <NavigationProperty Name="DepositMerchantAgenets" Relationship="Self.FK_DepositMerchantAgenet_Users" FromRole="Users" ToRole="DepositMerchantAgenet" />
           <NavigationProperty Name="DepositPlans" Relationship="Self.FK_DepositPlan_Users" FromRole="Users" ToRole="DepositPlan" />
         </EntityType>
-        <Association Name="FK__Branch__SubProce__08B54D69">
+        <Association Name="FK__Branch__SubProce__693CA210">
           <End Role="Subprocess" Type="Self.Subprocess" Multiplicity="0..1" />
           <End Role="Branch" Type="Self.Branch" Multiplicity="*" />
           <ReferentialConstraint>
@@ -684,7 +758,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__Subproces__proce__05D8E0BE">
+        <Association Name="FK__Subproces__proce__6EF57B66">
           <End Role="Process" Type="Self.Process" Multiplicity="0..1" />
           <End Role="Subprocess" Type="Self.Subprocess" Multiplicity="*" />
           <ReferentialConstraint>
@@ -713,7 +787,7 @@
           <EntitySet Name="Transactions" EntityType="Self.Transaction" />
           <EntitySet Name="UserEngagements" EntityType="Self.UserEngagement" />
           <EntitySet Name="Users" EntityType="Self.User" />
-          <AssociationSet Name="FK__Branch__SubProce__08B54D69" Association="Self.FK__Branch__SubProce__08B54D69">
+          <AssociationSet Name="FK__Branch__SubProce__693CA210" Association="Self.FK__Branch__SubProce__693CA210">
             <End Role="Subprocess" EntitySet="Subprocesses" />
             <End Role="Branch" EntitySet="Branches" />
           </AssociationSet>
@@ -737,11 +811,44 @@
             <End Role="Users" EntitySet="Users" />
             <End Role="DepositPlan" EntitySet="DepositPlans" />
           </AssociationSet>
-          <AssociationSet Name="FK__Subproces__proce__05D8E0BE" Association="Self.FK__Subproces__proce__05D8E0BE">
+          <AssociationSet Name="FK__Subproces__proce__6EF57B66" Association="Self.FK__Subproces__proce__6EF57B66">
             <End Role="Process" EntitySet="Processes" />
             <End Role="Subprocess" EntitySet="Subprocesses" />
           </AssociationSet>
+          <EntitySet Name="DepositPlanupdateds" EntityType="TRMSModel.DepositPlanupdated" />
         </EntityContainer>
+        <EntityType Name="DepositPlanupdated">
+          <Key>
+            <PropertyRef Name="USERID" />
+            <PropertyRef Name="AMOUNT" />
+            <PropertyRef Name="REFERENCENUMBER" />
+            <PropertyRef Name="INTIALACCOUNTBALANCE" />
+            <PropertyRef Name="ACCOUNTBALANCE" />
+            <PropertyRef Name="CREATEDDATE" />
+            <PropertyRef Name="DID" />
+          </Key>
+          <Property Name="USERID" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
+          <Property Name="PROCESS_" Type="String" MaxLength="4000" FixedLength="false" Unicode="false" />
+          <Property Name="DISTRICT" Type="String" MaxLength="4000" FixedLength="false" Unicode="false" />
+          <Property Name="BRANCH" Type="String" MaxLength="4000" FixedLength="false" Unicode="false" />
+          <Property Name="AMOUNT" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="ACCOUNTNUMBER" Type="String" MaxLength="4000" FixedLength="false" Unicode="false" />
+          <Property Name="REFERENCENUMBER" Type="String" Nullable="false" MaxLength="4000" FixedLength="false" Unicode="false" />
+          <Property Name="REFDATE" Type="DateTime" Precision="0" />
+          <Property Name="ACCOUNTHOLDER" Type="String" MaxLength="4000" FixedLength="false" Unicode="false" />
+          <Property Name="INTIALACCOUNTBALANCE" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="ACCOUNTBALANCE" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="NARATIVE" Type="String" MaxLength="4000" FixedLength="false" Unicode="false" />
+          <Property Name="USER_" Type="String" MaxLength="128" FixedLength="false" Unicode="false" />
+          <Property Name="CREATEDDATE" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="DEPOSITTYPE" Type="String" MaxLength="4000" FixedLength="false" Unicode="false" />
+          <Property Name="BOOKING_DATE" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="STMT_ENTRY_ID" Type="String" MaxLength="128" FixedLength="false" Unicode="false" />
+          <Property Name="TRANS_REFERENCE" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="CLOSING_BALANCE" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="PREV_CLOSING_BALANCE" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="DID" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -820,6 +927,7 @@
           <EntitySetMapping Name="DepositMerchantAgenets">
             <EntityTypeMapping TypeName="TRMSModel.DepositMerchantAgenet">
               <MappingFragment StoreEntitySet="DepositMerchantAgenet">
+                <ScalarProperty Name="Prev_Ini_Bal" ColumnName="Prev_Ini_Bal" />
                 <ScalarProperty Name="MID" ColumnName="MID" />
                 <ScalarProperty Name="UserID" ColumnName="UserID" />
                 <ScalarProperty Name="Process" ColumnName="Process" />
@@ -845,6 +953,7 @@
           <EntitySetMapping Name="DepositPlans">
             <EntityTypeMapping TypeName="TRMSModel.DepositPlan">
               <MappingFragment StoreEntitySet="DepositPlan">
+                <ScalarProperty Name="Prev_Ini_Bal" ColumnName="Prev_Ini_Bal" />
                 <ScalarProperty Name="DID" ColumnName="DID" />
                 <ScalarProperty Name="UserID" ColumnName="UserID" />
                 <ScalarProperty Name="Process" ColumnName="Process" />
@@ -853,6 +962,7 @@
                 <ScalarProperty Name="Amount" ColumnName="Amount" />
                 <ScalarProperty Name="AccountNumber" ColumnName="AccountNumber" />
                 <ScalarProperty Name="ReferenceNumber" ColumnName="ReferenceNumber" />
+                <ScalarProperty Name="RefDate" ColumnName="RefDate" />
                 <ScalarProperty Name="AccountHolder" ColumnName="AccountHolder" />
                 <ScalarProperty Name="IntialAccountBalance" ColumnName="IntialAccountBalance" />
                 <ScalarProperty Name="AccountBalance" ColumnName="AccountBalance" />
@@ -990,6 +1100,33 @@
                 <ScalarProperty Name="BranchDepositTarget" ColumnName="BranchDepositTarget" />
                 <ScalarProperty Name="BranchMerchantTarget" ColumnName="BranchMerchantTarget" />
                 <ScalarProperty Name="BranchFcyTarget" ColumnName="BranchFcyTarget" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DepositPlanupdateds">
+            <EntityTypeMapping TypeName="TRMSModel.DepositPlanupdated">
+              <MappingFragment StoreEntitySet="DepositPlanupdated">
+                <ScalarProperty Name="DID" ColumnName="DID" />
+                <ScalarProperty Name="PREV_CLOSING_BALANCE" ColumnName="PREV_CLOSING_BALANCE" />
+                <ScalarProperty Name="CLOSING_BALANCE" ColumnName="CLOSING_BALANCE" />
+                <ScalarProperty Name="TRANS_REFERENCE" ColumnName="TRANS_REFERENCE" />
+                <ScalarProperty Name="STMT_ENTRY_ID" ColumnName="STMT_ENTRY_ID" />
+                <ScalarProperty Name="BOOKING_DATE" ColumnName="BOOKING_DATE" />
+                <ScalarProperty Name="DEPOSITTYPE" ColumnName="DEPOSITTYPE" />
+                <ScalarProperty Name="CREATEDDATE" ColumnName="CREATEDDATE" />
+                <ScalarProperty Name="USER_" ColumnName="USER_" />
+                <ScalarProperty Name="NARATIVE" ColumnName="NARATIVE" />
+                <ScalarProperty Name="ACCOUNTBALANCE" ColumnName="ACCOUNTBALANCE" />
+                <ScalarProperty Name="INTIALACCOUNTBALANCE" ColumnName="INTIALACCOUNTBALANCE" />
+                <ScalarProperty Name="ACCOUNTHOLDER" ColumnName="ACCOUNTHOLDER" />
+                <ScalarProperty Name="REFDATE" ColumnName="REFDATE" />
+                <ScalarProperty Name="REFERENCENUMBER" ColumnName="REFERENCENUMBER" />
+                <ScalarProperty Name="ACCOUNTNUMBER" ColumnName="ACCOUNTNUMBER" />
+                <ScalarProperty Name="AMOUNT" ColumnName="AMOUNT" />
+                <ScalarProperty Name="BRANCH" ColumnName="BRANCH" />
+                <ScalarProperty Name="DISTRICT" ColumnName="DISTRICT" />
+                <ScalarProperty Name="PROCESS_" ColumnName="PROCESS_" />
+                <ScalarProperty Name="USERID" ColumnName="USERID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

@@ -11,7 +11,6 @@ namespace TRMS.Controllers
     public class HomeController : Controller
     {
         private TRMSEntities db = new TRMSEntities();
-        [AuthorizeRoles("Admin", "Maker", "District", "SuperUser")]
         public ActionResult Index()
         {
             // user limit 
@@ -21,96 +20,224 @@ namespace TRMS.Controllers
             }
             else
             {
-                string UserName = Session["UserName"].ToString();
-
+                //string UserName = Session["UserName"].ToString();
+                string UserName = "Tayesg";
                 string role = Session["UserRole"].ToString();
                 string position = Session["Position"].ToString();
-                if (role == "Maker" || role == "Admin")
+                if (role != null || position != null)
                 {
                     //string branch = Session["UserHomeBranch"].ToString();
-                    decimal AssinedTargetdeposit = db.Users.Where(u => u.UserName.Trim() == UserName.Trim()).Select(d => (decimal?)d.DepositTargetAmount).Sum() ?? 0;
-                    ViewBag.AssinedTargetdeposit = AssinedTargetdeposit;
+                    // 1. Assigned target
+                    decimal assignedTarget = db.Users
+                        .Where(u => u.UserName.Trim() == UserName.Trim())
+                        .Select(u => (decimal?)u.DepositTargetAmount)
+                        .FirstOrDefault() ?? 0;
+                    ViewBag.AssinedTargetdeposit = assignedTarget;
 
-                    decimal depositplan = db.DepositPlans.Where(u => u.User == UserName).Select(d => (decimal?)d.Amount).Sum() ?? 0;
-                    ViewBag.depositplan = depositplan;
+                    // 2. Get all deposit records of this user
+                    var userDeposits = db.DepositPlans
+                        .Where(d => d.User == UserName)
+                        .ToList();
 
-                    decimal AaccountountIntial = db.DepositPlans.Where(u => u.User == UserName).Sum(u => (decimal?)u.IntialAccountBalance) ?? 0;
-                    ViewBag.AaccountountIntial = AaccountountIntial;
-                    //achived target
-                    //acount blance
-                    decimal acountBlance = db.DepositPlans.Where(u => u.User == UserName).Sum(u => (decimal?)u.AccountBalance) ?? 0;
-                    ViewBag.acountBlance = acountBlance;
-                    decimal blanceDif = acountBlance - AaccountountIntial;
+                    decimal rawUserDeposits = userDeposits.Sum(d => d.Amount);
+                    ViewBag.depositplan = rawUserDeposits;
 
-                    decimal achived = AssinedTargetdeposit - depositplan;
-                    if (achived < 0)
+
+                    // 3. ---- REAL ACHIEVED DEPOSIT PER USER ----
+                    decimal totalUserAchieved = 0;
+                    decimal totalwithdrawal = 0;
+                    decimal totalfinalbalance = 0;
+                    decimal totalinitial = 0;
+
+                    // Find all accounts this user has worked on
+                    var accounts = userDeposits
+                        .Select(d => d.AccountNumber)
+                        .Distinct()
+                        .ToList();
+                    // ==== NEW: Prepare detailed breakdown for "Why?" modal ====
+                    var breakdownList = new List<DepositAchievementBreakdown>();
+
+                    foreach (var acc in accounts)
                     {
-                        ViewBag.achivedDeposit = depositplan;
-                        ViewBag.remaing = 0;
-                    }
-                    else
-                    {
-                        ViewBag.remaing = AssinedTargetdeposit - depositplan;
-                        ViewBag.achivedDeposit = depositplan;
-                    }
+                        var accDeposits = db.DepositPlans
+                            .Where(d => d.AccountNumber == acc)
+                            .OrderBy(d => d.RefDate)
+                            .ToList();
 
-                    // daily progress report for deposit
+
+                        if (!accDeposits.Any()) continue;
+
+                        // First record (for initial balance logic)
+                        var firstRecord = accDeposits.First();
+
+                        // Count how many times this reference number appears
+                        int countOfFirstRef = accDeposits
+                            .Count(x => x.ReferenceNumber == firstRecord.ReferenceNumber);
+
+
+                        // Determine effective deposited amount
+                        decimal effectiveDeposited;
+
+                        if (countOfFirstRef > 1)
+                        {
+                            // First reference is duplicated → sum all deposits with that reference number
+                            effectiveDeposited = accDeposits
+                                .Where(x => x.ReferenceNumber == firstRecord.ReferenceNumber)
+                                .Sum(x => x.Amount);
+                        }
+                        else
+                        {
+                            // First reference NOT duplicated → take ONLY the first record amount
+                            effectiveDeposited = firstRecord.Amount;
+                        }
+
+
+                        // Total deposited into this account by all users
+                        decimal totalDeposited = accDeposits.Sum(d => d.Amount);
+
+
+                        // --- FINAL INITIAL BALANCE CALCULATION (your rule restored) ---
+                        decimal initialBalance;
+
+                        //True Initial Balance
+                        //initialBalance = firstRecord.IntialAccountBalance - effectiveDeposited;
+                        initialBalance = firstRecord.Prev_Ini_Bal ?? 0;
+
+                        // Last recorded account balance
+                        decimal finalBalance = accDeposits.Last().AccountBalance;
+
+                        // True withdrawal
+                        decimal withdrawal = (initialBalance + totalDeposited) - finalBalance;
+
+                        if (withdrawal < 0) withdrawal = 0;
+
+
+                        // User's total deposit to this account
+                        decimal userDepositOnAccount = accDeposits
+                            .Where(d => d.User == UserName)
+                            .Sum(d => d.Amount);
+
+                        if (userDepositOnAccount == 0) continue;
+
+                        // Proportional withdrawal share
+                        decimal userShare = withdrawal * (userDepositOnAccount / totalDeposited);
+
+                        // Achieved = deposit – share
+                        decimal achievedOnAccount;
+
+                        // Apply logic
+                        if (userShare < 0)
+                        {
+                            achievedOnAccount = userDepositOnAccount + userShare;
+                        }
+                        else
+                        {
+                            achievedOnAccount = userDepositOnAccount - userShare;
+                        }
+
+                        // Final adjustment
+                        if (achievedOnAccount < 0)
+                            achievedOnAccount = 0;
+
+
+                        totalinitial += initialBalance;
+                        totalfinalbalance += finalBalance;
+                        totalwithdrawal += withdrawal;
+                        totalUserAchieved += achievedOnAccount;
+
+                        breakdownList.Add(new DepositAchievementBreakdown
+                        {
+                            AccountNumber = acc,
+                            InitialBalance = initialBalance,
+                            TotalDeposited = totalDeposited,
+                            UserContribution = userDepositOnAccount,
+                            FinalBalance = finalBalance,
+                            TotalWithdrawal = withdrawal,
+                            UserAchieved = achievedOnAccount
+                        });
+                    }
+                    ViewBag.AchievedBreakdown = breakdownList;
+                    ViewBag.achivedDeposit = totalUserAchieved;
+                    ViewBag.AaccountountIntial = totalinitial;
+                    ViewBag.acountBlance = totalfinalbalance;
+                    ViewBag.withdrawal = totalwithdrawal;
+
+
+                    // 4. Remaining amount
+                    decimal remaining = assignedTarget - totalUserAchieved;
+                    if (remaining < 0) remaining = 0;
+                    ViewBag.remaing = remaining;
+
+
+                    // 5. Daily progress calculation (same logic but use REAL achieved)
                     DateTime startDate = new DateTime(2025, 10, 1);
                     DateTime today = DateTime.Today;
                     int totalDays = 90;
-                    // Calculate how many days have passed
+
                     int daysElapsed = (today - startDate).Days;
                     if (daysElapsed < 0) daysElapsed = 0;
                     if (daysElapsed > totalDays) daysElapsed = totalDays;
 
-                    decimal totalTarget = AssinedTargetdeposit;
-                    // Expected amount to collect by today
-                    decimal expected = (totalTarget / totalDays) * daysElapsed;
+                    decimal expected = (assignedTarget / totalDays) * daysElapsed;
 
-                    // Actual collected from DB
-                    decimal actualCollected = depositplan;
+                    decimal progressPercent = assignedTarget == 0 ? 0 :
+                        (totalUserAchieved / assignedTarget) * 100;
 
-                    // Progress percentage
-                    decimal progressPercent = totalTarget == 0 ? 0 : (actualCollected / totalTarget) * 100;
+                    string color = totalUserAchieved < expected ? "bg-danger" : "bg-success";
 
-                    // Color logic
-                    string color = actualCollected < expected ? "bg-danger" : "bg-success";
-                    if (actualCollected >= expected)
+                    if (totalUserAchieved >= expected)
                     {
                         ViewBag.MessageClass = "alert-success";
-                        ViewBag.MessageText = "✅ Great job!  on track with your target.";
+                        ViewBag.MessageText = "✅ Great job! You are on track with your target.";
                     }
                     else
                     {
                         ViewBag.MessageClass = "alert-danger";
-                        ViewBag.MessageText = "⚠️ Warning: You are behind the expected progress.";
+                        ViewBag.MessageText = "⚠️ You are behind the expected progress.";
                     }
 
 
-                    //user branch progress
+                    // 6. User branch progress
                     string branch = Session["UserHomeBranch"]?.ToString() ?? "";
-                    decimal branchProgressDep = 0;
-                    decimal avargaeUserProgressDeposit = 0;
-                    if (branch != null || branch != "")
+                    decimal branchProgress = 0;
+                    decimal averageUserProgress = 0;
+
+                    if (!string.IsNullOrEmpty(branch))
                     {
-                        
-                        // Calculate progress for deposit 
-                        decimal branchTarget = db.Users.Where(u => u.Branch.Trim() == branch.Trim()).Select(d => (decimal?)d.DepositTargetAmount).Sum() ?? 0;
-                        decimal branchAchieved = db.DepositPlans.Where(u => u.Branch.Trim() == branch.Trim()).Select(d => (decimal?)d.Amount).Sum() ?? 0;
-                        branchProgressDep = branchTarget > 0 ? (branchAchieved / branchTarget) * 100 : 0;
-                        avargaeUserProgressDeposit = (progressPercent + branchProgressDep) / 2;
+                        decimal branchTarget = db.Users
+                            .Where(u => u.Branch.Trim() == branch.Trim())
+                            .Select(u => (decimal?)u.DepositTargetAmount)
+                            .Sum() ?? 0;
+
+                        decimal branchAchieved = 0;
+
+                        // Sum achieved for ALL USERS IN BRANCH
+                        var branchUsers = db.Users
+                            .Where(u => u.Branch.Trim() == branch.Trim())
+                            .Select(u => u.UserName)
+                            .ToList();
+
+                        foreach (var u in branchUsers)
+                        {
+                            var uDeposits = db.DepositPlans.Where(d => d.User == u).ToList();
+                            branchAchieved += uDeposits.Sum(d => d.Amount);
+                        }
+
+                        branchProgress = branchTarget == 0 ? 0 : (branchAchieved / branchTarget) * 100;
+
+                        averageUserProgress = (progressPercent + branchProgress) / 2;
                     }
 
-                    // Pass values to view
                     ViewBag.ProgressPercent = progressPercent;
-                    ViewBag.avargaeUserProgressDeposit = avargaeUserProgressDeposit;
+                    ViewBag.avargaeUserProgressDeposit = averageUserProgress;
                     ViewBag.Color = color;
-                    ViewBag.Collected = actualCollected;
+                    ViewBag.Collected = totalUserAchieved;
                     ViewBag.Expected = expected;
                     ViewBag.DaysElapsed = daysElapsed;
 
 
-                    // for agenet and merchant 
+
+                    // for merchant report 
 
                     decimal AssinedTargetAgent = db.Users.Where(u => u.UserName == UserName.Trim()).Select(d => d.MerchantTarget).Sum() ?? 0;
                     ViewBag.AssinedTargetAgent = AssinedTargetAgent;
@@ -633,7 +760,7 @@ var merchantGroup = db.DepositMerchantAgenets.Where(d => d.District.Trim() == di
 
             decimal totalDepositTarget = 0, totalMerchantTarget = 0, totalFCYTarget = 0;
             decimal totalDepositAchieved = 0, totalMerchantAchieved = 0, totalFCYAchieved = 0;
-            decimal initialAmountDeposit = 0, initialAmountMerchant = 0;
+            decimal initialBalance = 0, initialAmountMerchant = 0;
             decimal actualTargetDeposit = 0, actualTargetMerchant = 0, actualTargetFcy = 0;
             decimal remainingAmountDeposit = 0, remainingAmountMerchant = 0, remainingAmountFcy = 0;
             int uniqueMerchantCount=0;
@@ -652,7 +779,7 @@ var merchantGroup = db.DepositMerchantAgenets.Where(d => d.District.Trim() == di
                 {
                     totalDepositAchieved = db.DepositPlans.Where(u => u.Branch != null && u.Branch.Trim() == user.Branch.Trim()).Sum(d => d.AccountBalance - d.IntialAccountBalance + d.Amount);
                     //Get Total Initial, Achieved, Remaining for deposit
-                    initialAmountDeposit = db.DepositPlans.Where(u => u.Branch != null && u.Branch.Trim() == user.Branch.Trim()).Sum(d => d.IntialAccountBalance);
+                    initialBalance = db.DepositPlans.Where(u => u.Branch != null && u.Branch.Trim() == user.Branch.Trim()).Sum(d => d.IntialAccountBalance);
                     actualTargetDeposit = db.DepositPlans.Where(u => u.Branch != null && u.Branch.Trim() == user.Branch.Trim()).Sum(d => d.Amount);
                     remainingAmountDeposit = totalDepositTarget - totalDepositAchieved;
                     if(remainingAmountDeposit<0)
@@ -694,7 +821,7 @@ var merchantGroup = db.DepositMerchantAgenets.Where(d => d.District.Trim() == di
                 }
             }
             // For Directors
-            else if (role == "Maker" && (userPosition == "Director"))
+            else if (role == "Maker" && (userPosition == "Director" || userPosition == "SeniorDirector"))
             {
                 // Show everything
                 ViewBag.District = user.District;
@@ -721,7 +848,7 @@ var merchantGroup = db.DepositMerchantAgenets.Where(d => d.District.Trim() == di
                     totalDepositAchieved = depositData
                         .Sum(d => ((decimal?)d.AccountBalance ?? 0) - ((decimal?)d.IntialAccountBalance ?? 0) + ((decimal?)d.Amount ?? 0));
 
-                    initialAmountDeposit = depositData
+                    initialBalance = depositData
                         .Sum(d => (decimal?)d.IntialAccountBalance ?? 0);
 
                     actualTargetDeposit = depositData
@@ -789,6 +916,45 @@ var merchantGroup = db.DepositMerchantAgenets.Where(d => d.District.Trim() == di
             // For VP and CHief
             else if (role == "Maker" && (userPosition == "VP" || userPosition == "CHF"))
             {
+                //// Show everything
+                //ViewBag.VP = user.Process;
+
+                //// Total Targets
+                //totalDepositTarget = db.Users
+                //    .Where(u => u.Process != null && u.Process.Trim() == user.Process.Trim())
+                //    .Sum(u => (decimal?)u.DepositTargetAmount) ?? 0;
+
+                //totalMerchantTarget = db.Users
+                //    .Where(u => u.Process != null && u.Process.Trim() == user.Process.Trim())
+                //    .Sum(u => (decimal?)u.MerchantTarget) ?? 0;
+
+                //totalFCYTarget = db.Users
+                //    .Where(u => u.Process != null && u.Process.Trim() == user.Process.Trim())
+                //    .Sum(u => (decimal?)u.FCYTargetAmount) ?? 0;
+
+                //// Deposit Data
+                //var depositData = db.DepositPlans
+                //    .Where(u => u.Process != null && u.Process.Trim() == user.Process.Trim());
+
+                //if (depositData.Any())
+                //{
+                //    totalDepositAchieved = depositData
+                //        .Sum(d => ((decimal?)d.AccountBalance ?? 0) - ((decimal?)d.IntialAccountBalance ?? 0) + ((decimal?)d.Amount ?? 0));
+
+                //    initialBalance = depositData
+                //        .Sum(d => (decimal?)d.IntialAccountBalance ?? 0);
+
+                //    actualTargetDeposit = depositData
+                //        .Sum(d => (decimal?)d.Amount ?? 0);
+
+                //    remainingAmountDeposit = totalDepositTarget - totalDepositAchieved;
+
+
+                //    if (remainingAmountDeposit < 0)
+                //    {
+                //        remainingAmountDeposit = 0;
+                //    }
+                //}
                 // Show everything
                 ViewBag.VP = user.Process;
 
@@ -811,22 +977,15 @@ var merchantGroup = db.DepositMerchantAgenets.Where(d => d.District.Trim() == di
 
                 if (depositData.Any())
                 {
-                    totalDepositAchieved = depositData
-                        .Sum(d => ((decimal?)d.AccountBalance ?? 0) - ((decimal?)d.IntialAccountBalance ?? 0) + ((decimal?)d.Amount ?? 0));
+                    var query =
+                        from d in db.DepositPlans
+                        group d by d.AccountNumber into g
+                        let firstEntry = g.OrderBy(x => x.RefDate).FirstOrDefault()
+                        let lastEntry = g.OrderByDescending(x => x.RefDate).FirstOrDefault()
+                        where firstEntry != null && lastEntry != null && firstEntry.Prev_Ini_Bal != null
+                        select (decimal?)(lastEntry.AccountBalance - firstEntry.Prev_Ini_Bal); // Assuming types are decimal; adjust as needed
 
-                    initialAmountDeposit = depositData
-                        .Sum(d => (decimal?)d.IntialAccountBalance ?? 0);
-
-                    actualTargetDeposit = depositData
-                        .Sum(d => (decimal?)d.Amount ?? 0);
-
-                    remainingAmountDeposit = totalDepositTarget - totalDepositAchieved;
-
-
-                    if (remainingAmountDeposit < 0)
-                    {
-                        remainingAmountDeposit = 0;
-                    }
+                    totalDepositAchieved = query.Sum() ?? 0;
                 }
 
                 // Merchant Data
@@ -881,8 +1040,92 @@ var merchantGroup = db.DepositMerchantAgenets.Where(d => d.District.Trim() == di
             }
 
             // For CEO
-            else if (role == "Maker" && (userPosition == "CEO"))
+            else if ((role == "Maker" && (userPosition == "CEO")) || role == "Super")
             {
+                //// Show everything
+                //ViewBag.CEO = "COOPBANK";
+
+                //// Total Targets
+                //totalDepositTarget = db.Users
+                //    .Sum(u => (decimal?)u.DepositTargetAmount) ?? 0;
+
+                //totalMerchantTarget = db.Users
+                //    .Sum(u => (decimal?)u.MerchantTarget) ?? 0;
+
+                //totalFCYTarget = db.Users
+                //    .Sum(u => (decimal?)u.FCYTargetAmount) ?? 0;
+
+                //// Deposit Data
+                //var depositData = db.DepositPlans;
+
+                //if (depositData.Any())
+                //{
+
+                //    var summaryPerAccount = depositData
+                //    .AsEnumerable()  // ← Force client-side after minimal load (or use ToList() first)
+                //    .GroupBy(d => d.AccountNumber)
+                //    .Select(g =>
+                //    {
+                //        var ordered = g.OrderBy(x => x.CreatedDate).ToList();
+                //        var first = ordered.First();
+                //        var last = ordered.Last();
+
+                //        return new
+                //        {
+                //            Initial = first.IntialAccountBalance - first.Amount,
+                //            Final = last.AccountBalance,
+                //        };
+                //    })
+                //    .ToList();
+
+
+                //    // One query: get first and last per account in a single pass
+                //    //var summaryPerAccount = depositData
+                //    //    .AsEnumerable()  // ← Force client-side after minimal load (or use ToList() first)
+                //    //    .GroupBy(d => d.AccountNumber)
+                //    //    .Select(g => new
+                //    //    {
+                //    //        Initial = g
+                //    //            .OrderBy(x => x.CreatedDate)
+                //    //            .Select(x => x.IntialAccountBalance - x.Amount)
+                //    //            .FirstOrDefault(),
+
+                //    //        Final = g
+                //    //            .OrderByDescending(x => x.CreatedDate)
+                //    //            .Select(x => x.AccountBalance)
+                //    //            .FirstOrDefault()
+                //    //    })
+                //    //    .Select(x => new
+                //    //    {
+                //    //        x.Initial,
+                //    //        x.Final,
+                //    //        Diff = x.Final - x.Initial
+                //    //    })
+                //    //    .Where(x => x.Diff > 0)
+                //    //    .ToList();
+
+                //    initialBalance = summaryPerAccount.Sum(x => x.Initial);
+                //    var finalBalance = summaryPerAccount.Sum(x => x.Final);
+
+
+                //    totalDepositAchieved = Math.Max(finalBalance - initialBalance, 0m);
+
+                //    if (totalDepositAchieved < 0)
+                //    {
+                //        totalDepositAchieved = 0;
+                //    }
+
+                //    actualTargetDeposit = depositData
+                //        .Sum(d => (decimal?)d.Amount ?? 0);
+
+                //    remainingAmountDeposit = totalDepositTarget - totalDepositAchieved;
+
+                //    if (remainingAmountDeposit < 0)
+                //    {
+                //        remainingAmountDeposit = 0;
+                //    }
+                //}
+
                 // Show everything
                 ViewBag.CEO = "COOPBANK";
 
@@ -901,14 +1144,38 @@ var merchantGroup = db.DepositMerchantAgenets.Where(d => d.District.Trim() == di
 
                 if (depositData.Any())
                 {
-                    totalDepositAchieved = depositData
-                        .Sum(d => ((decimal?)d.AccountBalance ?? 0) - ((decimal?)d.IntialAccountBalance ?? 0) + ((decimal?)d.Amount ?? 0));
+                    //totalDepositAchieved = depositData
+                    //  .Sum(d => ((decimal?)d.AccountBalance ?? 0) - ((decimal?)d.IntialAccountBalance ?? 0) + ((decimal?)d.Amount ?? 0));
 
-                    initialAmountDeposit = depositData
-                        .Sum(d => (decimal?)d.IntialAccountBalance ?? 0);
+                    // totalDepositAchieved = depositData.Sum(d =>
+                    //       ((decimal?)d.AccountBalance ?? 0)
+                    //     - ((decimal?)d.IntialAccountBalance ?? 0)
+                    //   - ((decimal?)d.Amount ?? 0)
+                    //) + totalDepositTarget;
+                    // Deposit Data
+                    var depositDatas = db.DepositPlans.ToList(); // If already loaded, skip this line
+                    var depositDataList = depositDatas.ToList();
 
-                    actualTargetDeposit = depositData
-                        .Sum(d => (decimal?)d.Amount ?? 0);
+                    if (depositDataList.Any())
+                    {
+                        var grouped = depositDataList
+                            .Where(x => x.Prev_Ini_Bal.HasValue)
+                            .GroupBy(x => x.AccountNumber)
+                            .Select(g =>
+                            {
+                                var first = g.OrderBy(x => x.RefDate).First();
+                                var last = g.OrderByDescending(x => x.RefDate).First();
+
+                                return last.AccountBalance - first.Prev_Ini_Bal.Value;
+                            });
+
+                        totalDepositAchieved = grouped.DefaultIfEmpty(0).Sum();
+
+                    }
+                    else
+                    {
+                        totalDepositAchieved = 0;
+                    }
 
                     remainingAmountDeposit = totalDepositTarget - totalDepositAchieved;
 
@@ -917,6 +1184,7 @@ var merchantGroup = db.DepositMerchantAgenets.Where(d => d.District.Trim() == di
                         remainingAmountDeposit = 0;
                     }
                 }
+
 
                 // Merchant Data
                 var merchantData = db.DepositMerchantAgenets;
@@ -976,7 +1244,7 @@ var merchantGroup = db.DepositMerchantAgenets.Where(d => d.District.Trim() == di
             ViewBag.DepositPlanAchieved = totalDepositAchieved;
             ViewBag.DepositRemainingAmount = remainingAmountDeposit;
             ViewBag.DepositActualTarget = actualTargetDeposit;
-            ViewBag.DepositInitialAmount = initialAmountDeposit;
+            ViewBag.DepositInitialAmount = initialBalance;
             ViewBag.DepositPlanProgress = Math.Round(planProgress, 2);
 
             ViewBag.MerchantTarget = totalMerchantTarget;
@@ -992,6 +1260,362 @@ var merchantGroup = db.DepositMerchantAgenets.Where(d => d.District.Trim() == di
             ViewBag.FCYActualTarget = actualTargetFcy;
             ViewBag.FCYProgress = Math.Round(fcyProgress, 2);
 
+
+            return View();
+        }
+
+        public ActionResult BankSummary()
+        {
+            // Load assigned target
+            decimal bankAssignedTarget = db.Users
+                .Select(u => (decimal?)u.DepositTargetAmount)
+                .Sum() ?? 0;
+
+            ViewBag.BankAssignedTarget = bankAssignedTarget;
+
+            // Call stored procedure
+            var results = db.Database.SqlQuery<BankAccountSummaryResult>(
+                "EXEC sp_GetBankDepositSummary"
+            ).ToList();
+
+            decimal bankTotalAchieved = 0;
+
+            foreach (var acc in results)
+            {
+                decimal initial = acc.InitialBalance ?? 0;
+                decimal deposited = acc.TotalDeposited ?? 0;
+                decimal finalBal = acc.FinalBalance ?? 0;
+
+                decimal withdrawal = (initial + deposited) - finalBal;
+                if (withdrawal < 0) withdrawal = 0;
+
+                decimal achieved = deposited - withdrawal;
+                if (achieved < 0) achieved = 0;
+
+                bankTotalAchieved += achieved;
+            }
+
+            ViewBag.BankAchieved = bankTotalAchieved;
+
+            decimal remaining = bankAssignedTarget - bankTotalAchieved;
+            if (remaining < 0) remaining = 0;
+
+            ViewBag.BankRemaining = remaining;
+
+            return View();
+        }
+
+        public ActionResult Process()
+        {
+
+            // Get current logged-in user (adjust to your login system)
+            var currentUserName = Session["UserName"];
+            User user = db.Users.FirstOrDefault(u => u.UserName == currentUserName);
+
+            string role = user.Role;
+            string userBranch = user.Branch;
+            string userDistrict = user.Branch;
+            string userPosition = user.Postion;
+
+            decimal totalDepositTarget = 0, totalMerchantTarget = 0, totalFCYTarget = 0;
+            decimal totalDepositAchieved = 0, totalMerchantAchieved = 0, totalFCYAchieved = 0;
+            decimal initialBalance = 0, initialAmountMerchant = 0;
+            decimal actualTargetDeposit = 0, actualTargetMerchant = 0, actualTargetFcy = 0;
+            decimal remainingAmountDeposit = 0, remainingAmountMerchant = 0, remainingAmountFcy = 0;
+            int uniqueMerchantCount = 0;
+            ViewBag.Process = user.Process;
+
+            // Total Targets
+            totalDepositTarget = db.Users
+                .Where(u => u.Process != null && u.Process.Trim() == user.Process.Trim())
+                .Sum(u => (decimal?)u.DepositTargetAmount) ?? 0;
+
+            totalMerchantTarget = db.Users
+                .Where(u => u.Process != null && u.Process.Trim() == user.Process.Trim())
+                .Sum(u => (decimal?)u.MerchantTarget) ?? 0;
+
+            totalFCYTarget = db.Users
+                .Where(u => u.Process != null && u.Process.Trim() == user.Process.Trim())
+                .Sum(u => (decimal?)u.FCYTargetAmount) ?? 0;
+
+            // Deposit Data
+            var depositData = db.DepositPlans
+                .Where(u => u.Process != null && u.Process.Trim() == user.Process.Trim());
+
+            if (depositData.Any())
+            {
+                var depositPlans = db.DepositPlans
+                    .Where(u => u.Process != null && u.Process.Trim() == user.Process.Trim())
+                    .ToList();
+
+                // First, check for duplicate account numbers
+                var allAccountGroups = depositPlans
+                    .Where(d => !string.IsNullOrEmpty(d.AccountNumber))
+                    .GroupBy(d => d.AccountNumber)
+                    .ToList();
+
+                var duplicateAccountGroups = allAccountGroups
+                    .Where(g => g.Count() > 1)
+                    .ToList();
+
+                int duplicateAccountCount = duplicateAccountGroups.Count;
+                int duplicateAccountRecords = duplicateAccountGroups.Sum(g => g.Count());
+                var duplicateAccountNumbers = duplicateAccountGroups.Select(g => new
+                {
+                    AccountNumber = g.Key,
+                    RecordCount = g.Count(),
+                    TotalAmount = g.Sum(d => d.Amount),
+                    AccountBalances = g.Select(d => d.AccountBalance).Distinct().ToList(),
+                    InitialBalances = g.Select(d => d.IntialAccountBalance).Distinct().ToList()
+                }).ToList();
+
+                // Get accounts without duplicates (single record per account)
+                var singleRecordAccounts = allAccountGroups
+                    .Where(g => g.Count() == 1)
+                    .SelectMany(g => g)
+                    .ToList();
+
+                decimal totalWithdrawal = 0;
+
+                // Process accounts with single records (no duplicates) - use original logic
+                foreach (var d in singleRecordAccounts)
+                {
+                    decimal accountBal = d.AccountBalance;
+                    decimal initialBal = d.IntialAccountBalance - d.Amount;
+
+                    if (accountBal <= initialBal)
+                    {
+                        decimal withDiff = initialBal - accountBal;
+                        totalWithdrawal = totalWithdrawal + withDiff;
+                    }
+                    else
+                    {
+                        decimal accDiff = accountBal - initialBal;
+                        if (d.Amount >= accDiff)
+                        {
+                            decimal amountDiff = d.Amount - accDiff;
+                            totalWithdrawal = totalWithdrawal + amountDiff;
+                            totalDepositAchieved = totalDepositAchieved + accDiff;
+                        }
+                        else
+                        {
+                            totalDepositAchieved = totalDepositAchieved + d.Amount;
+                        }
+                    }
+                }
+
+                // Process accounts with duplicates - handle chronologically to track balance progression
+                foreach (var accountGroup in duplicateAccountGroups)
+                {
+                    // Sort by CreatedDate to process transactions in chronological order
+                    var sortedRecords = accountGroup
+                        .OrderBy(d => d.CreatedDate)
+                        .ThenBy(d => d.DID) // Secondary sort for consistency
+                        .ToList();
+
+                    // For duplicate accounts, use the first record's initial balance as the starting point
+                    // and track balance changes through the sequence
+                    decimal previousBalance = sortedRecords.First().IntialAccountBalance - sortedRecords.First().Amount;
+
+                    for (int i = 0; i < sortedRecords.Count; i++)
+                    {
+                        var d = sortedRecords[i];
+                        decimal currentAccountBal = d.AccountBalance;
+                        decimal currentInitialBal = d.IntialAccountBalance - d.Amount;
+
+                        // For the first record in sequence, use its own initial balance calculation
+                        // For subsequent records, use the previous record's ending balance as the starting point
+                        if (i == 0)
+                        {
+                            // First record: use standard logic
+                            if (currentAccountBal <= currentInitialBal)
+                            {
+                                decimal withDiff = currentInitialBal - currentAccountBal;
+                                totalWithdrawal = totalWithdrawal + withDiff;
+                            }
+                            else
+                            {
+                                decimal accDiff = currentAccountBal - currentInitialBal;
+                                if (d.Amount >= accDiff)
+                                {
+                                    decimal amountDiff = d.Amount - accDiff;
+                                    totalWithdrawal = totalWithdrawal + amountDiff;
+                                    totalDepositAchieved = totalDepositAchieved + accDiff;
+                                }
+                                else
+                                {
+                                    totalDepositAchieved = totalDepositAchieved + d.Amount;
+                                }
+                            }
+                            previousBalance = currentAccountBal;
+                        }
+                        else
+                        {
+                            // Subsequent records: calculate based on previous balance
+                            // The actual change is the difference between current balance and previous balance
+                            decimal balanceChange = currentAccountBal - previousBalance;
+
+                            if (balanceChange > 0)
+                            {
+                                // Balance increased - this is a deposit
+                                // The deposit amount is the minimum of the transaction amount and the balance increase
+                                decimal depositAmount = Math.Min(d.Amount > 0 ? d.Amount : balanceChange, balanceChange);
+                                totalDepositAchieved = totalDepositAchieved + depositAmount;
+
+                                // If transaction amount is greater than balance increase, the difference might be a withdrawal
+                                if (d.Amount > balanceChange)
+                                {
+                                    totalWithdrawal = totalWithdrawal + (d.Amount - balanceChange);
+                                }
+                            }
+                            else if (balanceChange < 0)
+                            {
+                                // Balance decreased - this is a withdrawal
+                                decimal withdrawalAmount = Math.Abs(balanceChange);
+                                totalWithdrawal = totalWithdrawal + withdrawalAmount;
+
+                                // If there's a positive transaction amount but balance decreased,
+                                // the full transaction amount plus the decrease is withdrawal
+                                if (d.Amount > 0)
+                                {
+                                    totalWithdrawal = totalWithdrawal + d.Amount;
+                                }
+                            }
+                            else
+                            {
+                                // Balance unchanged - if there's a transaction amount, it might be a withdrawal
+                                if (d.Amount > 0)
+                                {
+                                    totalWithdrawal = totalWithdrawal + d.Amount;
+                                }
+                            }
+
+                            previousBalance = currentAccountBal;
+                        }
+                    }
+                }
+
+                // Process records without account numbers (if any)
+                var recordsWithoutAccount = depositPlans
+                    .Where(d => string.IsNullOrEmpty(d.AccountNumber))
+                    .ToList();
+
+                foreach (var d in recordsWithoutAccount)
+                {
+                    decimal accountBal = d.AccountBalance;
+                    decimal initialBal = d.IntialAccountBalance - d.Amount;
+
+                    if (accountBal <= initialBal)
+                    {
+                        decimal withDiff = initialBal - accountBal;
+                        totalWithdrawal = totalWithdrawal + withDiff;
+                    }
+                    else
+                    {
+                        decimal accDiff = accountBal - initialBal;
+                        if (d.Amount >= accDiff)
+                        {
+                            decimal amountDiff = d.Amount - accDiff;
+                            totalWithdrawal = totalWithdrawal + amountDiff;
+                            totalDepositAchieved = totalDepositAchieved + accDiff;
+                        }
+                        else
+                        {
+                            totalDepositAchieved = totalDepositAchieved + d.Amount;
+                        }
+                    }
+                }
+
+                initialBalance = depositData
+                    .Sum(d => (decimal?)d.IntialAccountBalance ?? 0);
+
+                actualTargetDeposit = depositData
+                    .Sum(d => (decimal?)d.Amount ?? 0);
+
+                remainingAmountDeposit = totalDepositTarget - totalDepositAchieved;
+
+
+                if (remainingAmountDeposit < 0)
+                {
+                    remainingAmountDeposit = 0;
+                }
+            }
+
+            // Merchant Data
+            var merchantData = db.DepositMerchantAgenets
+                .Where(u => u.Process != null && u.Process.Trim() == user.Process.Trim());
+
+            if (merchantData.Any())
+            {
+                totalMerchantAchieved = merchantData
+                    .Sum(m => ((decimal?)m.AccountBalance ?? 0) - ((decimal?)m.IntialAccountBalance ?? 0) + ((decimal?)m.Target ?? 0));
+
+                initialAmountMerchant = merchantData
+                    .Sum(d => (decimal?)d.IntialAccountBalance ?? 0);
+
+                actualTargetMerchant = merchantData
+                    .Sum(d => (decimal?)d.Target ?? 0);
+
+                uniqueMerchantCount = merchantData
+                    .Select(u => u.LinkAccount)
+                    .Distinct()
+                    .Count();
+
+                remainingAmountMerchant = totalMerchantTarget - uniqueMerchantCount;
+
+
+                if (remainingAmountMerchant < 0)
+                {
+                    remainingAmountMerchant = 0;
+                }
+            }
+
+            // FCY Data
+            var fcyData = db.DepositFCies
+                .Where(u => u.Process != null && u.Process.Trim() == user.Process.Trim());
+
+            if (fcyData.Any())
+            {
+                totalFCYAchieved = fcyData
+                    .Sum(f => (decimal?)f.TransactionAmount ?? 0);
+
+                actualTargetFcy = fcyData
+                    .Sum(d => (decimal?)d.Target ?? 0);
+
+                remainingAmountFcy = totalFCYTarget - totalFCYAchieved;
+
+
+                if (remainingAmountFcy < 0)
+                {
+                    remainingAmountFcy = 0;
+                }
+            }
+
+            // Calculate progress
+            var planProgress = totalDepositTarget > 0 ? (totalDepositAchieved / totalDepositTarget) * 100 : 0;
+            var merchantProgress = totalMerchantTarget > 0 ? (uniqueMerchantCount / totalMerchantTarget) * 100 : 0;
+            var fcyProgress = totalFCYTarget > 0 ? (totalFCYAchieved / totalFCYTarget) * 100 : 0;
+
+            // Pass to view
+            ViewBag.DepositPlanTarget = totalDepositTarget;
+            ViewBag.DepositPlanAchieved = totalDepositAchieved;
+            ViewBag.DepositRemainingAmount = remainingAmountDeposit;
+            ViewBag.DepositActualTarget = actualTargetDeposit;
+            ViewBag.DepositInitialAmount = initialBalance;
+            ViewBag.DepositPlanProgress = Math.Round(planProgress, 2);
+
+            ViewBag.MerchantTarget = totalMerchantTarget;
+            ViewBag.MerchantAchieved = totalMerchantAchieved;
+            ViewBag.MerchantRemainingAmount = remainingAmountMerchant;
+            ViewBag.MerchantActualTarget = actualTargetMerchant;
+            ViewBag.MerchantInitialAmount = initialAmountMerchant;
+            ViewBag.MerchantProgress = Math.Round(merchantProgress, 2);
+
+            ViewBag.FCYTarget = totalFCYTarget;
+            ViewBag.FCYAchieved = totalFCYAchieved;
+            ViewBag.FCYRemainingAmount = remainingAmountFcy;
+            ViewBag.FCYActualTarget = actualTargetFcy;
+            ViewBag.FCYProgress = Math.Round(fcyProgress, 2);
 
             return View();
         }

@@ -1,273 +1,445 @@
-﻿@{
+﻿
+@{
     ViewBag.Title = "Dashboard";
-
     var achievedPercent = ViewBag.AssinedTargetdeposit != 0 ? (ViewBag.achivedDeposit * 100) / ViewBag.AssinedTargetdeposit : 0;
     var remainingPercent = ViewBag.AssinedTargetdeposit != 0 ? (ViewBag.remaing * 100) / ViewBag.AssinedTargetdeposit : 0;
-
     var achievedPercentAgenet = ViewBag.AssinedTargetAgent != 0 ? (ViewBag.uniqueMerchantCount * 100) / ViewBag.AssinedTargetAgent : 0;
     var remainingPercentAgenet = ViewBag.AssinedTargetAgent != 0 ? (ViewBag.remaing1 * 100) / ViewBag.AssinedTargetAgent : 0;
-
     var achievedPercentFcy = ViewBag.AssinedTargetFCY != 0 ? (ViewBag.achivedDepositFCY * 100) / ViewBag.AssinedTargetFCY : 0;
     var remainingPercentFcy = ViewBag.AssinedTargetFCY != 0 ? (ViewBag.remaing2 * 100) / ViewBag.AssinedTargetFCY : 0;
 }
 
 <style>
-    body {
-        font-family: Arial, sans-serif;
+    :root {
+        --primary: #00ADEF;
+        --primary-gradient: linear-gradient(135deg, #00AEEF, #0077b6);
+        --primary-dark: #0095d1;
+        --gray-light: #f8f9fa;
+        --text-dark: #1f2937;
+        --error: #dc3545;
+        --success: #198754;
+        --danger: #dc3545;
+        --warning: #ffc107;
+        --light: #f8f9fa;
+        --dark: #212529;
     }
-        .dashboard-card {
-        margin: 5px;
-        padding: 10px;
-        border-radius: 10px;
-        min-height: 100px;
+    .modal-header {
+        background-color: var(--primary);
     }
-
-    .dashboard-title {
-        font-size: 14px;
-        font-weight: 600;
-        margin-bottom: 5px;
-    }
-
-    .dashboard-card h1 {
-        font-size: 20px;
-        margin: 0;
-    }
-
-    @@media (max-width: 768px) {
-        .dashboard-card h1 {
-            font-size: 16px;
-        }
-        .dashboard-title {
-            font-size: 12px;
-        }
-    }
-    .dashboard-card {
-        width: 300px;
-        min-width: 250px;
-        height: 200px;
-        padding: 10px;
-        border-radius: 10px;
-        box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
-        margin-right: 15px;
-    }
-
-    .dashboard-title {
-        font-weight: bold;
-        font-size: 18px;
-        padding-bottom: 5px;
-    }
-
-    .dashboard-value {
-        font-weight: bold;
+    h1, h2, hr {
+        color: var(--primary);
         font-size: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-    }
-
-    .dashboard-row {
-        display: flex;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        gap: 15px;
-        padding-bottom: 10px;
-    }
-
-        .dashboard-row::-webkit-scrollbar {
-            height: 8px;
-        }
-
-        .dashboard-row::-webkit-scrollbar-thumb {
-            background-color: #00AEEF;
-            border-radius: 4px;
-        }
-
-    hr {
-        width: 100%;
-        height: 2px;
-        background-color: #00AEEF;
-        border: none;
-        margin: 10px auto;
-    }
-
-    .alert-danger {
-        background-color: #dc3545 !important;
-        color: white;
-    }
-
-    .section-header {
-        text-align: center;
-        margin: 40px 0 20px 0;
-    }
-
-        .section-header h2 {
-            color: #007bff;
-            font-weight: bold;
-        }
-
-    .panel {
-        border-radius: 10px;
-        background: #f8f9fa;
-        padding: 15px;
-        box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+        font-weight: 700;
+        margin-bottom: 8px;
+        letter-spacing: -0.3px;
     }
 </style>
-
-<div class="container mt-4">
-
-    <!-- ===================== Deposit Progress ===================== -->
-    <div class="section-header">
-        <h2>Deposit Progress</h2>
-        <hr />
+<div class="container-fluid py-5">
+    <!-- Header -->
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold">Your Performance Dashboard</h1>
+        <p class="lead text-muted">Track your deposit targets and progress in real-time</p>
+        <hr class="w-25 mx-auto bg-primary" style="height: 4px; opacity: 1;">
     </div>
 
-    <div class="dashboard-row text-center">
-        <div class="card text-white bg-primary dashboard-card">
-            <div class="card-header dashboard-title">Assigned Target</div>
-            <h1>@ViewBag.AssinedTargetdeposit.ToString("N2")</h1>
-        </div>
+    <!-- ===================== Deposit Progress Section ===================== -->
+    <section class="mb-5">
+        <h2 class="fw-bold text-center mb-4">Deposit Progress</h2>
+        <div class="row g-4 justify-content-center">
+            <!-- Assigned Target -->
+            <div class="col-sm-6 col-lg-4 col-xl-3">
+                <div class="card border-0 shadow-lg h-100 text-white gradient-primary">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-bullseye fa-2x mb-3 opacity-75"></i>
+                        <h6 class="card-title fw-semibold mb-2">Assigned Target</h6>
+                        <h3 class="fw-bold mb-0">@String.Format("{0:N2}", ViewBag.AssinedTargetdeposit)</h3>
+                        <small class="d-block mt-1 opacity-75">Total Deposit: @String.Format("{0:N2}", ViewBag.depositplan)</small>
 
-        <div class="card text-white bg-primary dashboard-card">
-            <div class="card-header dashboard-title">Account Balance</div>
-            <h1>@ViewBag.acountBlance.ToString("N2")</h1>
-            <div class="card-header dashboard-title">Initial Account Balance</div>
-            <h1>@ViewBag.AaccountountIntial.ToString("N2")</h1>
-        </div>
 
-        <div class="card text-white bg-success dashboard-card">
-            <div class="card-header dashboard-title">Deposit Amount</div>
-            <h1>@ViewBag.achivedDeposit.ToString("N2")</h1>
-            <div class="card-header dashboard-title">Deposit Percentage</div>
-            <h1>@(achievedPercent.ToString("F2")) %</h1>
-        </div>
+                    </div>
+                </div>
+            </div>
 
-        <div class="card text-white bg-success dashboard-card">
-            <div class="card-header dashboard-title">Remaining Amount</div>
-            <h1>@ViewBag.remaing.ToString("N2")</h1>
-            <div class="card-header dashboard-title">Remaining Percentage</div>
-            <h1>@(remainingPercent.ToString("F2")) %</h1>
-        </div>
+            <!-- Account Balance -->
+            @*<div class="col-sm-6 col-lg-4 col-xl-3">
+                <div class="card border-0 shadow-lg h-100 text-white gradient-info">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-wallet fa-2x mb-3 opacity-75"></i>
+                        <h6 class="card-title fw-semibold mb-2">Current Balance</h6>
+                        <h3 class="fw-bold mb-0">@String.Format("{0:N2}", ViewBag.acountBlance)</h3>
+                        <small class="d-block mt-1 opacity-75">Total Initial: @String.Format("{0:N2}", ViewBag.AaccountountIntial)</small>
+                        <small class="d-block mt-1 opacity-75">Total Withdrawal: @String.Format("{0:N2}", ViewBag.withdrawal)</small>
 
-        <div class="card text-white bg-success dashboard-card">
-            <div class="card-header dashboard-title">Deposit % Relative to Branch</div>
-            <h1>@(ViewBag.avargaeUserProgressDeposit.ToString("F2")) %</h1>
-        </div>
-    </div>
 
-    <div class="row mt-4 text-center">
-        <div class="col-md-12">
-            <div class="panel">
-                <div class="alert @ViewBag.MessageClass" role="alert">
-                    <strong>@ViewBag.MessageText</strong><br />
-                    <p>Target: @string.Format("{0:N0}", ViewBag.AssinedTargetdeposit) over 90 days</p>
-                    <p>Day: @ViewBag.DaysElapsed</p>
-                    <p>Expected by now: @ViewBag.Expected.ToString("N2")</p>
-                    <p>Collected: @ViewBag.Collected.ToString("N2")</p>
-                    <p>Progress: @ViewBag.ProgressPercent.ToString("F3")%</p>
+                    </div>
+                </div>
+            </div>*@
+
+            <!-- Deposit Achieved -->
+            <div class="col-sm-6 col-lg-4 col-xl-3">
+                <div class="card border-0 shadow-lg h-100 text-white gradient-success">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-check-circle fa-2x mb-3 opacity-75"></i>
+                        <h6 class="card-title fw-semibold mb-2">Deposit Achieved</h6>
+                        <h3 class="fw-bold mb-0">@String.Format("{0:N2}", ViewBag.achivedDeposit)</h3>
+                        <div class="mt-2">
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-light" role="progressbar" style="width: @achievedPercent%"></div>
+                            </div>
+                            <small class="d-block mt-1">@achievedPercent.ToString("F2")% Complete</small>
+                            <!-- Why? Button -->
+                            <button type="button" class="btn btn-light btn-sm mt-3 fw-bold" data-bs-toggle="modal" data-bs-target="#whyAchievedModal">
+                                <i class="fas fa-question-circle me-1"></i> Why?
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Remaining -->
+            <div class="col-sm-6 col-lg-4 col-xl-3">
+                <div class="card border-0 shadow-lg h-100 text-white gradient-warning">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-exclamation-triangle fa-2x mb-3 opacity-75"></i>
+                        <h6 class="card-title fw-semibold mb-2">Remaining</h6>
+                        <h3 class="fw-bold mb-0">@String.Format("{0:N2}", ViewBag.remaing)</h3>
+                        <small class="d-block mt-1">@remainingPercent.ToString("F2")% Left</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Relative to Branch -->
+            <div class="col-sm-6 col-lg-4 col-xl-3">
+                <div class="card border-0 shadow-lg h-100 text-white gradient-secondary">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-chart-line fa-2x mb-3 opacity-75"></i>
+                        <h6 class="card-title fw-semibold mb-2">Vs. Branch Avg.</h6>
+                        <h3 class="fw-bold mb-0">@String.Format("{0:F2}", ViewBag.avargaeUserProgressDeposit)%</h3>
+                        <small class="d-block mt-1">Your relative performance</small>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- ===================== Merchant Deposit ===================== -->
-    <div class="section-header">
-        <h2>Your Deposit From Merchant</h2>
-        <hr />
-    </div>
-
-    <div class="dashboard-row text-center">
-        <div class="card text-white bg-primary dashboard-card">
-            <div class="card-header dashboard-title">Assigned Target</div>
-            <h1>@ViewBag.AssinedTargetAgent</h1>
-        </div>
-
-        <div class="card text-white bg-primary dashboard-card">
-            <div class="card-header dashboard-title">Achieved Merchant</div>
-            <h1>@ViewBag.uniqueMerchantCount</h1>
-            <div class="card-header dashboard-title">Initial Account Balance</div>
-            <h1>@ViewBag.AaccountountIntial.ToString("N2")</h1>
-        </div>
-
-        <div class="card text-white bg-success dashboard-card">
-            <div class="card-header dashboard-title">Collected Amount</div>
-            <h1>@ViewBag.achivedDepositAgenet</h1>
-            <div class="card-header dashboard-title">Deposit Percentage</div>
-            <h1>@(achievedPercentAgenet.ToString("F2")) %</h1>
-            
-           
-        </div>
-
-        <div class="card text-white bg-warning dashboard-card">
-            <div class="card-header dashboard-title">Remaining Amount</div>
-            <h1>@ViewBag.remaing1</h1>
-            <div class="card-header dashboard-title">Remaining Percentage</div>
-            <h1>@(remainingPercentAgenet.ToString("F2")) %</h1>
-        </div>
-        <div class="card text-white bg-success dashboard-card">
-            <div class="card-header dashboard-title">Deposit % Relative to Branch</div>
-            <h1>@(ViewBag.avargaeUserProgressDeposit.ToString("F2")) %</h1>
-        </div>
-    </div>
-
-    <div class="row mt-4 text-center">
-        <div class="col-md-12">
-            <div class="panel">
-                <div class="alert @ViewBag.MessageClass1" role="alert">
-                    <strong>@ViewBag.MessageText1</strong><br />
-                    <p>Target: @ViewBag.AssinedTargetAgent over 90 days</p>
-                    <p>Day: @ViewBag.DaysElapsed</p>
-                    <p>Expected by now: @ViewBag.ExpectedAgent.ToString("N2")</p>
-                    <p>Collected: @ViewBag.CollectedAgent.ToString("N2")</p>
-                    <p>Progress: @ViewBag.progressPercentAgent.ToString("F3")%</p>
+        <!-- Progress Summary Card -->
+        <div class="row justify-content-center mt-4">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4 bg-white">
+                        <div class="alert @ViewBag.MessageClass mb-0" role="alert">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="alert-heading mb-0">@ViewBag.MessageText</h5>
+                                <span class="badge bg-white text-@ViewBag.MessageClass.Split('-')[1] fs-6">@String.Format("{0:F1}", ViewBag.ProgressPercent)% Progress</span>
+                            </div>
+                            <hr>
+                            <div class="row text-center g-3">
+                                <div class="col-md-3"><strong>Target:</strong> @String.Format("{0:N0}", ViewBag.AssinedTargetdeposit) (90 days)</div>
+                                <div class="col-md-3"><strong>Day @ViewBag.DaysElapsed</strong> of 90</div>
+                                <div class="col-md-3"><strong>Expected:</strong> @String.Format("{0:N2}", ViewBag.Expected)</div>
+                                <div class="col-md-3"><strong>Collected:</strong> <span class="text-success fw-bold">@String.Format("{0:N2}", ViewBag.Collected)</span></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- ===================== FCY Deposit ===================== -->
-    <div class="section-header">
-        <h2>Your FCY Deposit</h2>
-        <hr />
-    </div>
-
-    <div class="dashboard-row text-center">
-        <div class="card text-white bg-primary dashboard-card">
-            <div class="card-header dashboard-title">Assigned Plan</div>
-            <h1>@ViewBag.AssinedTargetFCY</h1>
-        </div>
-
-        <div class="card text-white bg-success dashboard-card">
-            <div class="card-header dashboard-title">Collected Amount</div>
-            <h1>@ViewBag.achivedDepositFCY</h1>
-            <div class="card-header dashboard-title">FCY Deposit Percentage</div>
-            <h1>@(achievedPercentFcy.ToString("F2")) %</h1>
-        </div>
-
-        <div class="card text-white bg-warning dashboard-card">
-            <div class="card-header dashboard-title">Remaining Amount</div>
-            <h1>@ViewBag.remaing2</h1>
-            <div class="card-header dashboard-title">Remaining Percentage</div>
-            <h1>@(remainingPercentFcy.ToString("F2")) %</h1>
-        </div>
-        <div class="card text-white bg-success dashboard-card">
-            <div class="card-header dashboard-title">Deposit % Relative to Branch</div>
-            <h1>@(ViewBag.avargaeUserProgressFcy.ToString("F2")) %</h1>
-        </div>
-    </div>
-
-    <div class="row mt-4 text-center">
-        <div class="col-md-12">
-            <div class="panel">
-                <div class="alert @ViewBag.MessageClass2" role="alert">
-                    <strong>@ViewBag.MessageText2</strong><br />
-                    <p>Target: @ViewBag.AssinedTargetFCY over 90 days</p>
-                    <p>Day: @ViewBag.DaysElapsed</p>
-                    <p>Expected by now: @ViewBag.expectedFCY.ToString("N2")</p>
-                    <p>Collected: @ViewBag.CollectedFCY.ToString("N2")</p>
-                    <p>Progress: @ViewBag.progressPercentFCY.ToString("F3")%</p>
+    <!-- ===================== Merchant Deposit Section ===================== -->
+    <section class="mb-5">
+        <h2 class="fw-bold text-center mb-4">Merchant Deposit Performance</h2>
+        <div class="row g-4 justify-content-center">
+            <!-- Target -->
+            <div class="col-sm-6 col-lg-4 col-xl-3">
+                <div class="card border-0 shadow-lg h-100 text-white gradient-purple">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-flag-checkered fa-2x mb-3 opacity-75"></i>
+                        <h6 class="card-title fw-semibold mb-2">Merchant Target</h6>
+                        <h3 class="fw-bold mb-0">@String.Format("{0:N0}", ViewBag.AssinedTargetAgent)</h3>
+                    </div>
                 </div>
+            </div>
+
+            <!-- Achieved -->
+            <div class="col-sm-6 col-lg-4 col-xl-3">
+                <div class="card border-0 shadow-lg h-100 text-white gradient-teal">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-users fa-2x mb-3 opacity-75"></i>
+                        <h6 class="card-title fw-semibold mb-2">Merchants Onboarded</h6>
+                        <h3 class="fw-bold mb-0">@String.Format("{0:N0}", ViewBag.uniqueMerchantCount)</h3>
+                        <small class="d-block mt-5 opacity-75">Initial: @String.Format("{0:N2}", ViewBag.AaccountountIntialAgent)</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Collected -->
+            <div class="col-sm-6 col-lg-4 col-xl-3">
+                <div class="card border-0 shadow-lg h-100 text-white gradient-success">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-coins fa-2x mb-3 opacity-75"></i>
+                        <h6 class="card-title fw-semibold mb-2">Merchant Recruited</h6>
+                        <h3 class="fw-bold mb-0">@ViewBag.achivedDepositAgenet</h3>
+                        <div class="mt-2">
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-light" role="progressbar" style="width: @achievedPercentAgenet%"></div>
+                            </div>
+                            <small class="d-block mt-1">@achievedPercentAgenet.ToString("F2")% Achieved</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Remaining -->
+            <div class="col-sm-6 col-lg-4 col-xl-3">
+                <div class="card border-0 shadow-lg h-100 text-white gradient-orange">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-hourglass-half fa-2x mb-3 opacity-75"></i>
+                        <h6 class="card-title fw-semibold mb-2">Remaining</h6>
+                        <h3 class="fw-bold mb-0">@ViewBag.remaing1</h3>
+                        <small class="d-block mt-1">@remainingPercentAgenet.ToString("F2")% Left</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Relative to Branch -->
+            <div class="col-sm-6 col-lg-4 col-xl-3">
+                <div class="card border-0 shadow-lg h-100 text-white gradient-secondary">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-chart-line fa-2x mb-3 opacity-75"></i>
+                        <h6 class="card-title fw-semibold mb-2">Vs. Branch Avg.</h6>
+                        <h3 class="fw-bold mb-0">@String.Format("{0:F2}", ViewBag.avargaeUserProgressDeposit)%</h3>
+                        <small class="d-block mt-1">Your relative performance</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Merchant Summary -->
+        <div class="row justify-content-center mt-4">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4 bg-white">
+                        <div class="alert @ViewBag.MessageClass1 mb-0" role="alert">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="alert-heading mb-0">@ViewBag.MessageText1</h5>
+                                <span class="badge bg-white text-@ViewBag.MessageClass1.Split('-')[1] fs-6">@String.Format("{0:F1}", ViewBag.progressPercentAgent)% Progress</span>
+                            </div>
+                            <hr>
+                            <div class="row text-center g-3">
+                                <div class="col-md-3"><strong>Target:</strong> @String.Format("{0:N0}", ViewBag.AssinedTargetAgent) (90 days)</div>
+                                <div class="col-md-3"><strong>Day @ViewBag.DaysElapsed</strong></div>
+                                <div class="col-md-3"><strong>Expected:</strong> @String.Format("{0:N2}", ViewBag.ExpectedAgent)</div>
+                                <div class="col-md-3"><strong>Collected:</strong> <span class="text-success fw-bold">@String.Format("{0:N2}", ViewBag.CollectedAgent)</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== FCY Deposit Section ===================== -->
+    <section class="mb-5">
+        <h2 class="fw-bold text-center mb-4">FCY Deposit Overview</h2>
+        <div class="row g-4 justify-content-center">
+            <!-- Assigned Plan -->
+            <div class="col-sm-6 col-lg-4 col-xl-3">
+                <div class="card border-0 shadow-lg h-100 text-white gradient-info">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-globe-americas fa-2x mb-3 opacity-75"></i>
+                        <h6 class="card-title fw-semibold mb-2">Assigned Plan</h6>
+                        <h3 class="fw-bold mb-0">@String.Format("{0:N2}", ViewBag.AssinedTargetFCY)</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Collected -->
+            <div class="col-sm-6 col-lg-4 col-xl-3">
+                <div class="card border-0 shadow-lg h-100 text-white gradient-success">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-dollar-sign fa-2x mb-3 opacity-75"></i>
+                        <h6 class="card-title fw-semibold mb-2">Collected</h6>
+                        <h3 class="fw-bold mb-0">@String.Format("{0:N2}", ViewBag.achivedDepositFCY)</h3>
+                        <div class="mt-2">
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-light" role="progressbar" style="width: @achievedPercentFcy%"></div>
+                            </div>
+                            <small class="d-block mt-1">@achievedPercentFcy.ToString("F2")% Achieved</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Remaining -->
+            <div class="col-sm-6 col-lg-4 col-xl-3">
+                <div class="card border-0 shadow-lg h-100 text-white gradient-danger">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-minus-circle fa-2x mb-3 opacity-75"></i>
+                        <h6 class="card-title fw-semibold mb-2">Remaining</h6>
+                        <h3 class="fw-bold mb-0">@String.Format("{0:N2}", ViewBag.remaing2)</h3>
+                        <small class="d-block mt-1">@remainingPercentFcy.ToString("F2")% Left</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Branch Average -->
+            <div class="col-sm-6 col-lg-4 col-xl-3">
+                <div class="card border-0 shadow-lg h-100 text-white gradient-secondary">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-chart-line fa-2x mb-3 opacity-75"></i>
+                        <h6 class="card-title fw-semibold mb-2">Vs. Branch Avg.</h6>
+                        <h3 class="fw-bold mb-0">@String.Format("{0:F2}", ViewBag.avargaeUserProgressFcy)%</h3>
+                        <small class="d-block mt-1">Your relative performance</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FCY Summary -->
+        <div class="row justify-content-center mt-4">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4 bg-white">
+                        <div class="alert @ViewBag.MessageClass2 mb-0" role="alert">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="alert-heading mb-0">@ViewBag.MessageText2</h5>
+                                <span class="badge bg-white text-@ViewBag.MessageClass2.Split('-')[1] fs-6">@String.Format("{0:F1}", ViewBag.progressPercentFCY)% Progress</span>
+                            </div>
+                            <hr>
+                            <div class="row text-center g-3">
+                                <div class="col-md-3"><strong>Target:</strong> @String.Format("{0:N2}", ViewBag.AssinedTargetFCY) (90 days)</div>
+                                <div class="col-md-3"><strong>Day @ViewBag.DaysElapsed</strong></div>
+                                <div class="col-md-3"><strong>Expected:</strong> @String.Format("{0:N2}", ViewBag.expectedFCY)</div>
+                                <div class="col-md-3"><strong>Collected:</strong> <span class="text-success fw-bold">@String.Format("{0:N2}", ViewBag.CollectedFCY)</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+
+<!-- Why? Explanation Modal -->
+<div class="modal fade" id="whyAchievedModal" tabindex="-1" aria-labelledby="whyAchievedModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header text-white">
+                <h5 class="modal-title" id="whyAchievedModalLabel">
+                    <i class="fas fa-calculator me-2"></i>How Your Achieved Deposit is Calculated
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-4">
+                    Your <strong>achieved deposit</strong> is not just what you deposited — withdrawals are proportionally shared among all users who contributed to each account.
+                </p>
+
+                @if (ViewBag.AchievedBreakdown != null && ((System.Collections.IEnumerable)ViewBag.AchievedBreakdown).GetEnumerator().MoveNext())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle">
+                            <thead class="table-primary text-center">
+                                <tr>
+                                    <th>Account Number</th>
+                                    <th>True Initial Balance<br><small>(Before any deposit)</small></th>
+                                    <th>Total Deposit<br><small>(All users)</small></th>
+                                    <th>Your Contribution</th>
+                                    <th>Current Balance</th>
+                                    <th>Total Withdrawal</th>
+                                    <th>Your Share of Withdrawal</th>
+                                    <th>Your Achieved Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{ decimal grandTotalAchieved = 0; }
+                                @foreach (dynamic item in ViewBag.AchievedBreakdown)
+                                {
+                                    decimal userShare = item.TotalDeposited > 0
+                                        ? item.TotalWithdrawal * (item.UserContribution / item.TotalDeposited)
+                                        : 0;
+                                    decimal achieved = item.UserContribution - userShare;
+                                    if (achieved < 0)
+                                    {
+                                        achieved = 0;
+                                    }
+                                    grandTotalAchieved += achieved;
+
+                                    <tr class="text-end">
+                                        <td class="text-start fw-bold text-primary">@item.AccountNumber</td>
+                                        <td>@String.Format("{0:N2}", item.InitialBalance)</td>
+                                        <td>@String.Format("{0:N2}", item.TotalDeposited)</td>
+                                        <td class="text-success fw-bold">@String.Format("{0:N2}", item.UserContribution)</td>
+                                        <td>@String.Format("{0:N2}", item.FinalBalance)</td>
+                                        <td class="text-danger">@String.Format("{0:N2}", item.TotalWithdrawal)</td>
+                                        <td class="text-warning">(@String.Format("{0:N2}", userShare))</td>
+                                        <td class="text-success fw-bold fs-5">@String.Format("{0:N2}", achieved)</td>
+                                    </tr>
+                                }
+                                <tr class="table-success fw-bold fs-5">
+                                    <td colspan="7" class="text-end">TOTAL ACHIEVED DEPOSIT →</td>
+                                    <td class="text-center">@String.Format("{0:N2}", grandTotalAchieved)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info text-center">
+                        <i class="fas fa-info-circle"></i> No deposit records found yet.
+                    </div>
+                }
+
+                <div class="alert alert-light border mt-4">
+                    <strong>Formula Used:</strong><br>
+                    Achieved = Your Deposit − (Your Share of Withdrawals)<br>
+                    Your Share = Total Withdrawal × (Your Deposit ÷ Total Deposit in Account)
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    /* Beautiful gradient classes matching Bootstrap 5 colors */
+    .gradient-primary {
+        background: linear-gradient(135deg, #0d6efd, #0b5ed7) !important;
+    }
+
+    .gradient-info {
+        background: linear-gradient(135deg, #0dcaf0, #0ba7c7) !important;
+    }
+
+    .gradient-success {
+        background: linear-gradient(135deg, #198754, #157347) !important;
+    }
+
+    .gradient-warning {
+        background: linear-gradient(135deg, #ffc107, #e0a800) !important;
+    }
+
+    .gradient-danger {
+        background: linear-gradient(135deg, #dc3545, #c82333) !important;
+    }
+
+    .gradient-secondary {
+        background: linear-gradient(135deg, #6c757d, #5a6268) !important;
+    }
+
+    .gradient-purple {
+        background: linear-gradient(135deg, #6f42c1, #5a2d91) !important;
+    }
+
+    .gradient-teal {
+        background: linear-gradient(135deg, #20c997, #1baa7e) !important;
+    }
+
+    .gradient-orange {
+        background: linear-gradient(135deg, #fd7e14, #e86a12) !important;
+    }
+</style>

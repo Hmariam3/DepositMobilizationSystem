@@ -33,6 +33,7 @@ namespace TRMS.Models
         public string CreatedBY { get; set; }
         public System.DateTime CreatedDate { get; set; }
         public string DepositType { get; set; }
+        public Nullable<decimal> Prev_Ini_Bal { get; set; }
     
         public virtual User User { get; set; }
     }

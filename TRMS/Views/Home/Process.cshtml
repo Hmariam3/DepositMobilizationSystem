@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "Dashboard";
+    ViewBag.Title = "Process Dashboard";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -357,28 +357,7 @@
 <div class="container-fluid p-4">
     @{
         var position = Session["Position"] != null ? Session["Position"].ToString() : "";
-        string title = "";
-
-        if (position == "VP" || position == "CHF")
-        {
-            title = ViewBag.VP + " Deposit Performance";
-        }
-        else if (position == "Director" || position == "SeniorDirector")
-        {
-            title = ViewBag.District + " Deposit Performance";
-        }
-        else if (position == "BranchManager" || position == "Manager")
-        {
-            title = ViewBag.Branch + " Deposit Performance";
-        }
-        else if (position == "CEO")
-        {
-            title = ViewBag.CEO + " Deposit Performance";
-        }
-        else
-        {
-            title = "Deposit Performance";
-        }
+        string title = ViewBag.Process + " " + "Deposit Performance";
     }
 
     <!-- Page Header -->
@@ -400,9 +379,9 @@
             </div>
             <div class="card-body">
                 <table class="metric-table">
-                    <tr><th>Assigned Target</th><td>@String.Format("{0:N2}", ViewBag.DepositPlanTarget)</td></tr>
-                    <tr><th>Achieved Amount</th><td>@String.Format("{0:N2}", ViewBag.DepositPlanAchieved)</td></tr>
-                    <tr><th>Remaining Amount</th><td>@String.Format("{0:N2}", ViewBag.DepositRemainingAmount)</td></tr>
+                    <tr><th>Assigned Target</th><td>@(ViewBag.DepositPlanTarget != null ? String.Format("{0:N2}", ViewBag.DepositPlanTarget) : "0.00")</td></tr>
+                    <tr><th>Achieved Amount</th><td>@(ViewBag.DepositPlanAchieved != null ? String.Format("{0:N2}", ViewBag.DepositPlanAchieved) : "0.00")</td></tr>
+                    <tr><th>Remaining Amount</th><td>@(ViewBag.DepositRemainingAmount != null ? String.Format("{0:N2}", ViewBag.DepositRemainingAmount) : "0.00")</td></tr>
                 </table>
                 <div class="progress-container">
                     <div class="progress-percentage">
@@ -416,9 +395,9 @@
                     </div>
                     <div class="progress-message @(ViewBag.DepositPlanProgress < 33 ? "progress-message-behind" : ViewBag.DepositPlanProgress <= 66 ? "progress-message-good" : ViewBag.DepositPlanProgress <= 100 ? "progress-message-strong" : "progress-message-above")">
                         @(ViewBag.DepositPlanProgress < 33 ? "Catch Up: Push harder to reach your goal!" :
-                                                                      ViewBag.DepositPlanProgress <= 66 ? "On Track: Keep up the steady progress!" :
-                                                                      ViewBag.DepositPlanProgress <= 100 ? "Strong Performance: You're close to the goal!" :
-                                                                      "Target Exceeded: Outstanding achievement!")
+                                                                              ViewBag.DepositPlanProgress <= 66 ? "On Track: Keep up the steady progress!" :
+                                                                              ViewBag.DepositPlanProgress <= 100 ? "Strong Performance: You're close to the goal!" :
+                                                                              "Target Exceeded: Outstanding achievement!")
                     </div>
                 </div>
             </div>
@@ -431,9 +410,9 @@
             </div>
             <div class="card-body">
                 <table class="metric-table">
-                    <tr><th>Assigned Target</th><td>@String.Format("{0:N2}", ViewBag.MerchantTarget)</td></tr>
-                    <tr><th>Achieved Amount</th><td>@String.Format("{0:N2}", ViewBag.MerchantAchieved)</td></tr>
-                    <tr><th>Remaining Amount</th><td>@String.Format("{0:N2}", ViewBag.MerchantRemainingAmount)</td></tr>
+                    <tr><th>Assigned Target</th><td>@(ViewBag.MerchantTarget != null ? String.Format("{0:N2}", ViewBag.MerchantTarget) : "0.00")</td></tr>
+                    <tr><th>Achieved Amount</th><td>@(ViewBag.MerchantAchieved != null ? String.Format("{0:N2}", ViewBag.MerchantAchieved) : "0.00")</td></tr>
+                    <tr><th>Remaining Amount</th><td>@(ViewBag.MerchantRemainingAmount != null ? String.Format("{0:N2}", ViewBag.MerchantRemainingAmount) : "0.00")</td></tr>
                 </table>
                 <div class="progress-container">
                     <div class="progress-percentage">
@@ -447,9 +426,9 @@
                     </div>
                     <div class="progress-message @(ViewBag.MerchantProgress < 33 ? "progress-message-behind" : ViewBag.MerchantProgress <= 66 ? "progress-message-good" : ViewBag.MerchantProgress <= 100 ? "progress-message-strong" : "progress-message-above")">
                         @(ViewBag.MerchantProgress < 33 ? "Catch Up: Push harder to reach your goal!" :
-                                                                      ViewBag.MerchantProgress <= 66 ? "On Track: Keep up the steady progress!" :
-                                                                      ViewBag.MerchantProgress <= 100 ? "Strong Performance: You're close to the goal!" :
-                                                                      "Target Exceeded: Outstanding achievement!")
+                                                                              ViewBag.MerchantProgress <= 66 ? "On Track: Keep up the steady progress!" :
+                                                                              ViewBag.MerchantProgress <= 100 ? "Strong Performance: You're close to the goal!" :
+                                                                              "Target Exceeded: Outstanding achievement!")
                     </div>
                 </div>
             </div>
@@ -462,9 +441,9 @@
             </div>
             <div class="card-body">
                 <table class="metric-table">
-                    <tr><th>Assigned Target</th><td>@String.Format("{0:N2}", ViewBag.FCYTarget)</td></tr>
-                    <tr><th>Achieved Amount</th><td>@String.Format("{0:N2}", ViewBag.FCYAchieved)</td></tr>
-                    <tr><th>Remaining Amount</th><td>@String.Format("{0:N2}", ViewBag.FCYRemainingAmount)</td></tr>
+                    <tr><th>Assigned Target</th><td>@(ViewBag.FCYTarget != null ? String.Format("{0:N2}", ViewBag.FCYTarget) : "0.00")</td></tr>
+                    <tr><th>Achieved Amount</th><td>@(ViewBag.FCYAchieved != null ? String.Format("{0:N2}", ViewBag.FCYAchieved) : "0.00")</td></tr>
+                    <tr><th>Remaining Amount</th><td>@(ViewBag.FCYRemainingAmount != null ? String.Format("{0:N2}", ViewBag.FCYRemainingAmount) : "0.00")</td></tr>
                 </table>
                 <div class="progress-container">
                     <div class="progress-percentage">
@@ -478,9 +457,9 @@
                     </div>
                     <div class="progress-message @(ViewBag.FCYProgress < 33 ? "progress-message-behind" : ViewBag.FCYProgress <= 66 ? "progress-message-good" : ViewBag.FCYProgress <= 100 ? "progress-message-strong" : "progress-message-above")">
                         @(ViewBag.FCYProgress < 33 ? "Catch Up: Push harder to reach your goal!" :
-                                                                      ViewBag.FCYProgress <= 66 ? "On Track: Keep up the steady progress!" :
-                                                                      ViewBag.FCYProgress <= 100 ? "Strong Performance: You're close to the goal!" :
-                                                                      "Target Exceeded: Outstanding achievement!")
+                                                                              ViewBag.FCYProgress <= 66 ? "On Track: Keep up the steady progress!" :
+                                                                              ViewBag.FCYProgress <= 100 ? "Strong Performance: You're close to the goal!" :
+                                                                              "Target Exceeded: Outstanding achievement!")
                     </div>
                 </div>
             </div>

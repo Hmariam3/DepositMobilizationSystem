@@ -1,293 +1,510 @@
 ﻿@model TRMS.Models.User
-
 @{
     ViewBag.Title = "Create User";
     Layout = null;
 }
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>@ViewBag.Title</title>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-    @Styles.Render("~/Content/css")
-    @Styles.Render("~/Content/cssjqryUi")
-    <link rel="stylesheet" href="/admin-lte/plugins/Ionicons/css/ionicons.min.css">
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <title>Deposit Monitoring System</title>
+    <!-- Ionicons -->
+    <!--CSS Styles-->
+    <link rel="stylesheet" href="~/dist/assets/adminlte.min.css" />
+    <link rel="stylesheet" href="~/plugins/fontawesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="~/plugins/fontawesome-free/css/all.min.css" />
+    <link href="~/plugins/bootstrap_icon.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/plugins/bootstrap-icons/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/plugins/icheck-bootstrap/icheck-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/plugins/summernote/summernote-bs4.min.css" />
+    <link rel="stylesheet" href="~/plugins/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="~/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" />
+    <link rel="stylesheet" href="~/plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css" />
+    <link rel="stylesheet" href="~/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="~/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <link rel="stylesheet" href="~/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+    <link rel="stylesheet" href="~/dist/assets/OverlayScrollbars.min.css" />
+    <link href="~/plugins/chart.js/Chart.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/dist/css/bootstrap-select.min.css" />
+
+    <!--Scripts-->
+    <script src="~/dist/assets/overlayscrollbars.browser.es5.min.js"></script>
+    <script src="~/dist/assets/Sortable.min.js"></script>
+    <script src="~/dist/js/bootstrap-select.min.js"></script>
+    <script src="~/plugins/jquery/jquery.min.js"></script>
+    <script src="~/plugins/bootstrap.bundle.js"></script>
+    <script src="~/plugins/jquery-validation/jquery.validate.js"></script>
+    <script src="~/plugins/jquery-validation/additional-methods.min.js"></script>
+    <script src="~/plugins/jquery-validation/jquery.validate.min.js"></script>
+    <script src="~/plugins/chart.js/Chart.js"></script>
+
+    <!-- Custom Styles -->
     <style>
+        :root {
+            --primary: #00AEEF;
+            --primary-dark: #008cc7;
+            --primary-gradient: linear-gradient(135deg, #00AEEF, #0077b6);
+            --success: #198754;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border-radius: 1rem;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background-color: #f2f4f6;
-            padding: 20px;
-        }
-
-        .panel {
-            margin: 0 auto;
-            max-width: 1200px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        .panel-heading {
-            background-color: #00AEEF;
-            color: white;
-            padding: 15px;
-            text-align: center;
-        }
-
-        hr {
-            border: 1px solid #00AEEF;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #e0f7fa 0%, #f3e5f5 100%);
+            min-height: 100vh;
             margin: 0;
+            padding: 1rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .panel-body {
-            padding: 30px;
+        .create-container {
+            max-width: 1500px;
+            width: 100%;
+            margin: 0 auto;
         }
 
-        .alert {
-            margin: 20px auto;
-            width: 90%;
-            font-weight: bold;
+        .page-header {
             text-align: center;
+            margin-bottom: 2.5rem;
         }
 
-        .info-card {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
+            .page-header h1 {
+                font-weight: 800;
+                font-size: 2.2rem;
+                background: var(--primary-gradient);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                letter-spacing: 0.5px;
+                margin: 0;
+            }
+
+            .page-header p {
+                color: var(--gray);
+                font-size: 1.1rem;
+                margin-top: 0.5rem;
+            }
+
+        .user-summary-card,
+        .form-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
 
-        .info-card h4 {
-            color: #00AEEF;
-            margin-bottom: 15px;
-        }
+            .user-summary-card:hover,
+            .form-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            }
 
-        .info-card label {
-            font-weight: 600;
-            color: #333;
-        }
-
-        .target-section {
-            background-color: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-            margin-top: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .control-label {
-            font-weight: 600;
-            color: #444;
-        }
-
-        .btn-save {
-            background-color: #00AEEF;
+        .card-header {
+            background: var(--primary-gradient);
             color: white;
-            border: none;
+            padding: 1rem 2rem;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.3rem;
+            letter-spacing: 0.5px;
         }
 
-        .btn-save:hover {
-            background-color: #0092ce;
+            .card-header i {
+                margin-right: 0.5rem;
+            }
+
+        .card-body {
+            padding: 2rem;
         }
 
-        .btn-back {
-            background-color: #333;
-            color: white;
-            border: none;
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px dashed #e9ecef;
+            font-size: 0.95rem;
         }
 
-        .btn-back:hover {
-            background-color: #555;
+            .info-item:last-child {
+                border-bottom: none;
+            }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .info-value {
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .form-control,
+        .select2-container--bootstrap-5 .select2-selection {
+            border-radius: 0.75rem;
+            border: 1px solid #ced4da;
+            padding: 0.65rem 1rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+            .form-control:focus,
+            .select2-container--bootstrap-5 .select2-selection:focus {
+                border-color: var(--primary);
+                box-shadow: 0 0 0 0.2rem rgba(0, 174, 239, 0.25);
+            }
+
+        .select2-container--bootstrap-5 .select2-selection {
+            height: calc(3.5rem + 2px);
+            padding-top: 0.375rem;
+            padding-bottom: 0.375rem;
+        }
+
+        .target-section h5 {
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+            display: inline-block;
         }
 
         .btn-container {
-            text-align: center;
-            margin-top: 25px;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .btn-save {
+            background: var(--primary-gradient);
+            border: none;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+            .btn-save:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(0, 174, 239, 0.4);
+            }
+
+        .btn-back {
+            background: #6c757d;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+            .btn-back:hover {
+                background: #5a6268;
+                transform: translateY(-2px);
+            }
+
+        .alert {
+            border-radius: 0.75rem;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            border: none;
+            font-weight: 500;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: #721c24;
+        }
+
+        @@media (max-width: 992px) {
+            .create-container {
+                padding: 1rem;
+            }
+
+            .btn-container {
+                flex-direction: column;
+            }
+
+            .btn-save, .btn-back {
+                width: 100%;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .card-body {
+                padding: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger">
-            <strong>Error!</strong> @TempData["ErrorMessage"]
+    <div class="create-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>User Registration</h1>
+            <p>Create User Profile with targets</p>
         </div>
-    }
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3>Create New User</h3>
-        </div>
-        <hr />
+
+        <!-- Error Message -->
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Error!</strong> @TempData["ErrorMessage"]
+            </div>
+        }
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle me-2"></i>
+                <strong>Success!</strong> @TempData["SuccessMessage"]
+            </div>
+        }
 
 
-
-
-        <div class="panel-body">
-            <div class="row">
-                <!-- Left: User Info Summary -->
-                <div class="col-md-5">
-                    <div class="info-card">
-                        <h4>User Information</h4>
-                        <p><label>Username:</label> @(Model.UserName ?? "Not provided")</p>
-                        <p><label>Full Name:</label> @(Model.FullName ?? "Not provided")</p>
-                        <p><label>Email Address:</label> @(Model.MailAdress ?? "Not provided")</p>
-                        <p><label>Organizational Unit:</label> @(Model.OrganizatinalUnit ?? "Not provided")</p>
-                        <p><label>Position:</label> @(Model.Postion ?? "Not provided")</p>
+        <div class="row g-4">
+            <!-- Left: User Info Summary -->
+            <div class="col-lg-5">
+                <div class="user-summary-card">
+                    <div class="card-header">
+                        <i class="fas fa-user-circle"></i>  Active Directory Info
+                    </div>
+                    <div class="card-body">
+                        <div class="info-item">
+                            <span class="info-label">Username:</span>
+                            <span class="info-value">@(Model.UserName ?? "Not provided")</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Full Name:</span>
+                            <span class="info-value">@(Model.FullName ?? "Not provided")</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Email:</span>
+                            <span class="info-value">@(Model.MailAdress ?? "Not provided")</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Org Unit:</span>
+                            <span class="info-value">@(Model.OrganizatinalUnit ?? "Not provided")</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Position:</span>
+                            <span class="info-value">@(Model.Postion ?? "Not provided")</span>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Right: Form -->
-                <div class="col-md-7">
-                    @using (Html.BeginForm("UserCreate", "User", FormMethod.Post, new { enctype = "multipart/form-data", id = "createUserForm" }))
-                    {
-                        @Html.AntiForgeryToken()
-                        <div class="form-horizontal form-group-sm">
-                            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <!-- Right: Form -->
+            <div class="col-lg-7">
+                <div class="form-card">
+                    <div class="card-header">
+                        <i class="fas fa-user-plus"></i> Organizational Detail & Targets
+                    </div>
+                    <div class="card-body">
+                        @using (Html.BeginForm("UserCreate", "User", FormMethod.Post, new { enctype = "multipart/form-data", id = "createUserForm", @class = "needs-validation", novalidate = "novalidate" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.ValidationSummary(true, "", new { @class = "text-danger small" })
 
-                            <!-- Hidden AD fields -->
+                            <!-- Hidden AD Fields -->
                             <div style="display:none">
-                                @Html.EditorFor(model => model.UserName, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
-                                @Html.EditorFor(model => model.FullName, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
-                                @Html.EditorFor(model => model.MailAdress, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                @Html.EditorFor(m => m.UserName, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                @Html.EditorFor(m => m.FullName, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                @Html.EditorFor(m => m.MailAdress, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
                             </div>
 
-                            <div class="form-group">
-                                <label class="control-label">Process</label>
-                                @Html.DropDownListFor(model => model.Process, (SelectList)ViewBag.Processes, "Select Process", new { @class = "form-control", id = "ProcessDropdown" })
-                                @Html.ValidationMessageFor(model => model.Process, "", new { @class = "text-danger" })
-                            </div>
+                            <div class="row g-3">
+                                <!-- Process -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Process <span class="text-danger">*</span></label>
+                                    @Html.DropDownListFor(m => m.Process, (SelectList)ViewBag.Processes, "Select Process", new { @class = "form-select select2", id = "ProcessDropdown" })
+                                    @Html.ValidationMessageFor(m => m.Process, "", new { @class = "text-danger small mt-1" })
+                                </div>
 
-                            <div class="form-group">
-                                <label class="control-label">Subprocess/District</label>
-                                @Html.DropDownListFor(model => model.District, (SelectList)ViewBag.Subprocesses, "Select Subprocess", new { @class = "form-control", id = "SubprocessDropdown" })
-                                @Html.ValidationMessageFor(model => model.District, "", new { @class = "text-danger" })
-                            </div>
+                                <!-- Subprocess/District -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Subprocess/District <span class="text-danger">*</span></label>
+                                    @Html.DropDownListFor(m => m.District, (SelectList)ViewBag.Subprocesses, "Select Subprocess", new { @class = "form-select select2", id = "SubprocessDropdown" })
+                                    @Html.ValidationMessageFor(m => m.District, "", new { @class = "text-danger small mt-1" })
+                                </div>
 
-                            <div class="form-group">
-                                <label class="control-label">Team/Branch</label>
-                                @Html.DropDownListFor(model => model.Branch, (SelectList)ViewBag.Branches, "Select Branch", new { @class = "form-control", id = "BranchDropdown" })
-                                @Html.ValidationMessageFor(model => model.Branch, "", new { @class = "text-danger" })
-                            </div>
+                                <!-- Team/Branch -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Team/Branch <span class="text-danger">*</span></label>
+                                    @Html.DropDownListFor(m => m.Branch, (SelectList)ViewBag.Branches, "Select Branch", new { @class = "form-select select2", id = "BranchDropdown" })
+                                    @Html.ValidationMessageFor(m => m.Branch, "", new { @class = "text-danger small mt-1" })
+                                </div>
 
-                            <div class="form-group">
-                                <label class="control-label">Organizational Unit</label>
-                                @Html.DropDownListFor(model => model.OrganizatinalUnit, new List<SelectListItem>
-                                {
-                                    new SelectListItem { Text = "HO", Value = "HO" },
-                                    new SelectListItem { Text = "District", Value = "District" },
-                                    new SelectListItem { Text = "Branch", Value = "Branch" }
-                                }, "Select Organizational Unit", new { @class = "form-control" })
-                                @Html.ValidationMessageFor(model => model.OrganizatinalUnit, "", new { @class = "text-danger" })
-                            </div>
+                                <!-- Organizational Unit -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Organizational Unit <span class="text-danger">*</span></label>
+                                    @Html.DropDownListFor(m => m.OrganizatinalUnit, new List<SelectListItem>
+                                    {
+                                        new SelectListItem { Text = "HO", Value = "HO" },
+                                        new SelectListItem { Text = "District", Value = "District" },
+                                        new SelectListItem { Text = "Branch", Value = "Branch" }
+                                    }, "Select Unit", new { @class = "form-select select2" })
+                                    @Html.ValidationMessageFor(m => m.OrganizatinalUnit, "", new { @class = "text-danger small mt-1" })
+                                </div>
 
-                            <div class="form-group">
-                                <label class="control-label">Position</label>
-                                @Html.DropDownListFor(model => model.Postion, new List<SelectListItem>
-                                {
-                                    new SelectListItem { Text = "Individual", Value = "Individual" },
-                                    new SelectListItem { Text = "BranchManager", Value = "BranchManager" },
-                                    new SelectListItem { Text = "Manager", Value = "Manager" },
-                                    new SelectListItem { Text = "Director", Value = "Director" },
-                                    new SelectListItem { Text = "VP", Value = "VP" },
-                                    new SelectListItem { Text = "CHF", Value = "CHF" },
-                                    new SelectListItem { Text = "CEO", Value = "CEO" }
-                                }, "Select Position", new { @class = "form-control", id = "positionId" })
-                                @Html.ValidationMessageFor(model => model.Postion, "", new { @class = "text-danger" })
-                            </div>
+                                <!-- Position -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Position <span class="text-danger">*</span></label>
+                                    @Html.DropDownListFor(m => m.Postion, new List<SelectListItem>
+                                    {
+                                        new SelectListItem { Text = "Individual", Value = "Individual" },
+                                        new SelectListItem { Text = "BranchManager", Value = "BranchManager" },
+                                        new SelectListItem { Text = "Manager", Value = "Manager" },
+                                        new SelectListItem { Text = "SeniorDirector", Value = "SeniorDirector" },
+                                        new SelectListItem { Text = "Director", Value = "Director" },
+                                        new SelectListItem { Text = "VP", Value = "VP" },
+                                        new SelectListItem { Text = "CHF", Value = "CHF" },
+                                        new SelectListItem { Text = "CEO", Value = "CEO" }
+                                    }, "Select Position", new { @class = "form-select select2", id = "positionId" })
+                                    @Html.ValidationMessageFor(m => m.Postion, "", new { @class = "text-danger small mt-1" })
+                                </div>
 
-                            <div class="form-group">
-                                <label class="control-label">Phone Number</label>
-                                @Html.EditorFor(model => model.PhoneNumber, new { htmlAttributes = new { @class = "form-control" } })
-                                @Html.ValidationMessageFor(model => model.PhoneNumber, "", new { @class = "text-danger" })
+                                <!-- Phone Number -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Phone Number</label>
+                                    @Html.EditorFor(m => m.PhoneNumber, new { htmlAttributes = new { @class = "form-control", placeholder = "e.g. +251911234567" } })
+                                    @Html.ValidationMessageFor(m => m.PhoneNumber, "", new { @class = "text-danger small mt-1" })
+                                </div>
                             </div>
 
                             <!-- Target Sections -->
-                            <div class="row mt-4">
+                            <div class="row mt-4 g-4">
+                                <!-- Individual Targets -->
                                 <div class="col-md-6">
                                     <div class="target-section">
-                                        <h5 style="color:#00AEEF;">Individual Targets</h5>
-                                        <div class="form-group">
-                                            @Html.LabelFor(model => model.DepositTargetAmount, new { @class = "control-label" })
-                                            @Html.EditorFor(model => model.DepositTargetAmount, new { htmlAttributes = new { @class = "form-control" } })
-                                            @Html.ValidationMessageFor(model => model.DepositTargetAmount, "", new { @class = "text-danger" })
+                                        <h5>Individual Targets</h5>
+                                        <div class="mb-3">
+                                            @Html.LabelFor(m => m.DepositTargetAmount, new { @class = "form-label" })
+                                            @Html.EditorFor(m => m.DepositTargetAmount, new { htmlAttributes = new { @class = "form-control", placeholder = "0.00" } })
+                                            @Html.ValidationMessageFor(m => m.DepositTargetAmount, "", new { @class = "text-danger small mt-1" })
                                         </div>
-
-                                        <div class="form-group">
-                                            @Html.LabelFor(model => model.MerchantTarget, new { @class = "control-label" })
-                                            @Html.EditorFor(model => model.MerchantTarget, new { htmlAttributes = new { @class = "form-control", @type = "number", @min = "0" } })
-                                            @Html.ValidationMessageFor(model => model.MerchantTarget, "", new { @class = "text-danger" })
+                                        <div class="mb-3">
+                                            @Html.LabelFor(m => m.MerchantTarget, new { @class = "form-label" })
+                                            @Html.EditorFor(m => m.MerchantTarget, new { htmlAttributes = new { @class = "form-control", @type = "number", @min = "0", placeholder = "0" } })
+                                            @Html.ValidationMessageFor(m => m.MerchantTarget, "", new { @class = "text-danger small mt-1" })
                                         </div>
-
-                                        <div class="form-group" id="fcyTargetContainer">
-                                            @Html.LabelFor(model => model.FCYTargetAmount, new { @class = "control-label" })
-                                            @Html.EditorFor(model => model.FCYTargetAmount, new { htmlAttributes = new { @class = "form-control" } })
-                                            @Html.ValidationMessageFor(model => model.FCYTargetAmount, "", new { @class = "text-danger" })
+                                        <div class="mb-3" id="fcyTargetContainer">
+                                            @Html.LabelFor(m => m.FCYTargetAmount, new { @class = "form-label" })
+                                            @Html.EditorFor(m => m.FCYTargetAmount, new { htmlAttributes = new { @class = "form-control", placeholder = "0.00" } })
+                                            @Html.ValidationMessageFor(m => m.FCYTargetAmount, "", new { @class = "text-danger small mt-1" })
                                         </div>
                                     </div>
                                 </div>
 
+                                <!-- Branch Targets -->
                                 <div class="col-md-6" id="branchTargetContainer">
                                     <div class="target-section">
-                                        <h5 style="color:#00AEEF;">Branch Targets</h5>
-                                        <div class="form-group">
-                                            @Html.LabelFor(model => model.BranchDepositTarget, new { @class = "control-label" })
-                                            @Html.EditorFor(model => model.BranchDepositTarget, new { htmlAttributes = new { @class = "form-control" } })
-                                            @Html.ValidationMessageFor(model => model.BranchDepositTarget, "", new { @class = "text-danger" })
+                                        <h5>Branch Targets</h5>
+                                        <div class="mb-3">
+                                            @Html.LabelFor(m => m.BranchDepositTarget, new { @class = "form-label" })
+                                            @Html.EditorFor(m => m.BranchDepositTarget, new { htmlAttributes = new { @class = "form-control", placeholder = "0.00" } })
+                                            @Html.ValidationMessageFor(m => m.BranchDepositTarget, "", new { @class = "text-danger small mt-1" })
                                         </div>
-
-                                        <div class="form-group">
-                                            @Html.LabelFor(model => model.BranchMerchantTarget, new { @class = "control-label" })
-                                            @Html.EditorFor(model => model.BranchMerchantTarget, new { htmlAttributes = new { @class = "form-control" } })
-                                            @Html.ValidationMessageFor(model => model.BranchMerchantTarget, "", new { @class = "text-danger" })
+                                        <div class="mb-3">
+                                            @Html.LabelFor(m => m.BranchMerchantTarget, new { @class = "form-label" })
+                                            @Html.EditorFor(m => m.BranchMerchantTarget, new { htmlAttributes = new { @class = "form-control", placeholder = "0" } })
+                                            @Html.ValidationMessageFor(m => m.BranchMerchantTarget, "", new { @class = "text-danger small mt-1" })
                                         </div>
-
-                                        <div class="form-group">
-                                            @Html.LabelFor(model => model.BranchFcyTarget, new { @class = "control-label" })
-                                            @Html.EditorFor(model => model.BranchFcyTarget, new { htmlAttributes = new { @class = "form-control" } })
-                                            @Html.ValidationMessageFor(model => model.BranchFcyTarget, "", new { @class = "text-danger" })
+                                        <div class="mb-3">
+                                            @Html.LabelFor(m => m.BranchFcyTarget, new { @class = "form-label" })
+                                            @Html.EditorFor(m => m.BranchFcyTarget, new { htmlAttributes = new { @class = "form-control", placeholder = "0.00" } })
+                                            @Html.ValidationMessageFor(m => m.BranchFcyTarget, "", new { @class = "text-danger small mt-1" })
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Buttons -->
+                            <!-- Action Buttons -->
                             <div class="btn-container">
-                                <input type="submit" value="Save"  name ="Submit" class="btn btn-save btn-lg px-4" />
-                                @Html.ActionLink("Back to Login", "Login", "User", null, new { @class = "btn btn-back btn-lg px-4" })
+                                <input type="submit" value="Save" name="Submit" class="btn btn-save" />
+                                @Html.ActionLink("Back to Login", "Login", "User", null, new { @class = "btn btn-back" })
                             </div>
-                        </div>
-                    }
+                        }
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/jqueryui")
-    @Scripts.Render("~/bundles/bootstrap")
+    <!-- Scripts -->
+    <script src="~/plugins/jquery-ui/jquery-ui.min.js"></script>
+    <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/plugins/bootstrap/js/bootstrap.min.js"></script>
+    <script src="~/plugins/summernote/summernote-bs4.min.js"></script>
+    <script src="~/plugins/select2/js/select2.full.min.js"></script>
+    <script src="~/plugins/chart.js/Chart.min.js"></script>
+    <script src="~/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="~/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <script src="~/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="~/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <script src="~/plugins/jszip/jszip.min.js"></script>
+    <script src="~/plugins/pdfmake/pdfmake.min.js"></script>
+    <script src="~/plugins/pdfmake/vfs_fonts.js"></script>
+    <script src="~/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+    <script src="~/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+    <script src="~/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+    <script src="~/dist/assets/adminlte.min.js"></script>
+
+
     <script>
-        // your original script (no changes to functionality)
         $(document).ready(function () {
-            $('input[type=datetime]').datepicker({
-                dateFormat: "dd/M/yy",
-                changeMonth: true,
-                changeYear: true,
-                yearRange: "1950:+1"
+            // Initialize Select2
+            $('.select2').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: function() {
+                    return $(this).data('placeholder');
+                }
             });
 
+            // Cascading Dropdowns
             $('#ProcessDropdown').change(function () {
-                var processName = $(this).val();
-                $('#SubprocessDropdown').empty().append('<option value="">Select Subprocess</option>');
-                $('#BranchDropdown').empty().append('<option value="">Select Branch</option>');
+                const processName = $(this).val();
+                const $subprocess = $('#SubprocessDropdown');
+                const $branch = $('#BranchDropdown');
+
+                $subprocess.empty().append('<option value="">Select Subprocess</option>').val('').trigger('change');
+                $branch.empty().append('<option value="">Select Branch</option>').val('').trigger('change');
+
                 if (processName) {
                     $.ajax({
                         url: '@Url.Action("GetSubprocesses", "User")',
@@ -296,7 +513,7 @@
                         success: function (data) {
                             if (data && data.length > 0) {
                                 $.each(data, function (i, item) {
-                                    $('#SubprocessDropdown').append($('<option>', {
+                                    $subprocess.append($('<option>', {
                                         value: item.subprocess_name,
                                         text: item.subprocess_name
                                     }));
@@ -308,8 +525,10 @@
             });
 
             $('#SubprocessDropdown').change(function () {
-                var subprocessName = $(this).val();
-                $('#BranchDropdown').empty().append('<option value="">Select Branch</option>');
+                const subprocessName = $(this).val();
+                const $branch = $('#BranchDropdown');
+                $branch.empty().append('<option value="">Select Branch</option>').val('').trigger('change');
+
                 if (subprocessName) {
                     $.ajax({
                         url: '@Url.Action("GetBranches", "User")',
@@ -318,7 +537,7 @@
                         success: function (data) {
                             if (data && data.length > 0) {
                                 $.each(data, function (i, item) {
-                                    $('#BranchDropdown').append($('<option>', {
+                                    $branch.append($('<option>', {
                                         value: item.BranchName,
                                         text: item.BranchName
                                     }));
@@ -329,32 +548,41 @@
                 }
             });
 
-            function toggleBranchTarget() {
-                var position = $('#positionId').val();
-                var branchContainer = $('#branchTargetContainer');
-                if (position !== "BranchManager") {
-                    branchContainer.hide();
-                    branchContainer.find('input').val('');
+            // Toggle Targets based on Position
+            function toggleTargets() {
+                const position = $('#positionId').val();
+                const $branchContainer = $('#branchTargetContainer');
+                const $fcyContainer = $('#fcyTargetContainer');
+
+                // Branch Targets
+                if (position === 'BranchManager') {
+                    $branchContainer.slideDown();
                 } else {
-                    branchContainer.show();
+                    $branchContainer.slideUp();
+                    $branchContainer.find('input').val('');
+                }
+
+                // FCY Target
+                if (position === 'Individual') {
+                    $fcyContainer.slideUp();
+                    $fcyContainer.find('input').val('');
+                } else {
+                    $fcyContainer.slideDown();
                 }
             }
 
-            function toggleFcyTarget() {
-                var position = $('#positionId').val();
-                if (position === "Individual") {
-                    $('#fcyTargetContainer').hide();
-                    $('#fcyTargetContainer').find('input').val('');
-                } else {
-                    $('#fcyTargetContainer').show();
-                }
-            }
+            // Initialize
+            toggleTargets();
+            $('#positionId').on('change', toggleTargets);
 
-            toggleBranchTarget();
-            toggleFcyTarget();
-            $('#positionId').change(function () {
-                toggleBranchTarget();
-                toggleFcyTarget();
+            // Form Validation
+            const form = document.getElementById('createUserForm');
+            form.addEventListener('submit', function (e) {
+                if (!form.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                form.classList.add('was-validated');
             });
         });
     </script>

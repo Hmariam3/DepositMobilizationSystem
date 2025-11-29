@@ -1,0 +1,48 @@
+﻿@{
+    ViewBag.Title = "Bank Performance Summary";
+}
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">🏦 Bank Deposit Performance Summary</h2>
+
+    <div class="row">
+
+        <!-- Assigned Target -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-primary">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">Assigned Target</h5>
+                    <p class="display-6 fw-bold">@ViewBag.BankAssignedTarget.ToString("N2")</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achieved -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-success">
+                <div class="card-body">
+                    <h5 class="card-title text-success">Achieved Amount</h5>
+                    <p class="display-6 fw-bold">@ViewBag.BankAchieved.ToString("N2")</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Remaining -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-warning">
+                <div class="card-body">
+                    <h5 class="card-title text-warning">Remaining Amount</h5>
+                    <p class="display-6 fw-bold">@ViewBag.BankRemaining.ToString("N2")</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <hr class="mt-5" />
+
+    <div class="text-center">
+        <a href="@Url.Action("Index", "Home")" class="btn btn-secondary btn-lg">Back to Dashboard</a>
+    </div>
+
+</div>

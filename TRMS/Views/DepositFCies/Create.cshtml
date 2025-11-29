@@ -6,11 +6,36 @@
 }
 
 @{
-//bool isReadOnly = ViewBag.refEXist != null && (bool)ViewBag.refEXist == true;
+    //bool isReadOnly = ViewBag.refEXist != null && (bool)ViewBag.refEXist == true;
 }
 <style type="text/css">
+    :root {
+        --primary: #00AEEF;
+        --primary-dark: #008cc7;
+        --primary-gradient: linear-gradient(135deg, #00AEEF, #0077b6);
+        --success: #198754;
+        --danger: #dc3545;
+        --warning: #ffc107;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --gray: #6c757d;
+        --border-radius: 1rem;
+        --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    .card-header {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 1rem 2rem;
+        text-align: center;
+        font-weight: 600;
+        font-size: 1.3rem;
+        letter-spacing: 0.5px;
+    }
 
-   
+        .card-header i {
+            margin-right: 0.5rem;
+        }
+
     hr {
         width: 100%;
         height: 0.1px;
@@ -34,15 +59,13 @@
     }
 
     .btn-validate {
-        background-color: #00AEEF;
-        color: white;
-        /*margin-top: -50px;*/
+        background: var(--primary-gradient);
+        color: black;
         position: absolute;
-        /*right: 15px;*/
     }
 
     .btn-save {
-        background-color: #00AEEF;
+        background-color: var(--primary-gradient) ;
         color: white;
     }
 
@@ -50,163 +73,123 @@
         background-color: #333;
         color: white;
     }
+    .form-floating > .form-control:focus ~ label,
+    .form-floating > .form-control:not(:placeholder-shown) ~ label,
+    .form-floating > .form-select ~ label {
+        color: #0d6efd;
+    }
+
+    .form-floating > .form-control.bg-light ~ label {
+        color: #6c757d;
+    }
 </style>
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <h3>Fcy Deposit</h3>
+<div class="card shadow-sm border-0 mt-4">
+    <div class="card-header">
+        <i class="fas fa-plus-circle me-2 fs-5"></i> New FCY
     </div>
-    <br />
+    <div class="card-body">
 
 
-
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger">
-            <strong>Error!</strong> @TempData["ErrorMessage"]
-        </div>
-    }
-
-    @if (TempData["successRes"] != null)
-    {
-        <div class="alert alert-success">
-            <strong>Success!</strong> @TempData["successRes"]
-        </div>
-    }
-
-
-    <div class="panel-body">
-        @using (Html.BeginForm("Create", "DepositFCies", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        @if (TempData["ErrorMessage"] != null)
         {
-            @Html.AntiForgeryToken()
-
-            <div class="form-horizontal form-group-sm">
-                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-
-                <div class="row">
-                    <div class="form-group col-md-5">
-                        @Html.Label("Account Number", htmlAttributes: new { @class = "control-label col-md-5" })
-                        <div class="col-md-7">
-                            @Html.EditorFor(model => model.AccountNumber, new { htmlAttributes = new { @class = "form-control" } })
-                            @Html.ValidationMessageFor(model => model.AccountNumber, "", new { @class = "text-danger" })
-                        </div>
-
-                    </div>
-                    <div class="form-group col-md-5">
-                        @Html.Label("Refernce Number", htmlAttributes: new { @class = "control-label col-md-5" })
-                        <div class="col-md-7">
-                            @Html.EditorFor(model => model.RefernceNumber, new { htmlAttributes = new { @class = "form-control" } })
-                            @Html.ValidationMessageFor(model => model.RefernceNumber, "", new { @class = "text-danger" })
-                        </div>
-                        <input type="submit" id="btnValidate" name="Submit" value="Validate" class="btn btn-validate">
-                    </div>
-                </div>
-
-
-                <div class="row">
-                    <div class="form-group col-md-5">
-                        @Html.Label("Transaction Amount", htmlAttributes: new { @class = "control-label col-md-5" })
-                        <div class="col-md-7">
-                            @Html.EditorFor(model => model.TransactionAmount, new { htmlAttributes = new { @class = "form-control", @Value = @ViewBag.TransactionAmount, @readonly = "readonly" } })
-
-                        </div>
-                    </div>
-                    <div class="form-group col-md-5">
-                        @Html.Label("Currecy", htmlAttributes: new { @class = "control-label col-md-5" })
-                        <div class="col-md-7">
-                            @Html.EditorFor(model => model.Currecy, new { htmlAttributes = new { @class = "form-control", @Value = @ViewBag.Currency, @readonly = "readonly" } })
-                            @Html.ValidationMessageFor(model => model.Currecy, "", new { @class = "text-danger" })
-                        </div>
-                    </div>
-
-
-                </div>
-
-
-
-                @*@if (isReadOnly == false)
-                    {
-                        <div class="row">
-                            <div class="form-group col-md-5">
-                                @Html.Label("Transaction Amount", htmlAttributes: new { @class = "control-label col-md-5" })
-                                <div class="col-md-7">
-                                    @Html.EditorFor(model => model.TransactionAmount, new { htmlAttributes = new { @class = "form-control", @Value = @ViewBag.TransactionAmount, @readonly = "readonly" } })
-
-                                </div>
-                            </div>
-                            <div class="form-group col-md-5">
-                                @Html.Label("Currecy", htmlAttributes: new { @class = "control-label col-md-5" })
-                                <div class="col-md-7">
-                                    @Html.EditorFor(model => model.Currecy, new { htmlAttributes = new { @class = "form-control", @Value = @ViewBag.Currency, @readonly = "readonly" } })
-                                    @Html.ValidationMessageFor(model => model.Currecy, "", new { @class = "text-danger" })
-                                </div>
-                            </div>
-
-
-                        </div>
-                    }
-                    else if (isReadOnly == true)
-                    {
-                        <div class="row">
-                            <div class="form-group col-md-5">
-                                @Html.Label("Transaction Amount", htmlAttributes: new { @class = "control-label col-md-5" })
-                                <div class="col-md-7">
-                                    @Html.EditorFor(model => model.TransactionAmount, new { htmlAttributes = new { @class = "form-control" } })
-
-                                </div>
-                            </div>
-                            <div class="form-group col-md-5">
-                                @Html.Label("Currecy", htmlAttributes: new { @class = "control-label col-md-5" })
-                                <div class="col-md-7">
-                                    @Html.EditorFor(model => model.Currecy, new { htmlAttributes = new { @class = "form-control" } })
-                                    @Html.ValidationMessageFor(model => model.Currecy, "", new { @class = "text-danger" })
-                                </div>
-                            </div>
-
-
-                        </div>
-                    }*@
-
-
-
-                @if (Session["Position"].ToString() == "BranchManager")
-                {
-                    <!-- Deposit Type -->
-                    <div class="form-group col-md-5">
-                        <label class="control-label col-md-5">Deposit Type</label>
-                        <div class="col-md-7">
-                            @Html.DropDownListFor(
-                             model => model.DepositType,
-                             new SelectList(new[] { "Individual", "Branch" }),
-                             "Select Deposit For",
-                             new { @class = "form-control", id = "DepositTypeSelect" })
-                        </div>
-                    </div>
-                }
-                <div class="row">
-                    <div class="form-group col-md-5">
-                        @Html.Label("Narative", htmlAttributes: new { @class = "control-label col-md-5" })
-                        <div class="col-md-7">
-                            @Html.TextAreaFor(model => model.Narative, new { htmlAttributes = new { @class = "form-control" } })
-                            @Html.ValidationMessageFor(model => model.Narative, "", new { @class = "text-danger" })
-                        </div>
-                    </div>
-
-
-                </div>
-
-
-
-            </div>
-
-            <div class="form-group">
-                <div class="col-md-offset-2 col-md-10">
-                    <input type="submit" value="Save" id="btnSave" name="Submit" class="btn btn-warning" style="background-color:#00AEEF" />
-                    @Html.ActionLink("Back to List", "Index", "", new { @class = "btn btn-github" })
-                </div>
+            <div class="alert alert-danger">
+                <strong>Error!</strong> @TempData["ErrorMessage"]
             </div>
         }
+
+        @if (TempData["successRes"] != null)
+        {
+            <div class="alert alert-success">
+                <strong>Success!</strong> @TempData["successRes"]
+            </div>
+        }
+
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                @using (Html.BeginForm("Create", "DepositFCies", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger mb-4" })
+
+                    <!-- Row 1: Account Number + Reference Number -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                @Html.EditorFor(model => model.AccountNumber, new { htmlAttributes = new { @class = "form-control", placeholder = "Account Number" } })
+                                @Html.Label("Account Number")
+                                @Html.ValidationMessageFor(model => model.AccountNumber, "", new { @class = "text-danger small mt-1" })
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                @Html.EditorFor(model => model.RefernceNumber, new { htmlAttributes = new { @class = "form-control", placeholder = "Reference Number" } })
+                                @Html.Label("Reference Number")
+                                @Html.ValidationMessageFor(model => model.RefernceNumber, "", new { @class = "text-danger small mt-1" })
+                            </div>
+                            <div class="mt-2">
+                                <input type="submit" id="btnValidate" name="Submit" value="Validate" class="btn btn-outline-primary btn-sm px-4" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Transaction Amount + Currency -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                @Html.EditorFor(model => model.TransactionAmount, new { htmlAttributes = new { @class = "form-control bg-light", @Value = ViewBag.TransactionAmount, @readonly = "readonly", placeholder = "Transaction Amount" } })
+                                @Html.Label("Transaction Amount")
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                @Html.EditorFor(model => model.Currecy, new { htmlAttributes = new { @class = "form-control bg-light", @Value = ViewBag.Currency, @readonly = "readonly", placeholder = "Currency" } })
+                                @Html.Label("Currency")
+                                @Html.ValidationMessageFor(model => model.Currecy, "", new { @class = "text-danger small mt-1" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Deposit Type (Branch Manager Only) -->
+                    if (Session["Position"]?.ToString() == "BranchManager")
+                    {
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    @Html.DropDownListFor(
+                                        model => model.DepositType,
+                                        new SelectList(new[] { "Individual", "Branch" }),
+                                        "Select Deposit For",
+                                        new { @class = "form-select", id = "DepositTypeSelect" })
+                                    <label>Deposit Type</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6"></div>
+                        </div>
+                    }
+
+                    <!-- Narative -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-12">
+                            <div class="form-floating">
+                                @Html.TextAreaFor(model => model.Narative, new { @class = "form-control", rows = 3, style = "height: 100px;", placeholder = "Narative" })
+                                @Html.Label("Narative")
+                                @Html.ValidationMessageFor(model => model.Narative, "", new { @class = "text-danger small mt-1" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="text-end">
+                        <input type="submit" value="Save" id="btnSave" name="Submit" class="btn btn-primary px-5" style="background: linear-gradient(135deg, #00AEEF, #0077b6); border:none;" />
+                        @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-outline-secondary ms-2" })
+                    </div>
+                }
+            </div>
+        </div>
     </div>
 </div>
+
 
 <script src="~/Content/jquery-3.6.0.min.js"></script>
 <script>

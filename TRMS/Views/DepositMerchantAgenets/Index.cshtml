@@ -1,127 +1,389 @@
 ﻿@model IEnumerable<TRMS.Models.DepositMerchantAgenet>
-
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Merchant Records";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<div class="panel panel-default" style="padding-left:10px;">
-    <div class="panel-heading">
-        <h3>View Merchant</h3>
-    </div>
-    <hr />
+
+<style>
+    :root {
+        --primary: #00AEEF;
+        --primary-dark: #008cc7;
+        --primary-gradient: linear-gradient(135deg, #00AEEF, #0077b6);
+        --success: #198754;
+        --danger: #dc3545;
+        --warning: #ffc107;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --gray: #6c757d;
+        --border-radius: 1rem;
+        --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+
+    .index-container {
+        max-width: 1400px;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .page-header h1 {
+        font-weight: 800;
+        font-size: 2.2rem;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: 0.5px;
+        margin: 0;
+    }
+
+    .page-header p {
+        color: var(--gray);
+        font-size: 1.1rem;
+        margin-top: 0.5rem, 0.5rem;
+    }
+
+    .data-card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .data-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-header {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 0.5rem 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-weight: 600;
+        font-size: 1.3rem;
+    }
+
+    .card-header i {
+        margin-right: 0.5rem;
+    }
+
+    .card-header .btn-create {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .card-header .btn-create:hover {
+        background: white;
+        color: var(--primary);
+        transform: translateY(-2px);
+    }
+
+    .card-body {
+        padding: 0;
+    }
+
+    .table {
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    .table thead {
+        background: #f1f3f5;
+    }
+
+    .table thead th {
+        border: none;
+        font-weight: 600;
+        color: var(--dark);
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+        padding: 1rem;
+    }
+
+    .table tbody td {
+        padding: 0.9rem 1rem;
+        vertical-align: middle;
+        border-color: #e9ecef;
+    }
+
+    .table tbody tr:hover {
+        background: rgba(0, 174, 239, 0.05);
+        transition: background 0.2s ease;
+    }
+
+    .btn-action {
+        padding: 0.35rem 0.75rem;
+        font-size: 0.85rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .btn-details {
+        background: #0dcaf0;
+        color: white;
+    }
+
+    .btn-details:hover {
+        background: #0aa8c7;
+        transform: translateY(-1px);
+    }
+
+    .btn-delete {
+        background: var(--danger);
+        color: white;
+    }
+
+    .btn-delete:hover {
+        background: #c82333;
+        transform: translateY(-1px);
+    }
+
+    .dataTables_wrapper .dataTables_length select,
+    .dataTables_wrapper .dataTables_filter input {
+        border-radius: 0.5rem;
+        border: 1px solid #ced4da;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        padding: 0.75rem 1rem;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        border-radius: 0.5rem;
+        margin: 0 2px;
+        padding: 0.5rem 0.75rem;
+        font-weight: 600;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: var(--primary-gradient);
+        border: none;
+        color: white;
+    }
+
+    .alert {
+        border-radius: 0.75rem;
+        padding: 1rem 1.25rem;
+        margin: 1.5rem 0;
+        border: none;
+        font-weight: 500;
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        color: #155724;
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        color: #721c24;
+    }
+
+    .badge-merchant {
+        background: #6f42c1;
+        color: white;
+        font-weight: 600;
+        padding: 0.35em 0.65em;
+        font-size: 0.75rem;
+        border-radius: 0.5rem;
+    }
+
+    @@media (max-width: 992px) {
+        .card-header {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+        .card-header .btn-create {
+            width: 100%;
+        }
+        .table-responsive {
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+    }
+</style>
+
+<div class="index-container">
+
+    <!-- Messages -->
     @if (TempData["errorRes"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="fas fa-exclamation-triangle me-2"></i>
             <strong>Error!</strong> @TempData["errorRes"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
     @if (TempData["successRes"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle me-2"></i>
             <strong>Success!</strong> @TempData["successRes"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
-    <table id="employeeDT" class="table table-striped">
-        <thead>
-            <tr>
-                <th>
-                    @Html.DisplayName("Process")
-                </th>
-                <th>
-                    @Html.DisplayName("District")
-                </th>
-                <th>
-                    @Html.DisplayName("Branch")
-                </th>
-                <td>
-                    @Html.DisplayName("Merchant ID")
-                </td>
-                <th>
-                    @Html.DisplayName("Account Number")
-                </th>
-                <th>
-                    @Html.DisplayName("Account Holder")
-                </th>
-                <th>
-                    @Html.DisplayName("Account Balance")
-                </th>
-                <th>
-                    @Html.DisplayName("Amount")
-                </th>
-                <th>
-                    @Html.DisplayName("Maker")
-                </th>
-                <th>
-                    @Html.DisplayName("Tran Date")
-                </th>
-                <th>Actions</th>
-                <th></th>
 
+    <!-- Data Card -->
+    <div class="data-card mt-3">
+        <div class="card-header">
+            <div>
+                <i class="fas fa-store"></i> Merchant Records
+            </div>
+            <a href="@Url.Action("Create", "DepositMerchantAgenets")" class="btn-create">
+                <i class="fas fa-plus-circle me-1"></i> New Merchant
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="merchantTable" class="table table-striped table-hover" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Process</th>
+                            <th>District</th>
+                            <th>Branch</th>
+                            <th>Merchant ID</th>
+                            <th>Account #</th>
+                            <th>Reference #</th>
+                            <th>Holder</th>
+                            <th class="d-none">Balance</th>
+                            <th>Amount</th>
+                            <th>Type</th>
 
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Process)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.District)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Branch)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.LinkAccount)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.AccountNumber)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.AccountHolder)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.AccountBalance)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Target)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CreatedBY)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CreatedDate)
-                </td>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                        <tr>
+                            <td>@Html.DisplayFor(m => item.Process)</td>
+                            <td>@Html.DisplayFor(m => item.District)</td>
+                            <td>@Html.DisplayFor(m => item.Branch)</td>
+                            <td><span class="badge badge-merchant">@Html.DisplayFor(m => item.LinkAccount)</span></td>
+                            <td><code>@Html.DisplayFor(m => item.AccountNumber)</code></td>
+                            <td><code>@Html.DisplayFor(m => item.ReferenceNumber)</code></td>
+                            <td>@Html.DisplayFor(m => item.AccountHolder)</td>
+                            <td class="d-none">@Html.DisplayFor(m => item.AccountBalance)</td>
+                            <td class="fw-semibold text-primary">@String.Format("{0:N2}", item.Target)</td>
+                            <td>
+                                @if (item.DepositType == "Branch")
+                                {
+                                    <span class="badge text-white" style="background-color: orange;">
+                                        @Html.DisplayFor(m => item.DepositType)
+                                    </span>
+                                }
+                                else if (item.DepositType == "Individual")
+                                {
+                                    <span class="badge text-white" style="background-color: #00bcd4;">
+                                        <!-- Cyan blue -->
+                                        @Html.DisplayFor(m => item.DepositType)
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">
+                                        @Html.DisplayFor(m => item.DepositType)
+                                    </span>
+                                }
+                            </td>
 
-                <td>
-                    @Html.ActionLink("Details", "Details", new { id = item.MID }, new { @class = "btn btn-info btn-sm" })
-                </td>
-                <td>
-                    @Html.ActionLink("Delete", "Delete", new { id = item.MID }, new { @class = "btn btn-danger btn-sm", onclick = "return confirm('Are you sure you want to delete this item?');" })
-                </td>
-            </tr>
-            }
-        </tbody>
-    </table>
+                            <td>@item.CreatedDate.ToString("dd MMM yyyy")</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    @Html.ActionLink("Details", "Details", new { id = item.MID }, new { @class = "btn btn-details btn-action" })
+                                    @Html.ActionLink("Delete", "Delete", new { id = item.MID }, new { @class = "btn btn-delete btn-action"})
+                                </div>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
+
+
 <script>
-        $(document).ready(function () {
-            $('#employeeDT').DataTable({
-                "paging": true,      // Enable pagination
-                "searching": true,   // Enable search box
-                "ordering": true,    // Enable sorting
-                "lengthMenu": [5, 10, 25, 50], // Page length options
-                "pageLength": 5,    // Default rows per page
-                "info": true,        // Show table info
-                "language": {
-                    "search": "Search User:", // Customize search placeholder
-                    "lengthMenu": "Show _MENU_ entries",
-                    "info": "Showing _START_ to _END_ of _TOTAL_ User"
+    $(document).ready(function () {
+        $('#merchantTable').DataTable({
+            responsive: true,
+            paging: true,
+            searching: true,
+            ordering: true,
+            info: true,
+            lengthMenu: [10, 25, 50, 100],
+            pageLength: 5,
+            dom: '<"row"<"col-sm-12 col-md-6"B><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            buttons: [
+                {
+                    extend: 'copy',
+                    text: '<i class="fas fa-copy"></i> Copy',
+                    className: 'btn btn-sm btn-outline-primary'
+                },
+                {
+                    extend: 'csv',
+                    text: '<i class="fas fa-file-csv"></i> CSV',
+                    className: 'btn btn-sm btn-outline-success'
+                },
+                {
+                    extend: 'excel',
+                    text: '<i class="fas fa-file-excel"></i> Excel',
+                    className: 'btn btn-sm btn-outline-success'
+                },
+                {
+                    extend: 'pdf',
+                    text: '<i class="fas fa-file-pdf"></i> PDF',
+                    className: 'btn btn-sm btn-outline-danger'
+                },
+                {
+                    extend: 'print',
+                    text: '<i class="fas fa-print"></i> Print',
+                    className: 'btn btn-sm btn-outline-info'
                 }
-            });
+            ],
+            language: {
+                search: "",
+                searchPlaceholder: "Search merchants...",
+                lengthMenu: "Show _MENU_ entries",
+                info: "Showing _START_ to _END_ of _TOTAL_ merchants",
+                paginate: {
+                    next: '<i class="fas fa-chevron-right"></i>',
+                    previous: '<i class="fas fa-chevron-left"></i>'
+                }
+            },
+            columnDefs: [
+                { targets: 7, visible: false }, // Hide Account Balance
+                { targets: [4, 5], className: 'text-monospace' }, // Account/Ref numbers
+                { targets: 8, className: 'text-end fw-bold text-primary' }, // Target
+                { targets: 9, className: 'text-center' }, // Date
+                { targets: 10, orderable: false, className: 'text-center' } // Actions
+            ]
         });
+
+        // Style search box
+        $('.dataTables_filter input').addClass('form-control form-control-sm').attr('placeholder', 'Search merchants...');
+    });
 </script>

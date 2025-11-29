@@ -6,6 +6,33 @@
 }
 
 <style type="text/css">
+    :root {
+        --primary: #00AEEF;
+        --primary-dark: #008cc7;
+        --primary-gradient: linear-gradient(135deg, #00AEEF, #0077b6);
+        --success: #198754;
+        --danger: #dc3545;
+        --warning: #ffc107;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --gray: #6c757d;
+        --border-radius: 1rem;
+        --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 1rem 2rem;
+        text-align: center;
+        font-weight: 600;
+        font-size: 1.3rem;
+        letter-spacing: 0.5px;
+    }
+
+        .card-header i {
+            margin-right: 0.5rem;
+        }
     hr {
         width: 100%;
         height: 0.1px;
@@ -45,168 +72,189 @@
         background-color: #333;
         color: white;
     }
+
+    .form-floating > .form-control:focus ~ label,
+    .form-floating > .form-control:not(:placeholder-shown) ~ label,
+    .form-floating > .form-select ~ label {
+        color: #0d6efd;
+    }
+
+    .form-floating > .form-control.bg-light ~ label {
+        color: #6c757d;
+    }
 </style>
 
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <h3>Create Merchant</h3>
+<div class="card shadow-sm border-0 mt-4">
+    <div class="card-header">
+        <i class="fas fa-plus-circle me-2 fs-5"></i> New Merchant
     </div>
-    <hr />
+    <div class="card-body">
 
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger">
-            <strong>Error!</strong> @TempData["ErrorMessage"]
-        </div>
-    }
-
-    @if (TempData["SuccessMessage"]!= null)
-    {
-        <div class="alert alert-success">
-            <strong>Success!</strong> @TempData["SuccessMessage"]
-        </div>
-    }
-
-    <div class="panel-body">
-        @using (Html.BeginForm("Create", "DepositMerchantAgenets", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        @if (TempData["ErrorMessage"] != null)
         {
-            @Html.AntiForgeryToken()
-            <div class="form-horizontal form-group-sm">
-                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-
-                <div class="row">
-                    <div class="form-group col-md-5">
-                        @Html.LabelFor(model => model.AccountNumber, new { @class = "control-label col-md-5" })
-                        <div class="col-md-7">
-                            @Html.EditorFor(model => model.AccountNumber, new { htmlAttributes = new { @class = "form-control" } })
-                            @Html.ValidationMessageFor(model => model.AccountNumber, "", new { @class = "text-danger" })
-                        </div>
-                    </div>
-                    <div class="form-group col-md-5">
-                        @Html.LabelFor(model => model.ReferenceNumber, new { @class = "control-label col-md-5" })
-                        <div class="col-md-7">
-                            @Html.EditorFor(model => model.ReferenceNumber, new { htmlAttributes = new { @class = "form-control" } })
-                            @Html.ValidationMessageFor(model => model.ReferenceNumber, "", new { @class = "text-danger" })
-                        </div>
-                        <input type="submit" name="submit" value="Validate" class="btn btn-validate" />
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="form-group col-md-5">
-                        @Html.LabelFor(model => model.AccountHolder, new { @class = "control-label col-md-5" })
-                        <div class="col-md-7">
-                            @Html.EditorFor(model => model.AccountHolder, new { htmlAttributes = new { @class = "form-control", @Value = ViewBag.AccountHolder, @readonly = "readonly" } })
-                            @Html.ValidationMessageFor(model => model.AccountHolder, "", new { @class = "text-danger" })
-                        </div>
-                    </div>
-                    <div class="form-group col-md-5">
-                        @Html.LabelFor(model => model.AccountBalance, new { @class = "control-label col-md-5" })
-                        <div class="col-md-7">
-                            @Html.EditorFor(model => model.AccountBalance, new { htmlAttributes = new { @class = "form-control", @Value = ViewBag.AccountBalance, @readonly = "readonly" } })
-                            @*@Html.ValidationMessageFor(model => model.AccountBalance, "", new { @class = "text-danger" })*@
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="form-group col-md-5">
-                        <label class="control-label col-md-5">Merchant ID</label>
-                        <div class="col-md-7">
-                            @Html.EditorFor(model => model.LinkAccount, new { htmlAttributes = new { @class = "form-control" } })
-                            @Html.ValidationMessageFor(model => model.LinkAccount, "", new { @class = "text-danger" })
-                        </div>
-                    </div>
-                    <div class="form-group col-md-5">
-                        <label class="control-label col-md-5">Amount</label>
-                        <div class="col-md-7">
-                            @Html.EditorFor(model => model.Target, new { htmlAttributes = new { @class = "form-control", @Value = ViewBag.TransactionAmount, @readonly = "readonly" } })
-                            @*@Html.ValidationMessageFor(model => model.Target, "", new { @class = "text-danger" })*@
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="form-group col-md-5">
-                        @Html.LabelFor(model => model.Merchant_Type, new { @class = "control-label col-md-5" })
-                        <div class="col-md-7">
-                            @Html.DropDownListFor(model => model.Merchant_Type, new List<SelectListItem>
-                            {
-                                new SelectListItem { Text = "New", Value = "New" },
-                            }, "Select Merchant Type", new { @class = "form-control" })
-                            @Html.ValidationMessageFor(model => model.Merchant_Type, "", new { @class = "text-danger" })
-                        </div>
-                    </div>
-                    <div class="form-group col-md-5">
-                        @Html.LabelFor(model => model.Business_Type, new { @class = "control-label col-md-5" })
-                        <div class="col-md-7">
-                            @Html.DropDownListFor(model => model.Business_Type, new List<SelectListItem>
-                            {
-                                new SelectListItem { Text = "Hotel and Restaurant", Value = "Hotel and Restaurant" },
-                                new SelectListItem { Text = "Health", Value = "Health" },
-                                new SelectListItem { Text = "Transport", Value = "Transport" },
-                                new SelectListItem { Text = "Wholesale", Value = "Wholesale" },
-                                new SelectListItem { Text = "Retail Trade", Value = "Retail Trade" },
-                                new SelectListItem { Text = "Manufacturing", Value = "Manufacturing" },
-                                new SelectListItem { Text = "Agriculture", Value = "Agriculture" },
-                                new SelectListItem { Text = "Other", Value = "Other" }
-                            }, "Select Business Type", new { @class = "form-control" })
-                            @Html.ValidationMessageFor(model => model.Business_Type, "", new { @class = "text-danger" })
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="form-group col-md-5">
-                        @Html.LabelFor(model => model.QR, new { @class = "control-label col-md-5" })
-                        <div class="col-md-7">
-                            @Html.DropDownListFor(model => model.QR, new List<SelectListItem>
-                            {
-                                new SelectListItem { Text = "Yes", Value = "Yes" },
-                                new SelectListItem { Text = "No", Value = "No" }
-                            }, "Select QR Option", new { @class = "form-control" })
-                            @Html.ValidationMessageFor(model => model.QR, "", new { @class = "text-danger" })
-                        </div>
-
-                    </div>
-                    @if (Session["Position"].ToString() == "BranchManager")
-                    {
-                        <!-- Deposit Type -->
-                        <div class="form-group col-md-5">
-                            <label class="control-label col-md-5">Deposit Type</label>
-                            <div class="col-md-7">
-                                @Html.DropDownListFor(
-                                 model => model.DepositType,
-                                 new SelectList(new[] { "Individual", "Branch" }),
-                                 "Select Deposit For",
-                                 new { @class = "form-control", id = "DepositTypeSelect" })
-                            </div>
-                        </div>
-                    }
-                        <div class="form-group col-md-5">
-                            @Html.LabelFor(model => model.Narative, new { @class = "control-label col-md-5" })
-                            <div class="col-md-7">
-                                @Html.TextAreaFor(model => model.Narative, new { @class = "form-control", rows = 4 })
-                                @Html.ValidationMessageFor(model => model.Narative, "", new { @class = "text-danger" })
-                            </div>
-                        </div>
-                    </div>
-
-
-                <div class="form-group">
-                    <div class="col-md-offset-2 col-md-10">
-                        <input type="submit" name="submit" value="Save" class="btn btn-save" />
-                        @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-back" })
-                    </div>
-                </div>
+            <div class="alert alert-danger">
+                <strong>Error!</strong> @TempData["ErrorMessage"]
             </div>
         }
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                <strong>Success!</strong> @TempData["SuccessMessage"]
+            </div>
+        }
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                @using (Html.BeginForm("Create", "DepositMerchantAgenets", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger mb-4" })
+
+                    <!-- Row 1: Account Number + Reference Number -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                @Html.EditorFor(model => model.AccountNumber, new { htmlAttributes = new { @class = "form-control", placeholder = "Account Number" } })
+                                @Html.LabelFor(model => model.AccountNumber, "Account Number")
+                                @Html.ValidationMessageFor(model => model.AccountNumber, "", new { @class = "text-danger small mt-1" })
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                @Html.EditorFor(model => model.ReferenceNumber, new { htmlAttributes = new { @class = "form-control", placeholder = "Reference Number" } })
+                                @Html.LabelFor(model => model.ReferenceNumber, "Reference Number")
+                                @Html.ValidationMessageFor(model => model.ReferenceNumber, "", new { @class = "text-danger small mt-1" })
+                            </div>
+                            <div class="mt-2">
+                                <input type="submit" name="submit" value="Validate" class="btn btn-outline-primary btn-sm px-4" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Account Holder + Amount (Target) -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                @Html.EditorFor(model => model.AccountHolder, new { htmlAttributes = new { @class = "form-control bg-light", @Value = ViewBag.AccountHolder, @readonly = "readonly", placeholder = "Account Holder" } })
+                                @Html.LabelFor(model => model.AccountHolder, "Account Holder")
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                @Html.EditorFor(model => model.Target, new { htmlAttributes = new { @class = "form-control bg-light", @Value = ViewBag.TransactionAmount, @readonly = "readonly", placeholder = "Amount" } })
+                                <label>Amount</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 3: Merchant ID + QR Option -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                @Html.EditorFor(model => model.LinkAccount, new { htmlAttributes = new { @class = "form-control", placeholder = "Merchant ID" } })
+                                <label>Merchant ID</label>
+                                @Html.ValidationMessageFor(model => model.LinkAccount, "", new { @class = "text-danger small mt-1" })
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                @Html.DropDownListFor(model => model.QR, new List<SelectListItem>
+                                {
+                                    new SelectListItem { Text = "Yes", Value = "Yes" },
+                                    new SelectListItem { Text = "No", Value = "No" }
+                                }, "Select QR Option", new { @class = "form-select" })
+                                @Html.LabelFor(model => model.QR, "QR Option")
+                                @Html.ValidationMessageFor(model => model.QR, "", new { @class = "text-danger small mt-1" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hidden Account Balance -->
+                    <div style="display: none;">
+                        @Html.EditorFor(model => model.AccountBalance, new { htmlAttributes = new { @Value = ViewBag.AccountBalance } })
+                    </div>
+                    <!-- Hidden Account Balance -->
+                    <div style="display: none;">
+                        @Html.EditorFor(model => model.Prev_Ini_Bal, new { htmlAttributes = new { @Value = ViewBag.PreviousBalance } })
+                    </div>
+
+                    <!-- Row 4: Merchant Type + Business Type -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                @Html.DropDownListFor(model => model.Merchant_Type, new List<SelectListItem>
+                                {
+                                    new SelectListItem { Text = "New", Value = "New" }
+                                }, "Select Merchant Type", new { @class = "form-select" })
+                                @Html.LabelFor(model => model.Merchant_Type, "Merchant Type")
+                                @Html.ValidationMessageFor(model => model.Merchant_Type, "", new { @class = "text-danger small mt-1" })
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                @Html.DropDownListFor(model => model.Business_Type, new List<SelectListItem>
+                                {
+                                    new SelectListItem { Text = "Hotel and Restaurant", Value = "Hotel and Restaurant" },
+                                    new SelectListItem { Text = "Health", Value = "Health" },
+                                    new SelectListItem { Text = "Transport", Value = "Transport" },
+                                    new SelectListItem { Text = "Wholesale", Value = "Wholesale" },
+                                    new SelectListItem { Text = "Retail Trade", Value = "Retail Trade" },
+                                    new SelectListItem { Text = "Manufacturing", Value = "Manufacturing" },
+                                    new SelectListItem { Text = "Agriculture", Value = "Agriculture" },
+                                    new SelectListItem { Text = "Other", Value = "Other" }
+                                }, "Select Business Type", new { @class = "form-select" })
+                                @Html.LabelFor(model => model.Business_Type, "Business Type")
+                                @Html.ValidationMessageFor(model => model.Business_Type, "", new { @class = "text-danger small mt-1" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 5: Deposit Type (Manager Only) + Narative -->
+                    <div class="row g-3 mb-3">
+                        @if (Session["Position"]?.ToString() == "BranchManager")
+                        {
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    @Html.DropDownListFor(
+                                        model => model.DepositType,
+                                        new SelectList(new[] { "Individual", "Branch" }),
+                                        "Select Deposit For",
+                                        new { @class = "form-select", id = "DepositTypeSelect" })
+                                    <label>Deposit Type</label>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="col-md-6 @(Session["Position"]?.ToString() == "BranchManager" ? "offset-md-0" : "")">
+                            <div class="form-floating">
+                                @Html.TextAreaFor(model => model.Narative, new { @class = "form-control", rows = 3, style = "height: 100px;", placeholder = "Narative" })
+                                @Html.LabelFor(model => model.Narative, "Narative")
+                                @Html.ValidationMessageFor(model => model.Narative, "", new { @class = "text-danger small mt-1" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="mt-4 text-end">
+                        <input type="submit" name="submit" value="Save" class="btn btn-primary px-5" style="background: linear-gradient(135deg, #00AEEF, #0077b6); border:none;" />
+                        @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-outline-secondary ms-2" })
+                    </div>
+                }
+            </div>
+        </div>
+
     </div>
 </div>
 
 @section Scripts {
     @Styles.Render("~/Content/cssjqryUi")
     @Scripts.Render("~/bundles/jqueryui")
+
     <script>
         $(document).ready(function () {
             // Datepicker for date fields

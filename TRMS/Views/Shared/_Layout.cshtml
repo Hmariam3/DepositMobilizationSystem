@@ -1,765 +1,1732 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>DM</title>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <!-- Tell the browser to be responsive to screen width -->
-    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-    @Styles.Render("~/Content/css")
-    @Scripts.Render("~/bundles/modernizr")
-    <!-- Font Awesome -->
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <title>Deposit Monitoring System</title>
     <!-- Ionicons -->
-
-    <link rel="stylesheet" href="admin-lte/plugins/Ionicons/css/ionicons.min.css">
-    <link href="~/admin-lte/js/pages/jquery.dataTables.min.css" rel="stylesheet" />
+    <!--CSS Styles-->
+    <link rel="stylesheet" href="~/dist/assets/adminlte.min.css" />
+    <link rel="stylesheet" href="~/plugins/fontawesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="~/plugins/fontawesome-free/css/all.min.css" />
+    <link href="~/plugins/bootstrap_icon.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/plugins/bootstrap-icons/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/plugins/icheck-bootstrap/icheck-bootstrap.min.css" />
+    <link rel="stylesheet" href="~/plugins/summernote/summernote-bs4.min.css" />
     <link rel="stylesheet" href="~/plugins/select2/css/select2.min.css" />
     <link rel="stylesheet" href="~/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" />
+    <link rel="stylesheet" href="~/plugins/bootstrap4-duallistbox/bootstrap-duallistbox.min.css" />
+    <link rel="stylesheet" href="~/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="~/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <link rel="stylesheet" href="~/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+    <link rel="stylesheet" href="~/dist/assets/OverlayScrollbars.min.css" />
+    <link href="~/plugins/chart.js/Chart.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/dist/css/bootstrap-select.min.css" />
 
-
-    <script src="~/admin-lte/plugins/datatables.net/js/jquery.dataTables.min.js"></script>
-    <script src="~/admin-lte/js/pages/jquery.dataTables.min.js"></script>
-    <script src="~/Content/jquery-3.6.0.min.js"></script>
+    <!--Scripts-->
+    <script src="~/dist/assets/overlayscrollbars.browser.es5.min.js"></script>
+    <script src="~/dist/assets/Sortable.min.js"></script>
     <script src="~/dist/js/bootstrap-select.min.js"></script>
+    <script src="~/plugins/jquery/jquery.min.js"></script>
+    <script src="~/plugins/bootstrap.bundle.js"></script>
+    <script src="~/plugins/jquery-validation/jquery.validate.js"></script>
+    <script src="~/plugins/jquery-validation/additional-methods.min.js"></script>
+    <script src="~/plugins/jquery-validation/jquery.validate.min.js"></script>
+    <script src="~/plugins/chart.js/Chart.js"></script>
 
     <style>
+        /* indent submenus under Service Workflow */
+        .nav-treeview .nav-item .nav-link {
+            padding-left: 2.5rem; /* increase for more indent */
+        }
+        /* Default (light theme) */
+        /*body {
+            background: linear-gradient(135deg, #e0f7fa 0%, #f3e5f5 100%);
+            color: #222;
+        }*/
+
+        /* When the document is in dark theme mode */
+        /*html[data-bs-theme="dark"] body {
+            background: linear-gradient(135deg, #0d1117 0%, #1c1f26 100%);
+        }*/
+
+        /* Auto mode (follows system preference) */
+        /*@@media (prefers-color-scheme: dark) {
+            html[data-bs-theme="auto"] body {
+                background: linear-gradient(135deg, #121212 0%, #1e1e1e 100%);
+                color: #e0e0e0;
+            }
+        }*/
     </style>
 
 </head>
-<body class="hold-transition skin-red sidebar-mini">
-    <div class="wrapper" style="margin-top:2px;">
+<body class="layout-fixed fixed-header fixed-footer sidebar-expand-lg sidebar-open bg-body-tertiary">
+    <!--begin::App Wrapper-->
+    <div class="app-wrapper">
         <!-- Main Header -->
-        <header class="main-header">
-            <!-- Logo -->
-            <a href="index" class="logo" style="background-color:#00AEEF ;height:70px;" >
-                <!-- mini logo for sidebar mini 50x50 pixels -->
-                <img src="~/Content/Image/coplog.png" alt="" width="50" height="50" class="logo-mini pull-left" />
-                <!-- logo for regular state and mobile devices -->
-
-                <span class="logo-lg" ><img class="manImg" src="~/Content/Image/coplog.png" width="235" height="60" style="margin-left:-20px;"></img></span>
-            </a>
-
-            <!-- Logo -->
-            @*<a href="index" class="logo">*@
-            <!-- mini logo for sidebar mini 50x50 pixels -->
-            @*<img src="~/Content/Image/Tsehaylogo9.PNG" width="230" height="50" class="logo-mini pull-left" />*@
-            <!-- logo for regular state and mobile devices -->
-            @*</a>*@
-
-            <!-- Header Navbar -->
-            <nav class="navbar navbar-static-top" role="navigation" style="color:#f0ce0d;background-color:#00AEEF;height:70px;" >
-
-                <span style="font-size:3em;color:white;margin-left:3em;"><b>Deposit Monitoring System</b></span>
-                <!-- Sidebar toggle button-->
-                <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button" style="color:#f0ce0d;background-color:#00AEEF">
-                    <span class="sr-only">Toggle navigation</span>
-                </a>
-                <!-- Navbar Right Menu -->
-                <div class="navbar-custom-menu">
-                    <ul class="nav navbar-nav">
-
-                        <!-- User Account Menu -->
-                        <li class="dropdown user user-menu">
-                            <!-- Menu Toggle Button -->
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                <!-- The user image in the navbar-->
-                                <img src="~/Content/Image/user-default.png" class="user-image" alt="User Image">
-                               
-                                <!-- hidden-xs hides the username on small devices so only the image appears. -->
-                              
-                               
-                                @if (Session["username"] != null)
-                                {
-                                    <span class="hidden-xs">@Session["username"].ToString()</span>
-                                }
-                            </a>
-                            <ul class="dropdown-menu" style="background-color:#00AEEF">
-                                <!-- The user image in the menu -->
-                                <li class="user-header" style="background-color:#f0ce0d">
-                                    <img src="~/Content/Image/user-default.png" class="img-circle" alt="User Image">
-                                    @if (Session["username"] != null)
-                                    {
-                                        <p>
-                                            @Session["username"].ToString()
-                                        </p>
-                                    }
-                                </li>
-                                <!-- Menu Body -->
-                                <!-- Menu Footer-->
-                                <li class="user-footer" style="background-color: #e0f7fa; padding: 12px 15px; border-top: 2px solid #00acc1;">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        @Html.ActionLink("Update Profile", "UpdateProfile", "User", new { id = Session["Userid"] }, new { @class = "btn btn-info btn-sm text-white fw-bold", style = "background-color:#00acc1; border:none; border-radius:5px; width:120px;" })
-                                        <a href="~/User/Logout" class="btn btn-sm fw-bold text-white" style="background-color:red; border:none; border-radius:5px; color:white; width:100px;">Logout</a>
-                                    </div>
-                                </li>
-
-
-
-                            </ul>
-                        </li>
-
-                    </ul>
-                </div>
-            </nav>
-        </header>
-     
-        <!-- Left side column. contains the logo and sidebar -->
-        <aside class="main-sidebar">
-            <!-- sidebar: style can be found in sidebar.less -->
-            <section class="sidebar">
-                <!-- Sidebar user panel (optional) -->
-                <!-- search form (Optional) -->
-                <!-- /.search form -->
-                <!-- Sidebar Menu -->
-                <br />
-                <ul class="sidebar-menu" data-widget="tree">
-
-
-
-                    <li class="header">MENU</li>
-                    <!-- Optionally, you can add icons to the links -->
-                    @*<li class="active"><a href="~/Home/Index"><i class="fa fa-home"></i><span>Home</span></a></li>*@
-                    @*<li class="active"><a href="~/Home/bankDashbord"><i class="fa fa-home"></i><span>Main Dashbord</span></a></li>*@
-
-
-                    @*@if (Session["UserRole"] != null)*@
-                    @if (Session["Position"] != null || Session["UserRole"] != null)
-                    {
-
-                        @*<li class="active"><a href="~/Content/manual/UserManual.pdf"><i class="fa fa-home"></i><span> User Manual</span></a></li>*@
-
-
-
-                        //if (Session["UserRole"].ToString() == "Admin" )
-                        if (Session["UserRole"].ToString() == "Admin")
-                        {
-                            @*<li class="active"><a href="~/Home/Dashbord">  <i class="fa fa-home"></i><span> General Report</span></a></li>*@
-                            <li class="active"><a href="~/Home/Dashboard"><i class="fa fa-home"></i><span> Main Dashbord</span></a></li>
-                            <li class="active"><a href="~/Home/index"><i class="fa fa-home"></i><span> User Dashbord</span></a></li>
-                            <li class="active"><a href="~/Home/index"><i class="fa fa-home"></i><span>Dashbord</span></a></li>
-
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>Adminstration</span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    <li><a href="~/User/Create">New User</a></li>
-                                    <li><a href="~/User/index">View User</a></li>
-                                    @*<li><a href="~/UserProfile/Create"> User Profile</a></li>*@
-                                </ul>
-                            </li>
-
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>Deposit Plan</span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    <li><a href="~/DepositPlans/Create">Add New</a></li>
-                                    <li><a href="~/DepositPlans/Index">View Deposit Plan</a></li>
-
-                                </ul>
-                            </li>
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>Merchant </span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    <li><a href="~/DepositMerchantAgenets/Create">Add New</a></li>
-                                    <li><a href="~/DepositMerchantAgenets/Index">View  Deposit</a></li>
-
-                                </ul>
-                            </li>
-
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>FCY Deposit </span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    <li><a href="~/DepositFCies/Create">Add New</a></li>
-                                    <li><a href="~/DepositFCies/Index">View  Deposit</a></li>
-
-                                </ul>
-                            </li>
-
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>Target </span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    <li><a href="~/DistrictPlans/Create">Add Target</a></li>
-                                    <li><a href="~/DistrictPlans/Index">View  Target</a></li>
-                                    <li><a href="~/DistrictPlans/BranchInDistrict">Branchs</a></li>
-
-                                </ul>
-                            </li>
-
-
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>Report</span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    <li><a href="~/DepositBranchReport/BranchReport">Branch Report</a></li>
-                                    <li><a href="~/DepositDistrictReport/DistrictPlanReport">District Plan</a></li>
-                                    <li><a href="~/DepositDistrictReport/DistrictAgenetReport">Merchant</a></li>
-                                    <li><a href="~/DepositDistrictReport/DistrictFcyReport">Fcy  Deposit</a></li>
-
-
-                                    <li><a href="~/DepositIndividualReport/IndividualDeposit"> Individual Deposit Plan</a></li>
-                                    <li><a href="~/DepositIndividualReport/IndividualMerchant">Individual Merchant</a></li>
-                                    <li><a href="~/DepositIndividualReport/IndividualFcy">Individual Fcy  Deposit</a></li>
-                                </ul>
-                            </li>
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>Top Performer Report</span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    <li><a href="~/DepositBankReport/TopPerformerDistrict">Top Performer District Report</a></li>
-                                    <li><a href="~/DepositBankReport/BranchReport">Top Performer Branch Report</a></li>
-                                </ul>
-                            </li>
-                        }
-
-                        //else if (Session["UserRole"].ToString() == "Maker")
-                        else if (Session["Position"].ToString() == "Individual")
-                        {
-
-
-                            <li class="active"><a href="~/Home/index"><i class="fa fa-home"></i><span> User Dashbord</span></a></li>
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>Deposit Plan</span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    @*<li><a href="~/UserProfile/Create"> User Profile</a></li>*@
-                                    <li><a href="~/DepositPlans/Create">Add New</a></li>
-                                    <li><a href="~/DepositPlans/Index">View Deposit Plan</a></li>
-
-                                </ul>
-                            </li>
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>Merchant </span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    <li><a href="~/DepositMerchantAgenets/Create">Add New</a></li>
-                                    <li><a href="~/DepositMerchantAgenets/Index">View  Deposit</a></li>
-
-                                </ul>
-                            </li>
-
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>FCY Deposit </span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    <li><a href="~/DepositFCies/Create">Add New</a></li>
-                                    <li><a href="~/DepositFCies/Index">View  Deposit</a></li>
-
-                                </ul>
-                            </li>
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>Report</span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    <li><a href="~/DepositIndividualReport/IndividualDeposit"> Individual Deposit Plan</a></li>
-                                    <li><a href="~/DepositIndividualReport/IndividualMerchant">Individual Merchant</a></li>
-                                    <li><a href="~/DepositIndividualReport/IndividualFcy">Individual Fcy  Deposit</a></li>
-
-                                </ul>
-                            </li>
-
-                        }
-                        //else if (Session["UserRole"].ToString() == "District")
-                        else if (Session["Position"].ToString() == "Director")
-                        {
-                            <li class="active"><a href="~/Home/Dashboard"><i class="fa fa-home"></i><span> Main Dashbord</span></a></li>
-                            <li class="active"><a href="~/Home/index"><i class="fa fa-home"></i><span> User Dashbord</span></a></li>
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>Deposit Plan</span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    @*<li><a href="~/UserProfile/Create"> User Profile</a></li>*@
-                                    <li><a href="~/DepositPlans/Create">Add New</a></li>
-                                    <li><a href="~/DepositPlans/Index">View Deposit Plan</a></li>
-
-                                </ul>
-                            </li>
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>Merchant </span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    <li><a href="~/DepositMerchantAgenets/Create">Add New</a></li>
-                                    <li><a href="~/DepositMerchantAgenets/Index">View  Deposit</a></li>
-
-                                </ul>
-                            </li>
-
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>FCY Deposit </span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    <li><a href="~/DepositFCies/Create">Add New</a></li>
-                                    <li><a href="~/DepositFCies/Index">View  Deposit</a></li>
-
-                                </ul>
-                            </li>
-
-                            <li class="active"><a href="~/Home/BranchReport"><i class="fa fa-home"></i><span> District Dashbord</span></a></li>
-                            @*<li class="treeview">
-                    <a href="#">
-                        <i class="fa fa-shield"></i> <span>Target </span>
-                        <span class="pull-right-container">
-                            <i class="fa fa-angle-left pull-right"></i>
-                        </span>
-                    </a>
-                    <ul class="treeview-menu">
-                        <li><a href="~/DistrictPlans/Index">View  Target</a></li>
-                        <li><a href="~/DistrictPlans/BranchInDistrict">Branchs</a></li>
-                        <li><a href="~/DistrictPlans/branchTargetList">Branch Target</a></li>
-
-                    </ul>
-                </li>*@
-
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>Report</span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-
-                                    <li><a href="~/DepositIndividualReport/IndividualDeposit"> Individual Deposit Plan</a></li>
-                                    <li><a href="~/DepositIndividualReport/IndividualMerchant">Individual Merchant</a></li>
-                                    <li><a href="~/DepositIndividualReport/IndividualFcy">Individual Fcy  Deposit</a></li>
-
-                                    <li><a href="~/DepositDistrictReport/DistrictPlanReport">District Report</a></li>
-                                    <li><a href="~/DepositDistrictReport/DistrictAgenetReport">Merchant Report</a></li>
-                                    <li><a href="~/DepositDistrictReport/DistrictFcyReport">Fcy  Report</a></li>
-
-
-                                </ul>
-                            </li>
-
-
-                        }
-                        //else if (Session["UserRole"].ToString() == "SuperUser")
-                        else if (Session["Position"].ToString() == "Manager" || Session["Position"].ToString() == "BranchManager")
-                        {
-                            <li class="active"><a href="~/Home/Dashboard"><i class="fa fa-home"></i><span> Main Dashbord</span></a></li>
-                            <li class="active"><a href="~/Home/index"><i class="fa fa-home"></i><span> User Dashbord</span></a></li>
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>Deposit Plan</span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    @*<li><a href="~/UserProfile/Create"> User Profile</a></li>*@
-                                    <li><a href="~/DepositPlans/Create">Add New</a></li>
-                                    <li><a href="~/DepositPlans/Index">View Deposit Plan</a></li>
-
-                                </ul>
-                            </li>
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>Merchant </span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    <li><a href="~/DepositMerchantAgenets/Create">Add New</a></li>
-                                    <li><a href="~/DepositMerchantAgenets/Index">View  Deposit</a></li>
-
-                                </ul>
-                            </li>
-
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>FCY Deposit </span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    <li><a href="~/DepositFCies/Create">Add New</a></li>
-                                    <li><a href="~/DepositFCies/Index">View  Deposit</a></li>
-
-                                </ul>
-                            </li>
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>Report</span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    <li><a href="~/DepositIndividualReport/IndividualDeposit"> Individual Deposit Plan</a></li>
-                                    <li><a href="~/DepositIndividualReport/IndividualMerchant">Individual Merchant</a></li>
-                                    <li><a href="~/DepositIndividualReport/IndividualFcy">Individual Fcy  Deposit</a></li>
-
-
-                                    <li><a href="~/DepositBranchReport/BranchDeposit">Deposit Report</a></li>
-                                    <li><a href="~/DepositBranchReport/BranchMerchant">Merchant Report</a></li>
-                                    <li><a href="~/DepositBranchReport/BranchFCY">Fcy  Deposit Report</a></li>
-
-                                </ul>
-                            </li>
-
-                        }
-                        else if (Session["Position"].ToString() == "VP" || Session["Position"].ToString() == "CHF")
-                        {
-                            <li class="active"><a href="~/Home/Dashboard"><i class="fa fa-home"></i><span> Main Dashbord</span></a></li>
-                            <li class="active"><a href="~/Home/index"><i class="fa fa-home"></i><span> User Dashbord</span></a></li>
-                            <li class="active"><a href="~/Home/BydistrictReport"><i class="fa fa-home"></i><span> Bank Dashbord</span></a></li>
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>Deposit Plan</span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    <li><a href="~/DepositPlans/Create">Add New</a></li>
-                                    <li><a href="~/DepositPlans/Index">View Deposit Plan</a></li>
-
-                                </ul>
-                            </li>
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>Merchant </span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    <li><a href="~/DepositMerchantAgenets/Create">Add New</a></li>
-                                    <li><a href="~/DepositMerchantAgenets/Index">View  Deposit</a></li>
-
-                                </ul>
-                            </li>
-
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>FCY Deposit </span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    <li><a href="~/DepositFCies/Create">Add New</a></li>
-                                    <li><a href="~/DepositFCies/Index">View  Deposit</a></li>
-
-                                </ul>
-                            </li>
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>Report</span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    <li><a href="~/DepositIndividualReport/IndividualDeposit"> Individual Deposit Plan</a></li>
-                                    <li><a href="~/DepositIndividualReport/IndividualMerchant">Individual Merchant</a></li>
-                                    <li><a href="~/DepositIndividualReport/IndividualFcy">Individual Fcy  Deposit</a></li>
-
-                                    <li><a href="~/DepositVPReport/VPPlanReport">Deposit Process Report</a></li>
-                                    <li><a href="~/DepositVPReport/VPAgenetReport">Merchant Process Report</a></li>
-                                    <li><a href="~/DepositVPReport/VPFcyReport">Fcy Deposit Process Report</a></li>
-
-                                    <li><a href="~/DepositBankReport/BankPlanReport">Deposit Report</a></li>
-                                    <li><a href="~/DepositBankReport/BankAgenetReport">Merchant Report</a></li>
-                                    <li><a href="~/DepositBankReport/bankFcyReport">Fcy Deposit Report</a></li>
-
-
-                                </ul>
-                            </li>
-
-                        }
-                        else if (Session["Position"].ToString() == "CEO")
-                        {
-                            <li class="active"><a href="~/Home/Dashboard"><i class="fa fa-home"></i><span> Main Dashbord</span></a></li>
-                            <li class="active"><a href="~/Home/index"><i class="fa fa-home"></i><span> User Dashbord</span></a></li>
-                            <li class="active"><a href="~/Home/BydistrictReport"><i class="fa fa-home"></i><span> Bank Dashbord</span></a></li>
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>Deposit Plan</span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    @*<li><a href="~/UserProfile/Create"> User Profile</a></li>*@
-                                    <li><a href="~/DepositPlans/Create">Add New</a></li>
-                                    <li><a href="~/DepositPlans/Index">View Deposit Plan</a></li>
-
-                                </ul>
-                            </li>
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>Merchant </span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    <li><a href="~/DepositMerchantAgenets/Create">Add New</a></li>
-                                    <li><a href="~/DepositMerchantAgenets/Index">View  Deposit</a></li>
-
-                                </ul>
-                            </li>
-
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>FCY Deposit </span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    <li><a href="~/DepositFCies/Create">Add New</a></li>
-                                    <li><a href="~/DepositFCies/Index">View  Deposit</a></li>
-
-                                </ul>
-                            </li>
-                            <li class="treeview">
-                                <a href="#">
-                                    <i class="fa fa-shield"></i> <span>Report</span>
-                                    <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
-                                </a>
-                                <ul class="treeview-menu">
-                                    <li><a href="~/DepositIndividualReport/IndividualDeposit"> Individual Deposit Plan</a></li>
-                                    <li><a href="~/DepositIndividualReport/IndividualMerchant">Individual Merchant</a></li>
-                                    <li><a href="~/DepositIndividualReport/IndividualFcy">Individual Fcy  Deposit</a></li>
-
-                                    <li><a href="~/DepositBankReport/BankPlanReport">Deposit Report</a></li>
-                                    <li><a href="~/DepositBankReport/BankAgenetReport">Merchant Report</a></li>
-                                    <li><a href="~/DepositBankReport/bankFcyReport">Fcy Deposit Report</a></li>
-
-
-                                </ul>
-                            </li>
-
-                        }
-                    }
-                    else
-                    {
-                        Session.Abandon();
-
-                        Response.Redirect("~/User/Login");
-                    }
-
+        <!--begin::Header-->
+        <nav class="app-header navbar navbar-expand bg-body">
+            <div class="container-fluid">
+                <!-- Left Side: Sidebar toggle and Home -->
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+                            <i class="bi bi-list"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item d-none d-md-block">
+                        <a href="~/Home/Index" class="nav-link">Home</a>
+                    </li>
 
                 </ul>
-                <!-- /.sidebar-menu -->
-            </section>
-            <!-- /.sidebar -->
+                <!--begin::End Navbar links-->
+                <!--end::End Navbar links-->
+                <!-- Right Side: User Dropdown -->
+                <ul class="navbar-nav ms-auto">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item dropdown">
+                            <button class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center"
+                                    id="bd-theme"
+                                    type="button"
+                                    aria-expanded="false"
+                                    data-bs-toggle="dropdown"
+                                    data-bs-display="static">
+                                <span class="theme-icon-active">
+                                    <i class="my-1"></i>
+                                </span>
+                                <span class="d-lg-none ms-2" id="bd-theme-text">Toggle theme</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end"
+                                aria-labelledby="bd-theme-text"
+                                style="--bs-dropdown-min-width: 8rem;">
+                                <li>
+                                    <button type="button"
+                                            class="dropdown-item d-flex align-items-center active"
+                                            data-bs-theme-value="light"
+                                            aria-pressed="false">
+                                        <i class="bi bi-sun-fill me-2"></i>
+                                        Light
+                                        <i class="bi bi-check-lg ms-auto d-none"></i>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button type="button"
+                                            class="dropdown-item d-flex align-items-center"
+                                            data-bs-theme-value="dark"
+                                            aria-pressed="false">
+                                        <i class="bi bi-moon-fill me-2"></i>
+                                        Dark
+                                        <i class="bi bi-check-lg ms-auto d-none"></i>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button type="button"
+                                            class="dropdown-item d-flex align-items-center"
+                                            data-bs-theme-value="auto"
+                                            aria-pressed="true">
+                                        <i class="bi bi-circle-fill-half-stroke me-2"></i>
+                                        Auto
+                                        <i class="bi bi-check-lg ms-auto d-none"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <li class="nav-item dropdown user-menu">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <img src="~/dist/assets/img/FREE-PROFILE-AVATARS.jpg" class="user-image rounded-circle shadow" alt="User Image" />
+                            <span class="d-none d-md-inline">
+                                @if (Session["username"] != null)
+                                {
+
+                                    @Session["UserName"].ToString()
+                                }
+                            </span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+                            <li class="user-header text-center">
+                                <img src="~/dist/assets/img/FREE-PROFILE-AVATARS.jpg" class="rounded-circle shadow" alt="User Image" />
+                                <p>
+                                    @if (Session["username"] != null)
+                                    {
+
+                                        @Session["FullName"].ToString()
+
+                                    }
+                                    <br />
+                                    <small>
+                                        @if (Session["Position"] != null)
+                                        {
+                                            @Session["Position"].ToString()
+                                        }
+                                    </small>
+                                    @*<small>Member Since: @Session["MemberSince"].ToString()</small>*@
+                                </p>
+                            </li>
+                            <li class="user-footer d-flex justify-content-between gap-2  ">
+                                <a href="@Url.Action("UpdateProfile", "User", new { id = Session["Userid"] })"
+                                   class="btn btn-info btn-sm w-100 d-flex align-items-center justify-content-center text-white"
+                                   style="border:none; border-radius:5px; background: linear-gradient(135deg, #00AEEF, #0077b6);">
+                                    <i class="fas fa-user-edit me-2"></i> Edit Profile
+                                </a>
+
+                                @using (Html.BeginForm("Logout", "User", FormMethod.Post, new { @class = "w-100" }))
+                                {
+                                    <button type="submit" class="btn btn-danger btn-sm w-100 d-flex align-items-center justify-content-center text-white" style="border:none; border-radius:5px;">
+                                        <i class="bi bi-box-arrow-right me-1"></i> Sign out
+                                    </button>
+                                }
+                            </li>
+
+
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+
+        <!-- Left side column. contains the logo and sidebar -->
+        <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+            <div class="sidebar-brand text-center py-3 border-bottom border-secondary-subtle">
+                <a href="~/Home/Index" class="brand-link d-flex align-items-center justify-content-center text-decoration-none">
+                    <img src="~/dist/assets/img/cooplogo.gif" alt="Coopbank Logo"
+                         class="brand-image me-3 shadow-sm"
+                         style="height:40px; width:80px; object-fit:contain; opacity:0.9;">
+                    <span class="brand-text fw-bold text-white fs-2 tracking-wide">DMS</span>
+                </a>
+            </div>
+
+            <!--begin::Sidebar Wrapper-->
+            <div class="sidebar-wrapper">
+                <nav class="mt-2">
+                    <ul class="nav sidebar-menu flex-column"
+                        data-lte-toggle="treeview"
+                        role="navigation"
+                        aria-label="Main navigation"
+                        data-accordion="false"
+                        id="navigation">
+
+                        @*@if (Session["UserRole"] != null)*@
+                        @if (Session["Position"] != null || Session["UserRole"] != null)
+                        {
+
+                            @*<li class="active"><a href="~/Content/manual/UserManual.pdf"><i class="fa fa-home"></i><span> User Manual</span></a></li>*@
+
+                            if (Session["UserRole"].ToString() == "Super")
+                            {
+                                <li class="nav-item">
+                                    <a href="~/Home/Dashboard" class="nav-link">
+                                        <i class="fas fa-home"></i>
+                                        <p>Bank Dashboard</p>
+                                    </a>
+                                </li>
+                            }
+
+                            //if (Session["UserRole"].ToString() == "Admin" )
+                            if (Session["UserRole"]?.ToString() == "Admin")
+                            {
+                                <!-- Dashboards -->
+                                <li class="nav-item menu-open">
+                                    <!-- menu-open keeps it expanded -->
+                                    <a href="#" class="nav-link active">
+                                        <!-- active highlights parent -->
+                                        <i class="fas fa-tachometer-alt"></i>
+                                        <p>
+                                            Dashboards
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/Home/Dashboard" class="nav-link">
+                                                <i class="fas fa-home"></i>
+                                                <p>Bank Dashboard</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/Home/Index" class="nav-link">
+                                                <i class="fas fa-user-circle"></i>
+                                                <p>User Dashboard</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/Home/Process" class="nav-link">
+                                                <i class="fas fa-university"></i>
+                                                <p>Process Dashboard</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- Administration -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fas fa-cogs"></i>
+                                        <p>
+                                            Administration
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/User/Create" class="nav-link">
+                                                <i class="fas fa-user-plus"></i>
+                                                <p>New User</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/User/Index" class="nav-link">
+                                                <i class="fas fa-users"></i>
+                                                <p>View Users</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- Deposit Plan -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                        <p>
+                                            Deposit Plan
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/DepositPlans/Create" class="nav-link">
+                                                <i class="far fa-circle"></i>
+                                                <p>Add New</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/DepositPlans/Index" class="nav-link">
+                                                <i class="far fa-circle"></i>
+                                                <p>View Deposit Plans</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- Merchant -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fas fa-shopping-cart"></i>
+                                        <p>
+                                            Merchant
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/DepositMerchantAgenets/Create" class="nav-link">
+                                                <i class="far fa-circle"></i>
+                                                <p>Add New</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/DepositMerchantAgenets/Index" class="nav-link">
+                                                <i class="far fa-circle"></i>
+                                                <p>View Deposits</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- FCY Deposit -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fas fa-globe"></i>
+                                        <p>
+                                            FCY Deposit
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/DepositFCies/Create" class="nav-link">
+                                                <i class="far fa-circle"></i>
+                                                <p>Add New</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/DepositFCies/Index" class="nav-link">
+                                                <i class="far fa-circle"></i>
+                                                <p>View Deposits</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- Target -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fas fa-bullseye"></i>
+                                        <p>
+                                            Target
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/DistrictPlans/Create" class="nav-link">
+                                                <i class="far fa-circle"></i>
+                                                <p>Add Target</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/DistrictPlans/Index" class="nav-link">
+                                                <i class="far fa-circle"></i>
+                                                <p>View Targets</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/DistrictPlans/BranchInDistrict" class="nav-link">
+                                                <i class="far fa-circle"></i>
+                                                <p>Branches</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- Reports -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fas fa-chart-bar"></i>
+                                        <p>
+                                            Reports
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <!-- District/Branch Reports -->
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <i class="fas fa-building"></i>
+                                                <p>
+                                                    District/Branch Reports
+                                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+                                                <li class="nav-item">
+                                                    <a href="~/DepositBranchReport/BranchReport" class="nav-link">
+                                                        <i class="far fa-circle"></i>
+                                                        <p>Branch Report</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositDistrictReport/DistrictPlanReport" class="nav-link">
+                                                        <i class="far fa-circle"></i>
+                                                        <p>District Plan</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositDistrictReport/DistrictAgenetReport" class="nav-link">
+                                                        <i class="far fa-circle"></i>
+                                                        <p>Merchant</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositDistrictReport/DistrictFcyReport" class="nav-link">
+                                                        <i class="far fa-circle"></i>
+                                                        <p>FCY Deposit</p>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+
+                                        <!-- Individual Reports -->
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <i class="fas fa-user"></i>
+                                                <p>
+                                                    Individual Reports
+                                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+                                                <li class="nav-item">
+                                                    <a href="~/DepositIndividualReport/IndividualDeposit" class="nav-link">
+                                                        <i class="far fa-circle"></i>
+                                                        <p>Individual Deposit Plan</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositIndividualReport/IndividualMerchant" class="nav-link">
+                                                        <i class="far fa-circle"></i>
+                                                        <p>Individual Merchant</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositIndividualReport/IndividualFcy" class="nav-link">
+                                                        <i class="far fa-circle"></i>
+                                                        <p>Individual FCY Deposit</p>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- Top Performer Reports -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fas fa-trophy"></i>
+                                        <p>
+                                            Top Performer Reports
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/DepositBankReport/TopPerformerDistrict" class="nav-link">
+                                                <i class="far fa-circle"></i>
+                                                <p>Top Performer District</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/DepositBankReport/BranchReport" class="nav-link">
+                                                <i class="far fa-circle"></i>
+                                                <p>Top Performer Branch</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
+
+
+                            //else if (Session["UserRole"].ToString() == "Maker")
+                            @* -------- INDIVIDUAL USER MENU -------- *@
+                            else if (Session["Position"]?.ToString() == "Individual")
+                            {
+                                <!-- Dashboards -->
+                                <li class="nav-item menu-open">
+                                    <!-- menu-open keeps it expanded -->
+                                    <a href="#" class="nav-link active">
+                                        <!-- active highlights parent -->
+                                        <i class="fas fa-tachometer-alt"></i>
+                                        <p>
+                                            Dashboards
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/Home/Index" class="nav-link">
+                                                <i class="fas fa-user-circle"></i>
+                                                <p>User Dashboard</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- Deposit Plan -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fa fa-money"></i>
+                                        <p>
+                                            Deposit Plan
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/DepositPlans/Create" class="nav-link">
+                                                <i class="fa fa-plus-circle"></i>
+                                                <p>Add New</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/DepositPlans/Index" class="nav-link">
+                                                <i class="fa fa-list-alt"></i>
+                                                <p>View Deposit Plans</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- Merchant -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fa fa-shopping-cart"></i>
+                                        <p>
+                                            Merchant
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/DepositMerchantAgenets/Create" class="nav-link">
+                                                <i class="fa fa-plus-circle"></i>
+                                                <p>Add New</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/DepositMerchantAgenets/Index" class="nav-link">
+                                                <i class="fa fa-table"></i>
+                                                <p>View Deposits</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- FCY Deposit -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fa fa-globe"></i>
+                                        <p>
+                                            FCY Deposit
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/DepositFCies/Create" class="nav-link">
+                                                <i class="fa fa-plus-circle"></i>
+                                                <p>Add New</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/DepositFCies/Index" class="nav-link">
+                                                <i class="fa fa-eye"></i>
+                                                <p>View Deposits</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- Reports -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fa fa-bar-chart"></i>
+                                        <p>
+                                            Reports
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/DepositIndividualReport/IndividualDeposit" class="nav-link">
+                                                <i class="fa fa-line-chart"></i>
+                                                <p>Deposit</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/DepositIndividualReport/IndividualMerchant" class="nav-link">
+                                                <i class="fa fa-handshake-o"></i>
+                                                <p>Merchant</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/DepositIndividualReport/IndividualFcy" class="nav-link">
+                                                <i class="fa fa-globe"></i>
+                                                <p>FCY Deposit</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                            }
+
+
+                            @* -------- DIRECTOR MENU -------- *@
+                            else if (Session["Position"]?.ToString() == "Director" || Session["Position"].ToString() == "SeniorDirector")
+                            {
+
+                                <!-- Dashboards -->
+                                <li class="nav-item menu-open">
+                                    <!-- menu-open keeps it expanded -->
+                                    <a href="#" class="nav-link active">
+                                        <!-- active highlights parent -->
+                                        <i class="fas fa-tachometer-alt"></i>
+                                        <p>
+                                            Dashboards
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/Home/Dashboard" class="nav-link">
+                                                <i class="fas fa-home"></i>
+                                                <p>Bank Dashboard</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/Home/Index" class="nav-link">
+                                                <i class="fas fa-user-circle"></i>
+                                                <p>User Dashboard</p>
+                                            </a>
+                                        </li>
+                                        @*<li class="nav-item">
+                                                <a href="~/Home/BydistrictReport" class="nav-link">
+                                                    <i class="fas fa-university"></i>
+                                                    <p>Bank Dashboard</p>
+                                                </a>
+                                            </li>*@
+                                        <li class="nav-item">
+                                            <a href="~/Home/BranchReport" class="nav-link">
+                                                <i class="fa fa-building"></i>
+                                                <p>District Dashboard</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+
+                                <!-- Deposit Plan -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fa fa-money"></i>
+                                        <p>
+                                            Deposit Plan
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/DepositPlans/Create" class="nav-link">
+                                                <i class="fa fa-plus-circle"></i>
+                                                <p>Add New</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/DepositPlans/Index" class="nav-link">
+                                                <i class="fa fa-list-alt"></i>
+                                                <p>View Deposit Plans</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- Merchant -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fa fa-shopping-cart"></i>
+                                        <p>
+                                            Merchant
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/DepositMerchantAgenets/Create" class="nav-link">
+                                                <i class="fa fa-plus-circle"></i>
+                                                <p>Add New</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/DepositMerchantAgenets/Index" class="nav-link">
+                                                <i class="fa fa-table"></i>
+                                                <p>View Deposits</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- FCY Deposit -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fa fa-globe"></i>
+                                        <p>
+                                            FCY Deposit
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/DepositFCies/Create" class="nav-link">
+                                                <i class="fa fa-plus-circle"></i>
+                                                <p>Add New</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/DepositFCies/Index" class="nav-link">
+                                                <i class="fa fa-eye"></i>
+                                                <p>View Deposits</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- Reports -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fa fa-bar-chart"></i>
+                                        <p>
+                                            Reports
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <!-- Individual Reports -->
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <i class="fa fa-user"></i>
+                                                <p>
+                                                    Individual Reports
+                                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+                                                <li class="nav-item">
+                                                    <a href="~/DepositIndividualReport/IndividualDeposit" class="nav-link">
+                                                        <i class="fa fa-line-chart"></i>
+                                                        <p>Deposit </p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositIndividualReport/IndividualMerchant" class="nav-link">
+                                                        <i class="fa fa-handshake-o"></i>
+                                                        <p>Merchant</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositIndividualReport/IndividualFcy" class="nav-link">
+                                                        <i class="fa fa-globe"></i>
+                                                        <p>FCY Deposit</p>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+
+                                        <!-- District Reports -->
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <i class="fa fa-building"></i>
+                                                <p>
+                                                    District Reports
+                                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+                                                <li class="nav-item">
+                                                    <a href="~/DepositDistrictReport/DistrictPlanReport" class="nav-link">
+                                                        <i class="fa fa-line-chart"></i>
+                                                        <p>District Deposit</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositDistrictReport/DistrictAgenetReport" class="nav-link">
+                                                        <i class="fa fa-handshake-o"></i>
+                                                        <p>Merchant Report</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositDistrictReport/DistrictFcyReport" class="nav-link">
+                                                        <i class="fa fa-globe"></i>
+                                                        <p>FCY Report</p>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+
+
+                            }
+
+                            // Manager or Branch Manager
+                            else if (Session["Position"].ToString() == "Manager" || Session["Position"].ToString() == "BranchManager")
+                            {
+                                <!-- Dashboards -->
+                                <li class="nav-item menu-open">
+                                    <!-- menu-open keeps it expanded -->
+                                    <a href="#" class="nav-link active">
+                                        <!-- active highlights parent -->
+                                        <i class="fas fa-tachometer-alt"></i>
+                                        <p>
+                                            Dashboards
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/Home/Dashboard" class="nav-link">
+                                                <i class="fas fa-home"></i>
+                                                <p>Bank Dashboard</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/Home/Index" class="nav-link">
+                                                <i class="fas fa-user-circle"></i>
+                                                <p>User Dashboard</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+
+                                <!-- Deposit Plan -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fa fa-money"></i>
+                                        <p>
+                                            Deposit Plan
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/DepositPlans/Create" class="nav-link">
+                                                <i class="fa fa-plus-circle"></i>
+                                                <p>Add New</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/DepositPlans/Index" class="nav-link">
+                                                <i class="fa fa-list-alt"></i>
+                                                <p>View Deposit Plans</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- Merchant -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fa fa-shopping-cart"></i>
+                                        <p>
+                                            Merchant
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/DepositMerchantAgenets/Create" class="nav-link">
+                                                <i class="fa fa-plus-circle"></i>
+                                                <p>Add New</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/DepositMerchantAgenets/Index" class="nav-link">
+                                                <i class="fa fa-list"></i>
+                                                <p>View Deposits</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- FCY Deposit -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fa fa-globe"></i>
+                                        <p>
+                                            FCY Deposit
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/DepositFCies/Create" class="nav-link">
+                                                <i class="fa fa-plus-circle"></i>
+                                                <p>Add New</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/DepositFCies/Index" class="nav-link">
+                                                <i class="fa fa-database"></i>
+                                                <p>View Deposits</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- Reports -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fa fa-bar-chart"></i>
+                                        <p>
+                                            Reports
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <!-- Individual Reports -->
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <i class="fa fa-user"></i>
+                                                <p>
+                                                    Individual Reports
+                                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+                                                <li class="nav-item">
+                                                    <a href="~/DepositIndividualReport/IndividualDeposit" class="nav-link">
+                                                        <i class="fa fa-file-text"></i>
+                                                        <p>Deposit</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositIndividualReport/IndividualMerchant" class="nav-link">
+                                                        <i class="fa fa-briefcase"></i>
+                                                        <p>Merchant</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositIndividualReport/IndividualFcy" class="nav-link">
+                                                        <i class="fa fa-globe"></i>
+                                                        <p>FCY</p>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+
+                                        <!-- Branch Reports -->
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <i class="fa fa-building"></i>
+                                                <p>
+                                                    Branch/Team Reports
+                                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+                                                <li class="nav-item">
+                                                    <a href="~/DepositBranchReport/BranchDeposit" class="nav-link">
+                                                        <i class="fa fa-file-text"></i>
+                                                        <p>Deposit Report</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositBranchReport/BranchMerchant" class="nav-link">
+                                                        <i class="fa fa-briefcase"></i>
+                                                        <p>Merchant Report</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositBranchReport/BranchFCY" class="nav-link">
+                                                        <i class="fa fa-globe"></i>
+                                                        <p>FCY Deposit Report</p>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                            }
+
+                            // VP or CHF
+                            else if (Session["Position"].ToString() == "VP" || Session["Position"].ToString() == "CHF")
+                            {
+                                <!-- Dashboards -->
+                                <li class="nav-item menu-open">
+                                    <!-- menu-open keeps it expanded -->
+                                    <a href="#" class="nav-link active">
+                                        <!-- active highlights parent -->
+                                        <i class="fas fa-tachometer-alt"></i>
+                                        <p>
+                                            Dashboards
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/Home/Dashboard" class="nav-link">
+                                                <i class="fas fa-home"></i>
+                                                <p>Bank Dashboard</p>
+                                            </a>
+                                        </li>
+
+                                        <li class="nav-item">
+                                            <a href="~/Home/Index" class="nav-link">
+                                                <i class="fas fa-user-circle"></i>
+                                                <p>User Dashboard</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/Home/Process" class="nav-link">
+                                                <i class="fas fa-university"></i>
+                                                <p>Process Dashboard</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- Deposit Plan -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fa fa-money"></i>
+                                        <p>
+                                            Deposit Plan
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/DepositPlans/Create" class="nav-link">
+                                                <i class="fa fa-plus-circle"></i>
+                                                <p>Add New</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/DepositPlans/Index" class="nav-link">
+                                                <i class="fa fa-list-alt"></i>
+                                                <p>View Deposit Plans</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- Merchant -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fa fa-shopping-cart"></i>
+                                        <p>
+                                            Merchant
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/DepositMerchantAgenets/Create" class="nav-link">
+                                                <i class="fa fa-plus-circle"></i>
+                                                <p>Add New</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/DepositMerchantAgenets/Index" class="nav-link">
+                                                <i class="fa fa-list-alt"></i>
+                                                <p>View Deposits</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- FCY Deposit -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fa fa-globe"></i>
+                                        <p>
+                                            FCY Deposit
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/DepositFCies/Create" class="nav-link">
+                                                <i class="fa fa-plus-circle"></i>
+                                                <p>Add New</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/DepositFCies/Index" class="nav-link">
+                                                <i class="fa fa-list-alt"></i>
+                                                <p>View Deposits</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- Reports -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fa fa-bar-chart"></i>
+                                        <p>
+                                            Reports
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <!-- Individual Reports -->
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <i class="fa fa-user"></i>
+                                                <p>
+                                                    Individual Reports
+                                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+                                                <li class="nav-item">
+                                                    <a href="~/DepositIndividualReport/IndividualDeposit" class="nav-link">
+                                                        <i class="fa fa-circle-o"></i>
+                                                        <p>Individual Deposit Plan</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositIndividualReport/IndividualMerchant" class="nav-link">
+                                                        <i class="fa fa-circle-o"></i>
+                                                        <p>Individual Merchant</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositIndividualReport/IndividualFcy" class="nav-link">
+                                                        <i class="fa fa-circle-o"></i>
+                                                        <p>Individual FCY Deposit</p>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+
+                                        <!-- VP-Level Reports -->
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <i class="fa fa-industry"></i>
+                                                <p>
+                                                    Process Reports
+                                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+                                                <li class="nav-item">
+                                                    <a href="~/DepositVPReport/VPPlanReport" class="nav-link">
+                                                        <i class="fa fa-circle-o"></i>
+                                                        <p>Deposit Process Report</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositVPReport/VPAgenetReport" class="nav-link">
+                                                        <i class="fa fa-circle-o"></i>
+                                                        <p>Merchant Process Report</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositVPReport/VPFcyReport" class="nav-link">
+                                                        <i class="fa fa-circle-o"></i>
+                                                        <p>FCY Deposit Process Report</p>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+
+                                        <!-- Bank Reports -->
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <i class="fa fa-bank"></i>
+                                                <p>
+                                                    Bank Reports
+                                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+                                                <li class="nav-item">
+                                                    <a href="~/DepositBankReport/BankPlanReport" class="nav-link">
+                                                        <i class="fa fa-circle-o"></i>
+                                                        <p>Deposit Report</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositBankReport/BankAgenetReport" class="nav-link">
+                                                        <i class="fa fa-circle-o"></i>
+                                                        <p>Merchant Report</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositBankReport/bankFcyReport" class="nav-link">
+                                                        <i class="fa fa-circle-o"></i>
+                                                        <p>FCY Deposit Report</p>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
+
+                            // CEO
+                            else if (Session["Position"].ToString() == "CEO")
+                            {
+                                <!-- Dashboards -->
+                                <!-- Dashboards -->
+                                <li class="nav-item menu-open">
+                                    <!-- menu-open keeps it expanded -->
+                                    <a href="#" class="nav-link active">
+                                        <!-- active highlights parent -->
+                                        <i class="fas fa-tachometer-alt"></i>
+                                        <p>
+                                            Dashboards
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        @if (Session["UserRole"].ToString() == "Super")
+                                        {
+                                            <li class="nav-item">
+                                                <a href="~/Home/Dashboard" class="nav-link">
+                                                    <i class="fas fa-home"></i>
+                                                    <p>Bank Dashboard</p>
+                                                </a>
+                                            </li>
+                                        }
+                                        <li class="nav-item">
+                                            <a href="~/Home/Index" class="nav-link">
+                                                <i class="fas fa-user-circle"></i>
+                                                <p>User Dashboard</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/Home/Process" class="nav-link">
+                                                <i class="fas fa-university"></i>
+                                                <p>Process Dashboard</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+
+                                <!-- Deposit Plan -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fa fa-money"></i>
+                                        <p>
+                                            Deposit Plan
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/DepositPlans/Create" class="nav-link">
+                                                <i class="fa fa-plus-circle"></i>
+                                                <p>Add New</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/DepositPlans/Index" class="nav-link">
+                                                <i class="fa fa-list-alt"></i>
+                                                <p>View Deposit Plans</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- Merchant -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fa fa-shopping-cart"></i>
+                                        <p>
+                                            Merchant
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/DepositMerchantAgenets/Create" class="nav-link">
+                                                <i class="fa fa-plus-circle"></i>
+                                                <p>Add New</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/DepositMerchantAgenets/Index" class="nav-link">
+                                                <i class="fa fa-list-alt"></i>
+                                                <p>View Deposits</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- FCY Deposit -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fa fa-globe"></i>
+                                        <p>
+                                            FCY Deposit
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/DepositFCies/Create" class="nav-link">
+                                                <i class="fa fa-plus-circle"></i>
+                                                <p>Add New</p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="~/DepositFCies/Index" class="nav-link">
+                                                <i class="fa fa-list-alt"></i>
+                                                <p>View Deposits</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <!-- Reports -->
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fa fa-bar-chart"></i>
+                                        <p>
+                                            Reports
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <!-- Individual Reports -->
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <i class="fa fa-user"></i>
+                                                <p>
+                                                    Individual Reports
+                                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+                                                <li class="nav-item">
+                                                    <a href="~/DepositIndividualReport/IndividualDeposit" class="nav-link">
+                                                        <i class="fa fa-circle-o"></i>
+                                                        <p>Deposit </p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositIndividualReport/IndividualMerchant" class="nav-link">
+                                                        <i class="fa fa-circle-o"></i>
+                                                        <p>Merchant</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositIndividualReport/IndividualFcy" class="nav-link">
+                                                        <i class="fa fa-circle-o"></i>
+                                                        <p>FCY Deposit</p>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+
+                                        <!-- Bank Reports -->
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <i class="fa fa-bank"></i>
+                                                <p>
+                                                    Bank Reports
+                                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+                                                <li class="nav-item">
+                                                    <a href="~/DepositBankReport/BankPlanReport" class="nav-link">
+                                                        <i class="fa fa-circle-o"></i>
+                                                        <p>Deposit Report</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositBankReport/BankAgenetReport" class="nav-link">
+                                                        <i class="fa fa-circle-o"></i>
+                                                        <p>Merchant Report</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositBankReport/bankFcyReport" class="nav-link">
+                                                        <i class="fa fa-circle-o"></i>
+                                                        <p>FCY Deposit Report</p>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
+
+
+                            if (Session["UserRole"].ToString() == "SuperUser")
+                            {
+                                @*<li class="active"><a href="~/Home/Dashboard"><i class="fa fa-home"></i><span> Main Dashbord</span></a></li>
+                                    <li class="active"><a href="~/Home/BydistrictReport"><i class="fa fa-home"></i><span> Bank Dashbord</span></a></li>*@
+
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fas fa-shield-alt"></i>
+                                        <p>
+                                            Bank Report
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <!-- Bank Level Reports -->
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <i class="fas fa-university"></i>
+                                                <p>
+                                                    Bank Level Reports
+                                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+                                                <li class="nav-item">
+                                                    <a href="~/DepositBankReport/BankPlanReport" class="nav-link">
+                                                        <i class="far fa-circle"></i>
+                                                        <p>Deposit Report</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositBankReport/BankAgenetReport" class="nav-link">
+                                                        <i class="far fa-circle"></i>
+                                                        <p>Merchant Report</p>
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a href="~/DepositBankReport/BankFcyReport" class="nav-link">
+                                                        <i class="far fa-circle"></i>
+                                                        <p>FCY Deposit Report</p>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
+
+                            if (Session["UserRole"].ToString() == "SuperMerchant")
+                            {
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="fas fa-shield-alt"></i>
+                                        <p>
+                                            Bank Report
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        <!-- Bank Level Reports -->
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <i class="fas fa-university"></i>
+                                                <p>
+                                                    Bank Level Reports
+                                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                                </p>
+                                            </a>
+                                            <ul class="nav nav-treeview">
+                                                <li class="nav-item">
+                                                    <a href="~/DepositBankReport/BankAgenetReport" class="nav-link">
+                                                        <i class="far fa-circle"></i>
+                                                        <p>Merchant Report</p>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
+
+                            // VP or CHF
+                            if (Session["UserRole"].ToString() == "SuperVP")
+                            {
+
+                                <!-- Reports -->
+                                <li class="treeview">
+                                    <a href="#">
+                                        <i class="fa fa-bar-chart"></i> <span>Reports</span>
+                                        <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
+                                    </a>
+                                    <ul class="treeview-menu">
+                                        <!-- VP-Level Reports -->
+                                        <li class="treeview">
+                                            <a href="#">
+                                                <i class="fa fa-industry"></i> <span>Process Reports</span>
+                                                <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
+                                            </a>
+                                            <ul class="treeview-menu">
+                                                <li><a href="~/DepositVPReport/VPPlanReport"><i class="fa fa-circle-o"></i> Deposit Process Report</a></li>
+                                                <li><a href="~/DepositVPReport/VPAgenetReport"><i class="fa fa-circle-o"></i> Merchant Process Report</a></li>
+                                                <li><a href="~/DepositVPReport/VPFcyReport"><i class="fa fa-circle-o"></i> FCY Deposit Process Report</a></li>
+                                            </ul>
+                                        </li>
+
+                                        <!-- Bank Reports -->
+                                        <li class="treeview">
+                                            <a href="#">
+                                                <i class="fa fa-bank"></i> <span>Bank Reports</span>
+                                                <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
+                                            </a>
+                                            <ul class="treeview-menu">
+                                                <li><a href="~/DepositBankReport/BankPlanReport"><i class="fa fa-circle-o"></i> Deposit Report</a></li>
+                                                <li><a href="~/DepositBankReport/BankAgenetReport"><i class="fa fa-circle-o"></i> Merchant Report</a></li>
+                                                <li><a href="~/DepositBankReport/bankFcyReport"><i class="fa fa-circle-o"></i> FCY Deposit Report</a></li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            Session.Abandon();
+
+                            Response.Redirect("~/User/Login");
+                        }
+
+
+                    </ul>
+                    <!-- /.sidebar-menu -->
+                </nav>
+            </div>
         </aside>
-        <!-- Content Wrapper. Contains page content -->
-        <div class="content-wrapper" >
-            <!-- Content Header (Page header) -->
-            <section class="content-header" style="margin-bottom:-1em;margin-right:1em">
-                <ol class="breadcrumb">
-                    @*<li><span class="text-muted">@Html.ActionLink(Html.Controller(), "", "", new { @class = "badge badge-pill" })</span></li>
-                        <li class="active"><span class="text-muted">@Html.ActionLink(Html.Action(), Html.Action(), "", new { @class = "badge badge-pill badge-dark" })</span></li>*@
-                </ol>
-            </section>
-            <!-- Main content -->
-            <section class="content container-fluid">
-                <!--------------------------
-                  | Your Page Content Here |
-                  -------------------------->
-                <div class="loader" id="AjaxLoader" style="display:none;">
-                    <div class="strip-holder">
-                        <div class="strip-1"></div>
-                        <div class="strip-2"></div>
-                        <div class="strip-3"></div>
-                    </div>
+        <!--begin::App Main-->
+        <main class="app-main">
+            <!--begin::App Content-->
+            <div class="app-content">
+                @RenderBody()
+            </div>
+            <!--end::App Content-->
+        </main>
+        <!-- Main Footer -->
+        <footer class="app-footer fixed-footer">
+            <div class="container-fluid d-flex flex-wrap justify-content-between align-items-center">
+                <div class="text-start">
+                    <strong>
+                        &copy; 2025
+                        <a href="http://10.12.125.215/BackofficeApplications" target="_blank" class="text-info text-decoration-none">
+                            Back Office Applications Team
+                        </a>
+                    </strong>
+                    — Empowering Communities, Transforming Lives.
                 </div>
 
-                @RenderBody()
-
-            </section>
-            <!-- /.content -->
-        </div>
-        <!-- /.content-wrapper -->
-        <!-- Main Footer -->
-        <footer class="main-footer">
-            <!-- To the right -->
-            <div class="pull-right hidden-xs">
-
+                <div class="text-end">
+                    <span class="me-3">All Rights Reserved</span>
+                    <b>Version</b> 2.0
+                </div>
             </div>
-            <!-- Default to the left -->
-            <strong>Copyright &copy; 2025 <a href="#">Cooperative Bank of Oromia. </a>.</strong> All rights reserved.
         </footer>
     </div>
-    <!-- ./wrapper -->
-    <!-- REQUIRED JS SCRIPTS -->
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
-    @Scripts.Render("~/admin-lte/jsFiles")
-    @RenderSection("scripts", required: false)
+    <!--end::App Wrapper-->
+
+    <script src="~/plugins/jquery-ui/jquery-ui.min.js"></script>
+    <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/plugins/bootstrap/js/bootstrap.min.js"></script>
+    <script src="~/plugins/summernote/summernote-bs4.min.js"></script>
+    <script src="~/plugins/select2/js/select2.full.min.js"></script>
+    <script src="~/plugins/chart.js/Chart.min.js"></script>
+    <script src="~/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="~/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <script src="~/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="~/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <script src="~/plugins/jszip/jszip.min.js"></script>
+    <script src="~/plugins/pdfmake/pdfmake.min.js"></script>
+    <script src="~/plugins/pdfmake/vfs_fonts.js"></script>
+    <script src="~/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+    <script src="~/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+    <script src="~/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+    <script src="~/dist/assets/adminlte.min.js"></script>
 
 
+    <!-- Scripts -->
     <script>
-        $(function () {
-            $('#defaultDataTable').DataTable()
-            $('#userDT').DataTable({
-                "columnDefs": [
-                    { "searchable": false, "targets": 8 }
-                ],
-                "lengthMenu": [5, 10, 25, 50, 75, 100]
-            });
-            $('#roleDT').DataTable({
-                "columnDefs": [
-                    { "searchable": false, "targets": 6 }
-                ]
-            });
-            $('#pageDT').DataTable({
-                "columnDefs": [
-                    { "searchable": false, "targets": 6 }
-                ]
-            });
-
-            $('#employeeDT1').DataTable({
-                "columnDefs": [
-                    { "searchable": false, "targets": 6 }
-                ]
-            });
-
-            $('#employeeEarningDT').DataTable({
-                "columnDefs": [
-                    { "searchable": false, "targets": 4 }
-                ],
-                "lengthMenu": [9, 25, 50, 75, 100]
-            });
-
-            $('#FilteremployeeDT').DataTable({
-                'paging': false
-            });
-
-            $('#SettingsDT').DataTable({
-                "columnDefs": [
-                    { "searchable": false, "targets": 3 }
-                ]
-            });
-
-            $('#DeductionsDT').DataTable({
-                "columnDefs": [
-                    { "searchable": false, "targets": 2 }
-                ]
-            });
-
-            $('#DepartmentsDT').DataTable({
-                "columnDefs": [
-                    { "searchable": false, "targets": 2 }
-                ]
-            });
-
-
-
-            $('#example').DataTable({
-                'paging': true,
-                'lengthChange': true,
-                'searching': true,
-                'ordering': true,
-                'info': true,
-                'autoWidth': false,
-                "columnDefs": [
-                    { "searchable": false, "targets": 6 }
-                ]
-            })
-
-
-        })
-
-        function onBegin() {
-            $('#AjaxLoader').show();
-
-
-        }
-        function onComplete() {
-            $('#AjaxLoader').hide();
-
-
-        }
-
-    </script>
-
-
- <script>
-    $(document).ready(function () {
-        $('#employeeDT').DataTable({
-            "paging": true,      // Enable pagination
-            "searching": true,   // Enable search box
-            "ordering": true,    // Enable sorting
-            "lengthMenu": [5, 10, 25, 50], // Page length options
-            "pageLength": 10,    // Default rows per page
-            "info": true,        // Show table info
-            "language": {
-                "search": "Search User:", // Customize search placeholder
-                "lengthMenu": "Show _MENU_ entries",
-                "info": "Showing _START_ to _END_ of _TOTAL_ User"
+        // OverlayScrollbars
+        const SELECTOR_SIDEBAR_WRAPPER = '.sidebar-wrapper';
+        const Default = {
+            scrollbarTheme: 'os-theme-light',
+            scrollbarAutoHide: 'leave',
+            scrollbarClickScroll: true,
+        };
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebarWrapper = document.querySelector(SELECTOR_SIDEBAR_WRAPPER);
+            console.log('Sidebar Wrapper:', sidebarWrapper);
+            console.log('OverlayScrollbarsGlobal:', OverlayScrollbarsGlobal);
+            if (sidebarWrapper && OverlayScrollbarsGlobal ?.OverlayScrollbars !== undefined) {
+                OverlayScrollbarsGlobal.OverlayScrollbars(sidebarWrapper, {
+                    scrollbars: {
+                        theme: Default.scrollbarTheme,
+                        autoHide: Default.scrollbarAutoHide,
+                        clickScroll: Default.scrollbarClickScroll,
+                    },
+                });
+            } else {
+                console.error('OverlayScrollbars or sidebar wrapper not found');
             }
         });
 
-</script>
+        // SortableJS
+        const connectedSortables = document.querySelectorAll('.connectedSortable');
+        connectedSortables.forEach((connectedSortable) => {
+            new Sortable(connectedSortable, {
+                group: 'shared',
+                handle: '.card-header',
+            });
+        });
+        const cardHeaders = document.querySelectorAll('.connectedSortable .card-header');
+        cardHeaders.forEach((cardHeader) => {
+            cardHeader.style.cursor = 'move';
+        });
+    </script>
+    <script>
+        // Color Mode Toggler
+        (() => {
+            "use strict";
 
+            const storedTheme = localStorage.getItem("theme");
+
+            const getPreferredTheme = () => {
+                if (storedTheme) {
+                    return storedTheme;
+                }
+
+                return window.matchMedia("(prefers-color-scheme: light)").matches
+                    ? "dark"
+                    : "light";
+            };
+
+            const setTheme = function (theme) {
+                if (
+                    theme === "auto" &&
+                    window.matchMedia("(prefers-color-scheme: dark)").matches
+                ) {
+                    document.documentElement.setAttribute("data-bs-theme", "dark");
+                } else {
+                    document.documentElement.setAttribute("data-bs-theme", theme);
+                }
+            };
+
+            setTheme(getPreferredTheme());
+
+            const showActiveTheme = (theme, focus = false) => {
+                const themeSwitcher = document.querySelector("#bd-theme");
+
+                if (!themeSwitcher) {
+                    return;
+                }
+
+                const themeSwitcherText = document.querySelector("#bd-theme-text");
+                const activeThemeIcon = document.querySelector(".theme-icon-active i");
+                const btnToActive = document.querySelector(
+                    `[data-bs-theme-value="${theme}"]`
+                );
+                const svgOfActiveBtn = btnToActive.querySelector("i").getAttribute("class");
+
+                for (const element of document.querySelectorAll("[data-bs-theme-value]")) {
+                    element.classList.remove("active");
+                    element.setAttribute("aria-pressed", "false");
+                }
+
+                btnToActive.classList.add("active");
+                btnToActive.setAttribute("aria-pressed", "true");
+                activeThemeIcon.setAttribute("class", svgOfActiveBtn);
+                const themeSwitcherLabel = `${themeSwitcherText.textContent} (${btnToActive.dataset.bsThemeValue})`;
+                themeSwitcher.setAttribute("aria-label", themeSwitcherLabel);
+
+                if (focus) {
+                    themeSwitcher.focus();
+                }
+            };
+
+            window
+                .matchMedia("(prefers-color-scheme: light)")
+                .addEventListener("change", () => {
+                    if (storedTheme !== "light" || storedTheme !== "dark") {
+                        setTheme(getPreferredTheme());
+                    }
+                });
+
+            window.addEventListener("DOMContentLoaded", () => {
+                showActiveTheme(getPreferredTheme());
+
+                for (const toggle of document.querySelectorAll("[data-bs-theme-value]")) {
+                    toggle.addEventListener("click", () => {
+                        const theme = toggle.getAttribute("data-bs-theme-value");
+                        localStorage.setItem("theme", theme);
+                        setTheme(theme);
+                        showActiveTheme(theme, true);
+                    });
+                }
+            });
+        })();
+    </script>
+    <script src="~/dist/js/apexchart.js"></script>
+    @RenderSection("scripts", required: false)
 
 </body>
 </html>

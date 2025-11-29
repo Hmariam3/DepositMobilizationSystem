@@ -11,7 +11,8 @@ using System.Xml;
 using TRMS.Models;
 using TRMS.Security;
 using System.Text.RegularExpressions;
-
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace TRMS.Controllers
 {
@@ -21,10 +22,63 @@ namespace TRMS.Controllers
         SoapServiceHelper soapServiceHelper = new SoapServiceHelper();
         callAccountwithRefrenece callbyReference = new callAccountwithRefrenece();
 
+        [HttpGet]
+        public JsonResult SearchUsers(string term, int page = 1)
+        {
+            const int pageSize = 10;
+
+            // Start with base query
+            var query = db.Users.AsQueryable();
+
+            // Apply search filter if term is provided
+            if (!string.IsNullOrWhiteSpace(term))
+            {
+                term = term.Trim();
+
+                query = query.Where(s =>
+                    (s.FullName != null && s.FullName.Contains(term)) ||
+                    (s.UserName != null && s.UserName.Contains(term))
+                );
+            }
+
+            // Count total results
+            var total = query.Count();
+
+            // Apply ordering, paging, and select required fields
+            var users = query
+                .OrderBy(s => s.FullName)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(s => new
+                {
+                    id = s.UserName, // Use username as unique identifier if needed in dropdown
+            text = s.FullName + " (" + s.UserName + ")"
+                })
+                .ToList();
+
+            // Return paginated result for Select2
+            return Json(new
+            {
+                items = users,
+                hasMore = total > page * pageSize
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+
         private void PopulateUserDropdown()
         {
-            ViewBag.Users = new SelectList(db.Users.ToList(), "UserName", "UserName");
+            // Fetch users from DB first, then format
+            ViewBag.Users = db.Users
+                .AsEnumerable() // switch to in-memory, allows string formatting
+                .Select(u => new SelectListItem
+                {
+                    Text = $"{u.FullName} ({u.UserName})",
+                    Value = u.UserName
+                })
+                .ToList();           
         }
+
+
 
         // GET: DepositPlans
         public ActionResult Index()
@@ -69,15 +123,6 @@ namespace TRMS.Controllers
                 DepositPlan = new DepositPlan()
             };
 
-            // Fetch users from DB first, then format
-            ViewBag.Users = db.Users
-                .AsEnumerable() // switch to in-memory, allows string formatting
-                .Select(u => new SelectListItem
-                {
-                    Text = $"{u.FullName} ({u.UserName})",
-                    Value = u.UserName
-                })
-                .ToList();
             return View(model);
         }
 
@@ -93,14 +138,21 @@ namespace TRMS.Controllers
 
             PopulateUserDropdown(); // ✅ always load before any View return
 
+          
             var depositPlan = vm.DepositPlan;
 
-          
 
             // Validate input model
             if (depositPlan == null || string.IsNullOrEmpty(depositPlan.AccountNumber))
             {
                 TempData["ErrorMessage"] = depositPlan == null ? "Invalid transaction data." : "Account number is required.";
+                return View(vm);
+            }
+
+            // Validate input model
+            if (depositPlan.AccountNumber.Length < 5)
+            {
+                TempData["ErrorMessage"] = "The Minimum Length for Account Number is 5";
                 return View(vm);
             }
 
@@ -118,13 +170,14 @@ namespace TRMS.Controllers
 
                     var balanceDoc = new XmlDocument();
                     balanceDoc.LoadXml(balanceResponse);
+               
                     var nsManager = new XmlNamespaceManager(balanceDoc.NameTable);
                     nsManager.AddNamespace("S", "http://schemas.xmlsoap.org/soap/envelope/");
-                    nsManager.AddNamespace("ns11", "http://temenos.com/TWSMMT");
-                    nsManager.AddNamespace("ns7", "http://temenos.com/ACCTBALCTS");
+                    nsManager.AddNamespace("ns2", "http://temenos.com/ACCTBALINFO");
+                    nsManager.AddNamespace("ns4", "http://temenos.com/TWSTXNDETAIL");
 
                     // Check balance API status
-                    var statusNode = balanceDoc.SelectSingleNode("//S:Body/ns11:MMTACCTBALANCEResponse/Status/successIndicator", nsManager);
+                    var statusNode = balanceDoc.SelectSingleNode("//S:Body/ns4:ACCOUNTBALANCEINFOResponse/Status/successIndicator", nsManager);
                     if (statusNode?.InnerText != "Success")
                     {
                         TempData["ErrorMessage"] = "Failed to retrieve account details or invalid account number.";
@@ -132,20 +185,21 @@ namespace TRMS.Controllers
                     }
 
                     // Extract account details
-                    var accountNode = balanceDoc.SelectSingleNode("//S:Body/ns11:MMTACCTBALANCEResponse/ACCTBALCTSType/ns7:gACCTBALCTSDetailType/ns7:mACCTBALCTSDetailType", nsManager);
+                    var accountNode = balanceDoc.SelectSingleNode("//S:Body/ns4:ACCOUNTBALANCEINFOResponse/ACCTBALINFOType/ns2:gACCTBALINFODetailType/ns2:mACCTBALINFODetailType", nsManager);
                     if (accountNode == null)
                     {
                         TempData["ErrorMessage"] = "Account details not found in the response.";
                         return View(vm);
                     }
 
-                    var accountNo = accountNode.SelectSingleNode("ns7:AcctNo", nsManager)?.InnerText ?? "Account Number Not Found";
-                    var accountName = accountNode.SelectSingleNode("ns7:Name", nsManager)?.InnerText ?? "Account Name Not Found";
-                    var workingBalance = accountNode.SelectSingleNode("ns7:WorkingBal", nsManager)?.InnerText.Replace(",", "") ?? "Working Balance Not Found";
+                    var accountNo = accountNode.SelectSingleNode("ns2:AcctNo", nsManager)?.InnerText ?? "Account Number Not Found";
+                    var accountName = accountNode.SelectSingleNode("ns2:Name", nsManager)?.InnerText ?? "Account Name Not Found";
+                    var workingBalance = accountNode.SelectSingleNode("ns2:WorkingBal", nsManager)?.InnerText.Replace(",", "") ?? "Working Balance Not Found";
 
                     // Store account details in ViewBag
                     ViewBag.AccountHolder = accountName;
                     ViewBag.AccountBalance = workingBalance;
+
 
                     // Fetch and parse transaction details by reference
                     var transactionResponse = callbyReference.GetAccountinformationByrefrence(depositPlan.ReferenceNumber);
@@ -187,7 +241,7 @@ namespace TRMS.Controllers
                     string refType = referenceNumber.Length >= 2 ? referenceNumber.Substring(0, 2).ToUpper() : "";
                     bool isFT = refType == "FT";
                     bool isTT = refType == "TT";
-                    //bool isTF = refType == "TF";
+                    bool isTF = refType == "TF";
                     bool isDC = refType == "DC";
 
                     var transactionDetails = new List<dynamic>();
@@ -203,16 +257,19 @@ namespace TRMS.Controllers
                         var refValue = txnNode.SelectSingleNode("ns3:TXNREF", transactionNsManager)?.InnerText ?? "";
                         var marker = txnNode.SelectSingleNode("ns3:DRCRMARKER", transactionNsManager)?.InnerText ?? "";
                         var account = txnNode.SelectSingleNode("ns3:Account", transactionNsManager)?.InnerText ?? "";
-                        var amt = txnNode.SelectSingleNode("ns3:Amount", transactionNsManager)?.InnerText ?? "";
+                        var amtRaw = txnNode.SelectSingleNode("ns3:Amount", transactionNsManager)?.InnerText ?? "";
                         var curr = txnNode.SelectSingleNode("ns3:Currency", transactionNsManager)?.InnerText ?? "";
                         var date = txnNode.SelectSingleNode("ns3:TXNDATE", transactionNsManager)?.InnerText ?? "";
+
+                        // ✅ Clean amount: remove leading currency letters (e.g., "EUR624.42" → "624.42")
+                        string amtClean = Regex.Replace(amtRaw, @"^[A-Za-z]+", "").Trim();
 
                         transactionDetails.Add(new
                         {
                             TXNREF = refValue,
                             DRCRMARKER = marker,
                             Account = account,
-                            Amount = amt,
+                            Amount = amtClean,
                             Currency = curr,
                             TXNDATE = date
                         });
@@ -227,21 +284,36 @@ namespace TRMS.Controllers
                                 creditAccount = account;
 
                             // ✅ Capture amount: take whichever node has a non-empty value
-                            if (string.IsNullOrEmpty(amount) && !string.IsNullOrEmpty(amt))
-                                amount = amt;
-                            else if (!string.IsNullOrEmpty(amt))
-                                amount = amt; // overwrite only if current node has valid amount
+                            if (string.IsNullOrEmpty(amount) && !string.IsNullOrEmpty(amtClean))
+                                amount = amtClean;
+                            else if (!string.IsNullOrEmpty(amtClean))
+                                amount = amtClean; // overwrite only if current node has valid amount
 
                             txnRef = refValue;
                             currency = curr;
                             txnDate = date;
                         }
+                        else if (isTF)
+                        {
+                            if (marker == "CREDIT" && !string.IsNullOrEmpty(account) && account == accountNo && curr == "ETB")
+                            {
+                                // Only pick the matching CREDIT account
+                                creditAccount = account;
+                                if (string.IsNullOrEmpty(amount) && !string.IsNullOrEmpty(amtClean))
+                                    amount = amtClean;
+
+                                txnRef = refValue;
+                                currency = curr;
+                                txnDate = date;
+                            }
+                        }
+
                         else if (isTT)
                         {
                             // TT transactions have only one record
                             debitAccount = "";
                             creditAccount = account;
-                            amount = amt;
+                            amount = amtClean;
                             txnRef = refValue;
                             currency = curr;
                             txnDate = date;
@@ -251,7 +323,7 @@ namespace TRMS.Controllers
                             // TT transactions have only one record
                             debitAccount = "";
                             creditAccount = account;
-                            amount = amt;
+                            amount = amtClean;
                             txnRef = refValue;
                             currency = curr;
                             txnDate = date;
@@ -275,18 +347,25 @@ namespace TRMS.Controllers
                         TempData["ErrorMessage"] = "Account number from transaction details does not match the provided account number.";
                         return View(vm);
                     }
-                    else if (isTT && accountNo != creditAccount)
+                    else if ((isTT) && accountNo != creditAccount)
                     {
                         TempData["AccountMismatch"] = true;
                         ViewBag.ReferenceExists = false;
                         TempData["ErrorMessage"] = "Account number does not match transaction account for TT reference.";
                         return View(vm);
                     }
-                    else if (isDC && accountNo != creditAccount)
+                    else if ((isDC) && accountNo != creditAccount)
                     {
                         TempData["AccountMismatch"] = true;
                         ViewBag.ReferenceExists = false;
                         TempData["ErrorMessage"] = "Account number does not match transaction account for DC reference.";
+                        return View(vm);
+                    }
+                    else if ((isTF) && accountNo != creditAccount)
+                    {
+                        TempData["AccountMismatch"] = true;
+                        ViewBag.ReferenceExists = false;
+                        TempData["ErrorMessage"] = "Account number does not match transaction account for TF reference.";
                         return View(vm);
                     }
                     else
@@ -302,6 +381,26 @@ namespace TRMS.Controllers
                     ViewBag.ReferenceExists = true;
                     ViewBag.TransactionAmount = amount;
                     ViewBag.TransactionReference = txnRef;
+                    ViewBag.TXNDATE = txnDate;
+
+                    // Fetch previous balance (string JSON)
+                    string json = callbyReference.GetPreviousBalance(depositPlan.AccountNumber, depositPlan.ReferenceNumber);
+                    decimal opening = 0;
+                    if (!string.IsNullOrEmpty(json))
+                    {
+                        // Parse JSON array
+                        JArray arr = JArray.Parse(json);
+
+                        if (arr.Count > 0)
+                        {
+                            JObject txn = (JObject)arr[0];
+
+                             opening = (decimal?)txn["openingBalance"] ?? 0;
+
+                        }
+                    }
+                    ViewBag.PreviousBalance = opening;
+
 
                     // Populate dropdowns and return
                     PopulateUserDropdown();
@@ -345,6 +444,11 @@ namespace TRMS.Controllers
             {
                 var userName = Session["UserName"]?.ToString();
                 var user = db.Users.FirstOrDefault(u => u.UserName == userName);
+                //var projectStart = DateTime.ParseExact(
+                //            "10/15/2025",
+                //            "MM/dd/yyyy",
+                //            System.Globalization.CultureInfo.InvariantCulture
+                //        );
                 if (user == null)
                 {
                     TempData["ErrorMessage"] = "User not found. Please log in again.";
@@ -357,6 +461,33 @@ namespace TRMS.Controllers
                     TempData["ErrorMessage"] = "Deposit plan data is missing.";
                     return View(vm);
                 }
+
+                // --- Guard: vm.depositplan.refdate after 20251015  ---
+                if (vm.DepositPlan.RefDate == null)
+                {
+                    TempData["ErrorMessage"] = "You cannot register a ref date with null";
+                    return View(vm);
+                }
+
+                // --- Guard: vm.depositplan.refdate after 20251015  ---
+                if (vm.DepositPlan.RefDate < new DateTime(2025, 10, 1))
+                {
+                    TempData["ErrorMessage"] = "You cannot register a transaction before the project date";
+                    return View(vm);
+                }
+
+                // --- Guard: if the account is OD  ---
+                if (vm.DepositPlan.AccountBalance > 0)
+                {
+                    // --- Guard: vm.amount must less than or equal to initialbalance ---
+                    if (vm.DepositPlan.Amount > vm.DepositPlan.AccountBalance)
+                    {
+                        TempData["ErrorMessage"] = "The Amount exceeds the Initial Current Balance.";
+                        return View(vm);
+                    }
+                }
+
+
                 // --- Guard: vm.DepositPlan must exist ---
                 if (vm.DepositPlan.Amount == null || vm.DepositPlan.Amount <= 0)
                 {
@@ -364,6 +495,14 @@ namespace TRMS.Controllers
                     return View(vm);
                 }
 
+
+
+                // --- Guard: vm.DepositPlan must exist ---
+                if (vm.DepositPlan.Prev_Ini_Bal == null)
+                {
+                    TempData["ErrorMessage"] = "Enter Valid Reference Number.";
+                    return View(vm);
+                }
                 //var depositPlan = vm.DepositPlan;
 
                 // --- Read checkbox safely (HTML sends "true,false" if unchecked) ---
@@ -385,6 +524,12 @@ namespace TRMS.Controllers
 
                     if (ecoAccount != null && !string.Equals(ecoAccount.Branch, depositorBranch, StringComparison.OrdinalIgnoreCase))
                     {
+
+                        if (depositPlan.DepositType == "Individual")
+                        {
+                            TempData["ErrorMessage"] = "Eco account can not be registered for Individual";
+                            return View(vm);
+                        }
                         // The account belongs to another branch — split 60/40
                         var depositorAmount = depositPlan.Amount * 0.6m;
                         var ecoBranchAmount = depositPlan.Amount * 0.4m;
@@ -394,9 +539,11 @@ namespace TRMS.Controllers
                         {
                             AccountNumber = depositPlan.AccountNumber,
                             ReferenceNumber = depositPlan.ReferenceNumber,
+                            RefDate = depositPlan.RefDate,
                             AccountHolder = depositPlan.AccountHolder ?? "Unknown",
                             Amount = depositorAmount,
                             AccountBalance = depositPlan.AccountBalance,
+                            Prev_Ini_Bal = depositPlan.Prev_Ini_Bal,
                             IntialAccountBalance = depositPlan.AccountBalance,
                             Process = Session["Process"]?.ToString() ?? "",
                             District = Session["District"]?.ToString() ?? "",
@@ -413,11 +560,14 @@ namespace TRMS.Controllers
                         var ecoUser = db.Users.FirstOrDefault(u => u.UserName == ecoAccount.UserName);
                         var ecoDeposit = new DepositPlan
                         {
+
                             AccountNumber = depositPlan.AccountNumber,
                             ReferenceNumber = depositPlan.ReferenceNumber,
+                            RefDate = depositPlan.RefDate,
                             AccountHolder = depositPlan.AccountHolder ?? "Unknown",
                             Amount = ecoBranchAmount,
                             AccountBalance = depositPlan.AccountBalance,
+                            Prev_Ini_Bal = depositPlan.Prev_Ini_Bal,
                             IntialAccountBalance = depositPlan.AccountBalance,
                             Process = ecoUser?.Process ?? "",
                             District = ecoUser?.District ?? "",
@@ -432,9 +582,10 @@ namespace TRMS.Controllers
                     }
                     else
                     {
+                         
                         // Normal deposit — same branch or not in ECO
                         depositPlan.User = userName;
-                        depositPlan.UserID = user.ID;
+                        depositPlan.UserID = user.ID;                      
                         depositPlan.Process = Session["Process"]?.ToString() ?? "";
                         depositPlan.District = Session["District"]?.ToString() ?? "";
                         depositPlan.Branch = depositorBranch;
@@ -446,6 +597,18 @@ namespace TRMS.Controllers
                 }
                 else
                 {
+                    var ecoAccount = db.ECOes.FirstOrDefault(e => e.AccountNumber == depositPlan.AccountNumber);
+                    if (ecoAccount != null)
+                    {
+                        TempData["ErrorMessage"] = "You can not share a deposit that comes from Eco Account";
+                        return View(vm);
+                    }
+                    // ✅ Ensure first shared user and amount are always provided
+                    if (string.IsNullOrWhiteSpace(vm.SharedUser1) || !vm.SharedAmount1.HasValue || vm.SharedAmount1 <= 0)
+                    {
+                        TempData["ErrorMessage"] = "The first shared user and amount must always be provided.";
+                        return View(vm);
+                    }
                     // ✅ Shared deposit validation
                     var sharedUsers = new List<(string username, decimal? amount)>
                         {
@@ -478,14 +641,16 @@ namespace TRMS.Controllers
                         {
                             AccountNumber = depositPlan.AccountNumber,
                             ReferenceNumber = depositPlan.ReferenceNumber,
+                            RefDate = depositPlan.RefDate,
                             AccountHolder = depositPlan.AccountHolder ?? "Unknown",
                             Amount = sharedAmount ?? 0,
                             AccountBalance = depositPlan.AccountBalance,
+                            Prev_Ini_Bal = depositPlan.Prev_Ini_Bal,
                             IntialAccountBalance = depositPlan.AccountBalance,
                             Process = sharedUser.Process ?? "",
                             District = sharedUser.District ?? "",
                             Branch = sharedUser.Branch ?? "",
-                            Narative = depositPlan.Narative ?? "",
+                            Narative = "Shared",
                             User = sharedUser.UserName,
                             UserID = user.ID,
                             DepositType = depositPlan.DepositType,
