@@ -1,0 +1,132 @@
+﻿@{
+    ViewBag.Title = "User Deposit Achievement Report";
+}
+
+<div class="panel panel-default" style="padding:15px;">
+    <div class="panel-heading">
+        <h3><i class="fa fa-trophy text-warning"></i> User Deposit Achievement Report</h3>
+    </div>
+    <hr />
+
+    <form id="filterForm" class="mb-4">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label><strong>Start Date</strong></label>
+                <input type="date" id="startDate" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label><strong>End Date</strong></label>
+                <input type="date" id="endDate" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label><strong>District</strong></label>
+                <select id="district" class="form-control">
+                    <option value="All">All Districts</option>
+                    @foreach (var d in ViewBag.District)
+                    {
+                        <option value="@d">@d</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">Apply Filter</button>
+                <button type="button" id="btnReset" class="btn btn-secondary">Reset</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="alert alert-success mb-3">
+        <i class="fa fa-trophy"></i>
+        <strong>Grand Total Achieved: <span id="grandTotal">Loading...</span></strong>
+    </div>
+
+    <div class="table-responsive">
+        <table id="achievementTable" class="table table-bordered table-hover" style="width:100%">
+            <thead class="table-dark">
+                <tr>
+                    <th>No</th>
+                    <th>Full Name</th>
+                    <th>Process</th>
+                    <th>District</th>
+                    <th>Branch</th>
+                    <th>Target</th>
+                    <th>Deposited</th>
+                    <th>Achieved</th>
+                    <th>% Achieved</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <button id="btnExport" class="btn btn-success mt-3">
+        <i class="fa fa-file-excel-o"></i> Export to Excel
+    </button>
+</div>
+
+@section Scripts {
+    <script>
+    $(document).ready(function () {
+        var table = $('#achievementTable').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                "url": "@Url.Action("UserAchievementReportAjax")",
+                "type": "POST",
+                "data": function (d) {
+                    d.startDate = $('#startDate').val();
+                    d.endDate = $('#endDate').val();
+                    d.district = $('#district').val();
+                }
+            },
+            "pageLength": 25,
+            "order": [[8, "desc"]],
+            "columns": [
+                { "data": null, "orderable": false, render: function (data, type, row, meta) { return meta.row + meta.settings._iDisplayStart + 1; } },
+                { "data": "FullName" },
+                { "data": "Process" },
+                { "data": "District" },
+                { "data": "Branch" },
+                { "data": "Target", render: $.fn.dataTable.render.number(',', '.', 2) },
+                { "data": "Deposited", render: $.fn.dataTable.render.number(',', '.', 2) },
+                { "data": "Achieved", render: $.fn.dataTable.render.number(',', '.', 2) },
+                { "data": "Percentage", render: function (d) {
+                    var color = d >= 100 ? 'success' : d >= 80 ? 'warning' : 'danger';
+                    return `<span class="badge bg-${color}">${d.toFixed(1)}%</span>`;
+                }}
+            ],
+            "drawCallback": function (settings) {
+                if (settings.json && settings.json.grandTotalAchieved) {
+                    $('#grandTotal').text(settings.json.grandTotalAchieved);
+                }
+            }
+        });
+
+        // FILTER & RESET
+        $('#filterForm').on('submit', function (e) {
+            e.preventDefault();
+            table.ajax.reload();
+        });
+
+        $('#btnReset').click(function () {
+            $('#startDate, #endDate').val('');
+            $('#district').val('All');
+            table.ajax.reload();
+        });
+
+        // EXCEL EXPORT — THIS IS THE MAGIC
+        $('#btnExport').click(function () {
+            var startDate = $('#startDate').val();
+            var endDate = $('#endDate').val();
+            var district = $('#district').val();
+
+            var url = "@Url.Action("ExportUserAchievementToExcel")" +
+                      "?startDate=" + encodeURIComponent(startDate) +
+                      "&endDate=" + encodeURIComponent(endDate) +
+                      "&district=" + encodeURIComponent(district);
+
+            window.location.href = url;
+        });
+    });
+    </script>
+}

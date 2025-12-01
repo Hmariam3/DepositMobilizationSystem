@@ -1,127 +1,144 @@
-﻿@model IEnumerable<TRMS.Models.DepositPlan>
-
-@{
+﻿@{
     ViewBag.Title = "Bank Deposit Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="panel panel-default" style="padding:15px;">
     <div class="panel-heading">
-        <h3><i class="fa fa-bar-chart"></i> Bank Deposit Report</h3>
+        <h3><i class="fa fa-bank"></i> Bank Deposit Report</h3>
     </div>
-
     <hr />
 
-    <form method="get" class="mb-4">
+    <form id="filterForm" class="mb-4">
         <div class="row">
             <div class="col-md-3">
                 <label><strong>Start Date:</strong></label>
-                <input type="date" name="startDate" class="form-control" value="@Request.QueryString["startDate"]" />
+                <input type="date" id="startDate" name="startDate" class="form-control" />
             </div>
             <div class="col-md-3">
                 <label><strong>End Date:</strong></label>
-                <input type="date" name="endDate" class="form-control" value="@Request.QueryString["endDate"]" />
+                <input type="date" id="endDate" name="endDate" class="form-control" />
             </div>
             <div class="col-md-3">
                 <label><strong>District:</strong></label>
-                <select name="district" class="form-control">
-                    <option value="All">All</option>
-                    @foreach (var district in ViewBag.District)
+                <select id="district" name="district" class="form-control">
+                    <option value="All">All Districts</option>
+                    @foreach (var d in ViewBag.District)
                     {
-                        <option value="@district" @(Request.QueryString["district"] == district ? "selected" : "")>@district</option>
+                        <option value="@d">@d</option>
                     }
                 </select>
             </div>
             <div class="col-md-3 d-flex align-items-end">
                 <button type="submit" class="btn btn-primary me-2">
-                    <i class="fa fa-filter"></i> Filter
+                    <i class="fa fa-filter"></i> Apply Filter
                 </button>
-                <a href="@Url.Action("BankPlanReport")" class="btn btn-secondary">
+                <button type="button" id="btnReset" class="btn btn-secondary">
                     <i class="fa fa-refresh"></i> Reset
-                </a>
+                </button>
             </div>
         </div>
     </form>
 
     <hr />
 
+    <div class="alert alert-info mb-3">
+        <i class="fa fa-calculator"></i>
+        Total Collected Amount: <strong id="totalAmountDisplay">Loading...</strong>
+    </div>
+
     <div class="table-responsive">
-        <table id="transactionDT" class="table table-striped table-bordered table-hover">
+        <table id="transactionDT" class="table table-striped table-bordered table-hover" style="width:100%">
             <thead class="table-dark">
                 <tr>
                     <th>Process</th>
                     <th>District</th>
                     <th>Branch</th>
-                    <th>Account Number</th>
-                    <th>Reference Number</th>
+                    <th>Account No</th>
+                    <th>Ref No</th>
                     <th>Account Holder</th>
-                    @*<th>Initial Balance</th>
-                    <th>Account Balance</th>*@
                     <th>Amount</th>
-                    <th>Deposit Type</th>
+                    <th>Type</th>
                     <th>Narrative</th>
                     <th>User</th>
-                    <th>User Deposit Target</th>
-                    <th>Transaction Date</th>
+                    <th>Target</th>
+                    <th>Date</th>
                 </tr>
             </thead>
-            <tbody>
-                @{
-                    var userTargets = ViewBag.UserTargets as Dictionary<string, decimal?>;
-                }
-                @foreach (var item in Model)
-                {
-                    decimal? target = null;
-                    if (userTargets != null && !string.IsNullOrEmpty(item.User) && userTargets.ContainsKey(item.User.Trim()))
-                    {
-                        target = userTargets[item.User.Trim()];
-                    }
-                <tr>
-                    <td>@item.Process</td>
-                    <td>@item.District</td>
-                    <td>@item.Branch</td>
-                    <td>@item.AccountNumber</td>
-                    <td>@item.ReferenceNumber</td>
-                    <td>@item.AccountHolder</td>
-                    @*<td>@item.IntialAccountBalance.ToString("N2")</td>
-                    <td>@item.AccountBalance.ToString("N2")</td>*@
-                    <td>@item.Amount.ToString("N2")</td>
-                    <td>@item.DepositType</td>
-                    <td>@item.Narative</td>
-                    <td>@item.User</td>
-                    <td>@(target?.ToString("N2") ?? "0.00")</td> <!-- 👈 User Deposit Target -->
-                    <td>@item.CreatedDate.ToString("MM/dd/yyyy")</td>
-                </tr>
-                }
-            </tbody>
         </table>
     </div>
 
     <div class="mt-3">
-        <h4 class="alert alert-info">
-            <i class="fa fa-calculator"></i> Total Amount: <strong>@ViewBag.totalAmount.ToString("N2")</strong>
-        </h4>
+        <button id="btnExport" class="btn btn-success">
+            <i class="fa fa-file-excel-o"></i> Export to Excel
+        </button>
     </div>
-
-    <a href="@Url.Action("ExcelBankPlanReport", new { startDate = Request.QueryString["startDate"], endDate = Request.QueryString["endDate"], district = Request.QueryString["district"] })"
-       class="btn btn-success">
-        <i class="fa fa-file-excel-o"></i> Export to Excel
-    </a>
 </div>
 
-<script>
-    $(document).ready(function () {
-        $('#transactionDT').DataTable({
-            "paging": true,
-            "searching": true,
-            "ordering": true,
-            "info": true,
-            "pageLength": 5,
-            "lengthMenu": [5, 10, 25, 50, 100],
-            "language": {
-                "search": "Search Records:",
-                "lengthMenu": "Show _MENU_ entries",
-                "info": "Showing _START_ to _END_ of _TOTAL_ records"
-            }
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var table = $('#transactionDT').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    "url": "@Url.Action("BankPlanReportAjax")",
+                    "type": "POST",
+                    "data": function (d) {
+                        d.startDate = $('#startDate').val();
+                        d.endDate = $('#endDate').val();
+                        d.district = $('#district').val();
+                    }
+                },
+                "pageLength": 25,
+                "lengthMenu": [10, 25, 50, 100, 500],
+                "order": [[11, "desc"]],
+                "columns": [
+                    { "data": "Process" },
+                    { "data": "District" },
+                    { "data": "Branch" },
+                    { "data": "AccountNumber" },
+                    { "data": "ReferenceNumber" },
+                    { "data": "AccountHolder" },
+                    { "data": "Amount", "render": $.fn.dataTable.render.number(',', '.', 2) },
+                    { "data": "DepositType" },
+                    { "data": "Narative" },
+                    { "data": "User" },
+                    { "data": "UserDepositTarget", "render": function (data) {
+                        return data ? parseFloat(data).toLocaleString('en', { minimumFractionDigits: 2 }) : "0.00";
+                    }},
+                    { "data": "CreatedDate", "render": function (data) {
+                        return new Date(data).toLocaleDateString();
+                    }}
+                ],
+                "drawCallback": function (settings) {
+                    if (settings.json && settings.json.totalAmount) {
+                        $('#totalAmountDisplay').text(settings.json.totalAmount);
+                    }
+                }
+            });
+
+            // Apply Filter
+            $('#filterForm').on('submit', function (e) {
+                e.preventDefault();
+                table.ajax.reload();
+            });
+
+            // Reset
+            $('#btnReset').click(function () {
+                $('#startDate, #endDate').val('');
+                $('#district').val('All');
+                table.ajax.reload();
+            });
+
+            // Export Button
+            $('#btnExport').click(function () {
+                var url = "@Url.Action("ExcelBankPlanReport")" +
+                    "?startDate=" + encodeURIComponent($('#startDate').val()) +
+                    "&endDate=" + encodeURIComponent($('#endDate').val()) +
+                    "&district=" + encodeURIComponent($('#district').val());
+                window.location.href = url;
+            });
         });
-    });
-</script>
+    </script>
+}

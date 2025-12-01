@@ -1,0 +1,190 @@
+﻿@{
+    ViewBag.Title = "Deposit Achievement Report";
+}
+<div class="panel panel-default" style="padding:15px;">
+    <div class="panel-heading">
+        <h3>
+            <i class="fa fa-trophy text-warning"></i>
+            <span id="reportTitle">Loading Report...</span>
+        </h3>
+    </div>
+    <hr />
+
+    <!-- Filters: Only show what user is allowed to filter -->
+    <div id="filterSection">
+        <form id="filterForm" class="mb-4">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label><strong>Start Date</strong></label>
+                    <input type="date" id="startDate" class="form-control" />
+                </div>
+                <div class="col-md-3">
+                    <label><strong>End Date</strong></label>
+                    <input type="date" id="endDate" class="form-control" />
+                </div>
+                <div class="col-md-3" id="districtFilter" style="display:none;">
+                    <label><strong>District</strong></label>
+                    <select id="district" class="form-control">
+                        <option value="All">All Districts</option>
+                        @foreach (var d in ViewBag.District)
+                        {
+                            <option value="@d">@d</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">Apply Filter</button>
+                    <button type="button" id="btnReset" class="btn btn-secondary">Reset</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="alert alert-success mb-3">
+        <i class="fa fa-trophy"></i>
+        <strong>Grand Total Achieved: <span id="grandTotal">Loading...</span></strong>
+    </div>
+
+    <div class="table-responsive">
+        <table id="achievementTable" class="table table-bordered table-hover" style="width:100%">
+            <thead class="table-dark">
+                <tr>
+                    <th>No</th>
+                    <th>Full Name</th>
+                    <th>Process</th>
+                    <th>District</th>
+                    <th>Branch</th>
+                    <th>Target</th>
+                    <th>Deposited</th>
+                    <th>Achieved</th>
+                    <th>% Achieved</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <button id="btnExport" class="btn btn-success mt-3">
+        <i class="fa fa-file-excel-o"></i> Export to Excel
+    </button>
+</div>
+
+@section Scripts {
+    <script>
+    $(document).ready(function () {
+        // Get user info from server (injected via ViewBag or hidden field)
+        var currentUser = {
+            role: "@ViewBag.CurrentUserRole",
+            position: "@ViewBag.CurrentUserPosition",
+            process: "@ViewBag.CurrentUserProcess",
+            district: "@ViewBag.CurrentUserDistrict",
+            branch: "@ViewBag.CurrentUserBranch",
+            fullName: "@ViewBag.CurrentUserFullName"
+        };
+
+        var filterMode = "";
+        var fixedFilter = {};
+
+        // DETERMINE FILTER MODE BASED ON ROLE + POSITION
+        if (currentUser.role === "Super") {
+            $("#reportTitle").text("Bank-Wide Deposit Achievement Report");
+            $("#districtFilter").show();
+            filterMode = "bank";
+        }
+        else if (currentUser.role === "Maker") {
+            if (["VP", "CHF", "SeniorDirector"].includes(currentUser.position)) {
+                $("#reportTitle").text(`Process: ${currentUser.process} - Achievement Report`);
+                filterMode = "process";
+                fixedFilter.process = currentUser.process;
+            }
+            else if (currentUser.position === "Director") {
+                $("#reportTitle").text(`Subprocess: ${currentUser.district} - Achievement Report`);
+                filterMode = "subprocess";
+                fixedFilter.district = currentUser.district;
+                $("#districtFilter").show().find("select").val(currentUser.district).prop("disabled", true);
+            }
+            else if (["BranchManager", "Manager"].includes(currentUser.position)) {
+                $("#reportTitle").text(`Branch: ${currentUser.branch} - Achievement Report`);
+                filterMode = "branch";
+                fixedFilter.branch = currentUser.branch;
+            }
+            else {
+                // Regular Maker → only sees himself
+                $("#reportTitle").text(`My Performance: ${currentUser.fullName}`);
+                filterMode = "self";
+                fixedFilter.userName = "@ViewBag.CurrentUserName";
+                $("#filterSection").hide(); // No filters needed
+            }
+        }
+
+        var table = $('#achievementTable').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                "url": "@Url.Action("SmartAchievementReportAjax")",
+                "type": "POST",
+                "data": function (d) {
+                    d.startDate = $('#startDate').val();
+                    d.endDate = $('#endDate').val();
+                    d.district = $('#district').val();
+
+                    // Inject fixed filters based on role
+                    d.filterMode = filterMode;
+                    d.fixedProcess = fixedFilter.process || "";
+                    d.fixedDistrict = fixedFilter.district || "";
+                    d.fixedBranch = fixedFilter.branch || "";
+                    d.fixedUserName = fixedFilter.userName || "";
+                }
+            },
+            "pageLength": 25,
+            "order": [[8, "desc"]],
+            "columns": [
+                { "data": null, "orderable": false, render: (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1 },
+                { "data": "FullName" },
+                { "data": "Process" },
+                { "data": "District" },
+                { "data": "Branch" },
+                { "data": "Target", render: $.fn.dataTable.render.number(',', '.', 2) },
+                { "data": "Deposited", render: $.fn.dataTable.render.number(',', '.', 2) },
+                { "data": "Achieved", render: $.fn.dataTable.render.number(',', '.', 2) },
+                { "data": "Percentage", render: function (d) {
+                    var color = d >= 100 ? 'success' : d >= 80 ? 'warning' : 'danger';
+                    return `<span class="badge bg-${color}">${d.toFixed(1)}%</span>`;
+                }}
+            ],
+            "drawCallback": function (settings) {
+                if (settings.json && settings.json.grandTotalAchieved) {
+                    $('#grandTotal').text(settings.json.grandTotalAchieved);
+                }
+            }
+        });
+
+        $('#filterForm').on('submit', function (e) {
+            e.preventDefault();
+            table.ajax.reload();
+        });
+
+        $('#btnReset').click(function () {
+            $('#startDate, #endDate').val('');
+            if ($('#district').is(':visible') && !$('#district').prop('disabled')) {
+                $('#district').val('All');
+            }
+            table.ajax.reload();
+        });
+
+        $('#btnExport').click(function () {
+            var url = "@Url.Action("ExportSmartAchievementToExcel")" +
+                "?startDate=" + encodeURIComponent($('#startDate').val()) +
+                "&endDate=" + encodeURIComponent($('#endDate').val()) +
+                "&district=" + encodeURIComponent($('#district').val()) +
+                "&filterMode=" + filterMode +
+                "&fixedProcess=" + encodeURIComponent(fixedFilter.process || "") +
+                "&fixedDistrict=" + encodeURIComponent(fixedFilter.district || "") +
+                "&fixedBranch=" + encodeURIComponent(fixedFilter.branch || "") +
+                "&fixedUserName=" + encodeURIComponent(fixedFilter.userName || "");
+
+            window.location.href = url;
+        });
+    });
+    </script>
+}

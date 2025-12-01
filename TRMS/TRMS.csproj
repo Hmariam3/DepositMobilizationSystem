@@ -209,6 +209,7 @@
     <Compile Include="Controllers\ISReportController.cs" />
     <Compile Include="Controllers\PostionsController.cs" />
     <Compile Include="Controllers\DepositBranchReportController.cs" />
+    <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="Controllers\TransactionIndivisualController.cs" />
     <Compile Include="Controllers\TransactionListController.cs" />
     <Compile Include="Controllers\TransactionsController.cs" />
@@ -9575,6 +9576,8 @@
     <Content Include="Views\User\UpdateProfile.cshtml" />
     <Content Include="Views\Home\Process.cshtml" />
     <Content Include="Views\Home\BankSummary.cshtml" />
+    <Content Include="Views\DepositBankReport\UserAchievementReport.cshtml" />
+    <Content Include="Views\Report\UserAchievementReport.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -17,54 +17,127 @@ namespace TRMS.Controllers
     {
         private TRMSEntities db = new TRMSEntities();
 
-     
+
 
         // GET: Transactions with Filters
-        public ActionResult BankPlanReport(DateTime? startDate, DateTime? endDate, string district)
+        // Main Report View - Now only renders the page (no heavy data)
+        public ActionResult BankPlanReport()
         {
-            ViewBag.District = db.DepositPlans.Select(t => t.District).Distinct().ToList();
-            var transactions = db.DepositPlans.AsQueryable();
-            decimal totalAmount = transactions.Sum(s => s.AccountBalance - s.IntialAccountBalance + s.Amount);
+            ViewBag.District = new List<string> { "All" }
+                .Concat(db.DepositPlans
+                    .Where(d => d.District != null)
+                    .Select(d => d.District.Trim())
+                    .Distinct()
+                    .OrderBy(d => d))
+                .ToList();
 
-            if (!string.IsNullOrEmpty(district))
+            return View();
+        }
+
+        // AJAX Handler - Server-side DataTable
+        [HttpPost]
+        public ActionResult BankPlanReportAjax()
+        {
+            var draw = int.Parse(Request.Form["draw"]);
+            var start = int.Parse(Request.Form["start"]);
+            var length = int.Parse(Request.Form["length"]);
+            var searchValue = Request.Form["search[value]"]?.Trim();
+            var startDateStr = Request.Form["startDate"];
+            var endDateStr = Request.Form["endDate"];
+            var district = Request.Form["district"];
+
+            IQueryable<DepositPlan> query = db.DepositPlans;
+
+            // Apply Filters
+            if (!string.IsNullOrEmpty(district) && district != "All")
+                query = query.Where(t => t.District.Trim() == district.Trim());
+
+            if (DateTime.TryParse(startDateStr, out DateTime startDate) &&
+                DateTime.TryParse(endDateStr, out DateTime endDate))
             {
-          
-                if (district == "All")
-                {
-
-                    totalAmount = transactions.Sum(s => s.AccountBalance-s.IntialAccountBalance + s.Amount);
-                }
-                else
-                {
-                    transactions = transactions.Where(t => t.District.Trim() == district.Trim());
-                    totalAmount = transactions.Where(t => t.District.Trim() == district.Trim()).Select(t => (decimal?)t.AccountBalance - t.IntialAccountBalance + t.Amount).Sum() ?? 0m;
-                }
+                var end = endDate.AddDays(1).AddSeconds(-1);
+                query = query.Where(t => t.CreatedDate >= startDate && t.CreatedDate <= end);
             }
 
-            if (startDate.HasValue && endDate.HasValue)
+            // Global Search
+            if (!string.IsNullOrEmpty(searchValue))
             {
-                transactions = transactions.Where(t => t.CreatedDate >= startDate && t.CreatedDate <= endDate);
-                totalAmount = transactions.Where(t => t.CreatedDate >= startDate && t.CreatedDate <= endDate).Sum(u=> (decimal?)u.AccountBalance-u.IntialAccountBalance + u.Amount) ?? 0m;
+                query = query.Where(t =>
+                    t.AccountNumber.Contains(searchValue) ||
+                    t.AccountHolder.Contains(searchValue) ||
+                    t.Narative.Contains(searchValue) ||
+                    t.User.Contains(searchValue) ||
+                    t.ReferenceNumber.Contains(searchValue));
             }
-            ViewBag.totalAmount = totalAmount;
-            ViewBag.District = db.DepositPlans.Select(t => t.District).Distinct().ToList();
 
+            int recordsTotal = query.Count();
+            int recordsFiltered = recordsTotal;
 
-            var transactionList = transactions.ToList();
-
-            // 🔹 Create a dictionary: Username → DepositTargetAmount
+            // User Targets (cached in memory if possible, or fetch once per request)
             var userTargets = db.Users
                 .Where(u => u.DepositTargetAmount != null && u.UserName != null)
-                .AsEnumerable() // switch to LINQ-to-Objects
+                .AsEnumerable()
                 .GroupBy(u => u.UserName.Trim(), StringComparer.OrdinalIgnoreCase)
                 .ToDictionary(g => g.Key, g => g.First().DepositTargetAmount);
 
+            // Final Data with Pagination
+            var targetUsers = userTargets.Keys.ToList();
 
-            // Store it in ViewBag for lookup in the view
-            ViewBag.UserTargets = userTargets;
+            var tempData = query
+                .OrderByDescending(t => t.CreatedDate)
+                .Skip(start)
+                .Take(length)
+                .Select(t => new
+                {
+                    t.Process,
+                    t.District,
+                    t.Branch,
+                    t.AccountNumber,
+                    t.ReferenceNumber,
+                    t.AccountHolder,
+                    Amount = t.Amount,
+                    t.DepositType,
+                    t.Narative,
+                    t.User,
+                    t.CreatedDate
+                })
+                .ToList(); // EF runs successfully
 
-            return View(transactionList);
+            var data = tempData
+                .Select(t => new
+                {
+                    t.Process,
+                    t.District,
+                    t.Branch,
+                    t.AccountNumber,
+                    t.ReferenceNumber,
+                    t.AccountHolder,
+                    t.Amount,
+                    t.DepositType,
+                    t.Narative,
+                    t.User,
+                    UserDepositTarget = userTargets.TryGetValue(t.User.Trim(), out var target)
+                        ? target
+                        : (decimal?)null,
+                    t.CreatedDate
+                })
+                .ToList();
+
+
+            // Total Amount (filtered)
+            decimal totalAmount = query.Sum(t =>
+                (decimal?)(t.AccountBalance - t.IntialAccountBalance + t.Amount)) ?? 0m;
+
+            return Json(new
+            {
+                draw = draw,
+                recordsTotal = recordsTotal,
+                recordsFiltered = recordsFiltered,
+                data = data,
+                totalAmount = totalAmount.ToString("N2")
+            }, JsonRequestBehavior.AllowGet);
         }
+
 
         public ActionResult TopPerformerDistrict()
         {          

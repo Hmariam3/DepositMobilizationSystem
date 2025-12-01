@@ -661,11 +661,11 @@
                                             </a>
                                         </li>
                                         @*<li class="nav-item">
-                                                <a href="~/Home/BydistrictReport" class="nav-link">
-                                                    <i class="fas fa-university"></i>
-                                                    <p>Bank Dashboard</p>
-                                                </a>
-                                            </li>*@
+                            <a href="~/Home/BydistrictReport" class="nav-link">
+                                <i class="fas fa-university"></i>
+                                <p>Bank Dashboard</p>
+                            </a>
+                        </li>*@
                                         <li class="nav-item">
                                             <a href="~/Home/BranchReport" class="nav-link">
                                                 <i class="fa fa-building"></i>
@@ -1422,7 +1422,7 @@
                             if (Session["UserRole"].ToString() == "SuperUser")
                             {
                                 @*<li class="active"><a href="~/Home/Dashboard"><i class="fa fa-home"></i><span> Main Dashbord</span></a></li>
-                                    <li class="active"><a href="~/Home/BydistrictReport"><i class="fa fa-home"></i><span> Bank Dashbord</span></a></li>*@
+                <li class="active"><a href="~/Home/BydistrictReport"><i class="fa fa-home"></i><span> Bank Dashbord</span></a></li>*@
 
                                 <li class="nav-item">
                                     <a href="#" class="nav-link">
@@ -1548,6 +1548,12 @@
                         }
 
 
+                        <li class="nav-item">
+                            <a href="~/Report/UserAchievementReport" class="nav-link">
+                                <i class="fas fa-home"></i>
+                                <p>Deposit Report</p>
+                            </a>
+                        </li>
                     </ul>
                     <!-- /.sidebar-menu -->
                 </nav>
