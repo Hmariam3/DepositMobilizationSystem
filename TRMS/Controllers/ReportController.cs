@@ -14,10 +14,27 @@ namespace TRMS.Controllers
     {
         private TRMSEntities db = new TRMSEntities();
 
-        // ONE SMART VIEW FOR ALL USERS
+        // EXISTING VIEWS
         public ActionResult UserAchievementReport()
         {
-            // Populate districts for Super users
+            GetCommonViewBags();
+            return View();
+        }
+
+        public ActionResult ProcessAchievementReport()
+        {
+            GetCommonViewBags();
+            return View();
+        }
+
+        public ActionResult DistrictAchievementReport()
+        {
+            GetCommonViewBags();
+            return View();
+        }
+
+        private void GetCommonViewBags()
+        {
             ViewBag.District = new List<string> { "All" }
                 .Concat(db.Users.Where(u => u.District != null)
                     .Select(u => u.District.Trim())
@@ -25,7 +42,6 @@ namespace TRMS.Controllers
                     .OrderBy(d => d))
                 .ToList();
 
-            // Inject current user info from Session
             ViewBag.CurrentUserRole = Session["UserRole"]?.ToString();
             ViewBag.CurrentUserPosition = Session["Position"]?.ToString() ?? "";
             ViewBag.CurrentUserProcess = Session["Process"]?.ToString() ?? "";
@@ -33,8 +49,6 @@ namespace TRMS.Controllers
             ViewBag.CurrentUserBranch = Session["UserHomeBranch"]?.ToString() ?? "";
             ViewBag.CurrentUserFullName = Session["FullName"]?.ToString() ?? "";
             ViewBag.CurrentUserName = Session["UserName"]?.ToString() ?? "";
-
-            return View();
         }
 
         // SMART AJAX HANDLER – ONE FOR ALL ROLES
@@ -62,7 +76,7 @@ namespace TRMS.Controllers
 
             // Base query: users with target and deposits
             var baseQuery = db.Users
-                .Where(u => u.DepositTargetAmount > 0 && u.DepositPlans.Any());
+                .Where(u => u.DepositTargetAmount >= 0 );
 
             // APPLY FIXED FILTERS BASED ON ROLE
             if (filterMode == "process" && !string.IsNullOrEmpty(fixedProcess))
@@ -133,10 +147,17 @@ namespace TRMS.Controllers
 
                         if (!accDeposits.Any()) continue;
 
-                        var first = accDeposits.First();
-                        int dupCount = accDeposits.Count(x => x.ReferenceNumber == first.ReferenceNumber);
+                        // Get the first RefDate
+                        var firstRefDate = accDeposits.Min(d => d.RefDate ?? d.CreatedDate);
+
+                        // Filter deposits that have that same RefDate
+                        var sameDateDeposits = accDeposits
+                            .Where(d => (d.RefDate ?? d.CreatedDate) == firstRefDate)
+                            .ToList();
+
+                        //int dupCount = accDeposits.Count(x => x.ReferenceNumber == sameDateDeposits.ReferenceNumber);
                         decimal totalDep = accDeposits.Sum(d => d.Amount);
-                        decimal initBal = first.Prev_Ini_Bal ?? 0;
+                        decimal initBal = sameDateDeposits.Min(d => d.Prev_Ini_Bal ?? 0);
                         decimal finalBal = accDeposits.Last().AccountBalance;
                         decimal withdrawal = Math.Max(0, (initBal + totalDep) - finalBal);
 
@@ -167,7 +188,9 @@ namespace TRMS.Controllers
                 });
             }
 
-            decimal grandTotal = results.Sum(x => (decimal)((dynamic)x).Achieved);
+            decimal grandTotalAchieved = results.Sum(x => (decimal)((dynamic)x).Achieved);
+            decimal grandTotalTarget = results.Sum(x => (decimal)((dynamic)x).Target);
+            decimal grandTotalDeposited = results.Sum(x => (decimal)((dynamic)x).Deposited);
 
             return Json(new
             {
@@ -175,10 +198,308 @@ namespace TRMS.Controllers
                 recordsTotal = totalRecords,
                 recordsFiltered = totalRecords,
                 data = results,
-                grandTotalAchieved = grandTotal.ToString("N2")
+                grandTotalAchieved = grandTotalAchieved.ToString("N2"),
+                grandTotalTarget = grandTotalTarget.ToString("N2"),
+                grandTotalDeposited = grandTotalDeposited.ToString("N2")
             }, JsonRequestBehavior.AllowGet);
         }
 
+        // BY PROCESS
+        [HttpPost]
+        public ActionResult ProcessAchievementAjax()
+        {
+            var draw = Request.Form["draw"];
+            var startDateStr = Request.Form["startDate"];
+            var endDateStr = Request.Form["endDate"];
+
+            DateTime? startDate = null, endDate = null;
+            if (DateTime.TryParse(startDateStr, out DateTime s)) startDate = s;
+            if (DateTime.TryParse(endDateStr, out DateTime e)) endDate = e.Date.AddDays(1).AddSeconds(-1);
+
+            // 1. Load ONLY needed data — once and fast
+            var users = db.Users
+                .Where(u => u.DepositTargetAmount >= 0 && u.UserName != null)
+                .Select(u => new { u.UserName, u.Process, Target = u.DepositTargetAmount ?? 0m })
+                .ToList();
+
+            // 2. Load ALL deposits with date filter — ONCE
+            var depositsQuery = db.DepositPlans
+                .Where(d => d.User != null && d.AccountNumber != null)
+                .Select(d => new
+                {
+                    d.User,
+                    d.AccountNumber,
+                    d.Amount,
+                    d.Prev_Ini_Bal,
+                    d.AccountBalance,
+                    d.RefDate,
+                    d.CreatedDate
+                });
+
+            if (startDate.HasValue && endDate.HasValue)
+                depositsQuery = depositsQuery.Where(d => d.CreatedDate >= startDate && d.CreatedDate <= endDate);
+
+            var allDeposits = depositsQuery.ToList();
+
+            // 3. PRE-GROUP deposits by AccountNumber → O(1) lookup later!
+            var depositsByAccount = allDeposits
+                .GroupBy(d => d.AccountNumber)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.OrderBy(d => d.RefDate ?? d.CreatedDate).ToList()
+                );
+
+            // 4. PRE-GROUP users by Process
+            var processGroups = users
+                .GroupBy(u => u.Process ?? "Unassigned")
+                .OrderBy(g => g.Key);
+
+            var results = new List<object>();
+            int index = 1;
+
+            foreach (var group in processGroups)
+            {
+                string processName = group.Key;
+                decimal totalTarget = group.Sum(u => u.Target);
+                decimal totalDeposited = 0;
+                decimal totalAchieved = 0;
+
+                foreach (var user in group)
+                {
+                    string userName = user.UserName.Trim();
+
+                    // User's deposits (fast in-memory filter)
+                    var userDeposits = allDeposits.Where(d => d.User == userName).ToList();
+                    totalDeposited += userDeposits.Sum(d => d.Amount);
+
+                    decimal userAchieved = 0;
+
+                    if (userDeposits.Any())
+                    {
+                        var userAccounts = userDeposits.Select(d => d.AccountNumber).Distinct();
+
+                        foreach (var acc in userAccounts)
+                        {
+                            if (!depositsByAccount.TryGetValue(acc, out var accDeposits)) continue;
+
+                            // 1️⃣ Determine the earliest date (RefDate or CreatedDate)
+                            var firstDate = accDeposits.Min(d => d.RefDate ?? d.CreatedDate);
+
+                            // 2️⃣ Get all deposits that have this same earliest date
+                            var earliestDeposits = accDeposits
+                                .Where(d => (d.RefDate ?? d.CreatedDate) == firstDate)
+                                .ToList();
+                          
+                            var last = accDeposits.Last();
+
+                            decimal initBal = earliestDeposits.Min(d => d.Prev_Ini_Bal ?? 0);
+                            decimal totalDep = accDeposits.Sum(d => d.Amount);
+                            decimal finalBal = last.AccountBalance;
+                            decimal withdrawal = Math.Max(0, (initBal + totalDep) - finalBal);
+
+                            decimal userContribution = accDeposits.Where(d => d.User == userName).Sum(d => d.Amount);
+                            if (userContribution <= 0) continue;
+
+                            decimal userShare = totalDep > 0 ? withdrawal * (userContribution / totalDep) : 0;
+                            decimal achievedOnAcc = Math.Max(0, userContribution - userShare);
+                            userAchieved += achievedOnAcc;
+                        }
+                    }
+
+                    totalAchieved += userAchieved;
+                }
+
+                decimal percentage = totalTarget > 0 ? Math.Round((totalAchieved / totalTarget) * 100, 2) : 0;
+
+                results.Add(new
+                {
+                    No = index++,
+                    Process = processName,
+                    Target = totalTarget,
+                    Deposited = totalDeposited,
+                    Achieved = totalAchieved,
+                    Percentage = percentage
+                });
+            }
+
+            return Json(new
+            {
+                draw,
+                recordsTotal = results.Count,
+                recordsFiltered = results.Count,
+                data = results
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+
+        // BY PROCESS
+        [HttpPost]
+        public ActionResult DistrictAchievementAjax()
+        {
+            var draw = Request.Form["draw"];
+            var startDateStr = Request.Form["startDate"];
+            var endDateStr = Request.Form["endDate"];
+
+            DateTime? startDate = null, endDate = null;
+            if (DateTime.TryParse(startDateStr, out DateTime s)) startDate = s;
+            if (DateTime.TryParse(endDateStr, out DateTime e)) endDate = e.Date.AddDays(1).AddSeconds(-1);
+
+            // 1. Load ONLY needed data — once and fast
+            var users = db.Users
+                .Where(u => u.DepositTargetAmount > 0 && u.UserName != null)
+                .Select(u => new { u.UserName, u.District, Target = u.DepositTargetAmount ?? 0m })
+                .ToList();
+
+            // 2. Load ALL deposits with date filter — ONCE
+            var depositsQuery = db.DepositPlans
+                .Where(d => d.User != null && d.AccountNumber != null)
+                .Select(d => new
+                {
+                    d.User,
+                    d.AccountNumber,
+                    d.Amount,
+                    d.Prev_Ini_Bal,
+                    d.AccountBalance,
+                    d.RefDate,
+                    d.CreatedDate
+                });
+
+            if (startDate.HasValue && endDate.HasValue)
+                depositsQuery = depositsQuery.Where(d => d.CreatedDate >= startDate && d.CreatedDate <= endDate);
+
+            var allDeposits = depositsQuery.ToList();
+
+            // 3. PRE-GROUP deposits by AccountNumber → O(1) lookup later!
+            var depositsByAccount = allDeposits
+                .GroupBy(d => d.AccountNumber)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.OrderBy(d => d.RefDate ?? d.CreatedDate).ToList()
+                );
+
+            // 4. PRE-GROUP users by Process
+            var districtGroups = users
+                .GroupBy(u => u.District ?? "Unassigned")
+                .OrderBy(g => g.Key);
+
+            var results = new List<object>();
+            int index = 1;
+
+            foreach (var group in districtGroups)
+            {
+                string districtName = group.Key;
+                decimal totalTarget = group.Sum(u => u.Target);
+                decimal totalDeposited = 0;
+                decimal totalAchieved = 0;
+
+                foreach (var user in group)
+                {
+                    string userName = user.UserName.Trim();
+
+                    // User's deposits (fast in-memory filter)
+                    var userDeposits = allDeposits.Where(d => d.User == userName).ToList();
+                    totalDeposited += userDeposits.Sum(d => d.Amount);
+
+                    decimal userAchieved = 0;
+
+                    if (userDeposits.Any())
+                    {
+                        var userAccounts = userDeposits.Select(d => d.AccountNumber).Distinct();
+
+                        foreach (var acc in userAccounts)
+                        {
+                            if (!depositsByAccount.TryGetValue(acc, out var accDeposits)) continue;
+
+                            var first = accDeposits.First();
+                            var last = accDeposits.Last();
+
+                            decimal initBal = first.Prev_Ini_Bal ?? 0;
+                            decimal totalDep = accDeposits.Sum(d => d.Amount);
+                            decimal finalBal = last.AccountBalance;
+                            decimal withdrawal = Math.Max(0, (initBal + totalDep) - finalBal);
+
+                            decimal userContribution = accDeposits.Where(d => d.User == userName).Sum(d => d.Amount);
+                            if (userContribution <= 0) continue;
+
+                            decimal userShare = totalDep > 0 ? withdrawal * (userContribution / totalDep) : 0;
+                            decimal achievedOnAcc = Math.Max(0, userContribution - userShare);
+                            userAchieved += achievedOnAcc;
+                        }
+                    }
+
+                    totalAchieved += userAchieved;
+                }
+
+                decimal percentage = totalTarget > 0 ? Math.Round((totalAchieved / totalTarget) * 100, 2) : 0;
+
+                results.Add(new
+                {
+                    No = index++,
+                    District = districtName,
+                    Target = totalTarget,
+                    Deposited = totalDeposited,
+                    Achieved = totalAchieved,
+                    Percentage = percentage
+                });
+            }
+
+            return Json(new
+            {
+                draw,
+                recordsTotal = results.Count,
+                recordsFiltered = results.Count,
+                data = results
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        private (decimal Deposited, decimal Achieved, decimal Percentage) CalculateUserAchievement(User user, DateTime? startDate, DateTime? endDate)
+        {
+            string userName = user.UserName.Trim();
+            var userDeposits = db.DepositPlans.Where(d => d.User == userName);
+
+            if (startDate.HasValue && endDate.HasValue)
+                userDeposits = userDeposits.Where(d => d.CreatedDate >= startDate && d.CreatedDate <= endDate);
+
+            var depositsList = userDeposits.ToList();
+            decimal rawDeposited = depositsList.Sum(d => d.Amount);
+            decimal achieved = 0;
+
+            if (depositsList.Any())
+            {
+                var accounts = depositsList.Select(d => d.AccountNumber).Distinct().ToList();
+
+                foreach (var acc in accounts)
+                {
+                    var accDeposits = db.DepositPlans
+                        .Where(d => d.AccountNumber == acc)
+                        .OrderBy(d => d.RefDate ?? d.CreatedDate)
+                        .ToList();
+
+                    if (!accDeposits.Any()) continue;
+
+                    var first = accDeposits.First();
+                    int dupCount = accDeposits.Count(x => x.ReferenceNumber == first.ReferenceNumber);
+                    decimal totalDep = accDeposits.Sum(d => d.Amount);
+                    decimal initBal = first.Prev_Ini_Bal ?? 0;
+                    decimal finalBal = accDeposits.Last().AccountBalance;
+                    decimal withdrawal = Math.Max(0, (initBal + totalDep) - finalBal);
+
+                    decimal userContrib = accDeposits.Where(d => d.User == userName).Sum(d => d.Amount);
+                    if (userContrib <= 0) continue;
+
+                    decimal userShare = totalDep > 0 ? withdrawal * (userContrib / totalDep) : 0;
+                    decimal achievedOnAcc = userContrib - userShare;
+                    if (achievedOnAcc < 0) achievedOnAcc = 0;
+
+                    achieved += achievedOnAcc;
+                }
+            }
+
+            decimal target = user.DepositTargetAmount ?? 0;
+            decimal percentage = target > 0 ? (achieved / target) * 100 : 0;
+
+            return (rawDeposited, achieved, percentage);
+        }
 
         // SMART EXCEL EXPORT – Works for ALL roles
         public ActionResult ExportSmartAchievementToExcel(string startDate, string endDate, string district,
@@ -188,7 +509,7 @@ namespace TRMS.Controllers
             if (DateTime.TryParse(startDate, out DateTime s)) start = s;
             if (DateTime.TryParse(endDate, out DateTime e)) end = e.Date.AddDays(1).AddSeconds(-1);
 
-            var query = db.Users.Where(u => u.DepositTargetAmount > 0 && u.DepositPlans.Any());
+            var query = db.Users.Where(u => u.DepositTargetAmount >= 0);
 
             // Apply same fixed filters
             if (filterMode == "process" && !string.IsNullOrEmpty(fixedProcess)) query = query.Where(u => u.Process == fixedProcess);
@@ -225,14 +546,21 @@ namespace TRMS.Controllers
 
                         if (!accDeposits.Any()) continue;
 
-                        var first = accDeposits.First();
-                        int dupCount = accDeposits.Count(x => x.ReferenceNumber == first.ReferenceNumber);
-                        decimal effectiveFirst = dupCount > 1
-                            ? accDeposits.Where(x => x.ReferenceNumber == first.ReferenceNumber).Sum(x => x.Amount)
-                            : first.Amount;
+                        // Get the first RefDate
+                        var firstRefDate = accDeposits.Min(d => d.RefDate ?? d.CreatedDate);
+
+                        // Filter deposits that have that same RefDate
+                        var sameDateDeposits = accDeposits
+                            .Where(d => (d.RefDate ?? d.CreatedDate) == firstRefDate)
+                            .ToList();
+
+                        //int dupCount = accDeposits.Count(x => x.ReferenceNumber == sameDateDeposits.ReferenceNumber);
+                        //decimal effectiveFirst = dupCount > 1
+                        //    ? accDeposits.Where(x => x.ReferenceNumber == first.ReferenceNumber).Sum(x => x.Amount)
+                        //    : first.Amount;
 
                         decimal totalDep = accDeposits.Sum(d => d.Amount);
-                        decimal initBal = first.Prev_Ini_Bal ?? 0;
+                        decimal initBal = sameDateDeposits.Min(d => d.Prev_Ini_Bal ?? 0);
                         decimal finalBal = accDeposits.Last().AccountBalance;
                         decimal withdrawal = Math.Max(0, (initBal + totalDep) - finalBal);
 

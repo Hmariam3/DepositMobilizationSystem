@@ -20,8 +20,8 @@ namespace TRMS.Controllers
             }
             else
             {
-                string UserName = Session["UserName"].ToString();
-                //string UserName = "Tayesg";
+                //string UserName = Session["UserName"].ToString();
+                string UserName = "helentg";
                 string role = Session["UserRole"].ToString();
                 string position = Session["Position"].ToString();
                 if (role != null || position != null)

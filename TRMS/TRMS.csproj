@@ -6985,7 +6985,9 @@
     <Content Include="dist\js\adminlte.min.js" />
     <Content Include="dist\js\apexchart.js" />
     <Content Include="dist\js\bootstrap-select.min.js" />
+    <Content Include="dist\js\moment.min.js" />
     <Content Include="dist\js\select2.min.js" />
+    <Content Include="dist\js\xlsx.full.min.js" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\bootstrap-icons.css" />
     <Content Include="fonts\fontawesome-webfont.svg" />
@@ -9578,6 +9580,8 @@
     <Content Include="Views\Home\BankSummary.cshtml" />
     <Content Include="Views\DepositBankReport\UserAchievementReport.cshtml" />
     <Content Include="Views\Report\UserAchievementReport.cshtml" />
+    <Content Include="Views\Report\ProcessAchievementReport.cshtml" />
+    <Content Include="Views\Report\DistrictAchievementReport.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

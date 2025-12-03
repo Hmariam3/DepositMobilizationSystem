@@ -1,0 +1,276 @@
+﻿@{
+    ViewBag.Title = "Deposit Achievement By Process";
+}
+<div class="panel panel-default" style="padding:15px;">
+    <div class="panel-heading">
+        <h3><i class="fa fa-building text-primary"></i> Deposit Achievement Report - By Process</h3>
+    </div>
+    <hr />
+
+    <form id="filterForm" class="mb-4">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label><strong>Start Date</strong></label>
+                <input type="date" id="startDate" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label><strong>End Date</strong></label>
+                <input type="date" id="endDate" class="form-control" />
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">Apply Filter</button>
+                <button type="button" id="btnReset" class="btn btn-secondary">Reset</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="alert alert-info mb-3">
+        <strong>Period:</strong> <span id="periodDisplay">All Time</span> |
+        <strong>Scope:</strong> Process Report
+    </div>
+
+    <div class="table-responsive">
+        <table id="processTable" class="table table-bordered table-hover" style="width:100%">
+            <thead class="table-primary">
+                <tr>
+                    <th>NO</th>
+                    <th>Process</th>
+                    <th>Target</th>
+                    <th>Deposited</th>
+                    <th>Achieved</th>
+                    <th>% Achieved</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot>
+                <tr class="table-dark">
+                    <th colspan="2">TOTAL:</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <button id="btnExport" class="btn btn-success mt-3">
+        <i class="fa fa-file-excel-o"></i> Export to Excel
+    </button>
+</div>
+
+@section Scripts {
+    <script>
+$(document).ready(function () {
+    var table = $('#processTable').DataTable({
+        "processing": true,
+        "serverSide": true,
+        "ajax": {
+            "url": "@Url.Action("ProcessAchievementAjax")",
+            "type": "POST",
+            "data": function (d) {
+                d.startDate = $('#startDate').val();
+                d.endDate = $('#endDate').val();
+            }
+        },
+        "pageLength": 50,
+        "order": [[5, "desc"]],
+        "columns": [
+            { "data": "No" },
+            { "data": "Process" },
+            { "data": "Target", render: $.fn.dataTable.render.number(',', '.', 2) },
+            { "data": "Deposited", render: $.fn.dataTable.render.number(',', '.', 2) },
+            { "data": "Achieved", render: $.fn.dataTable.render.number(',', '.', 2) },
+            { "data": "Percentage", render: function(d) {
+                var color = d >= 100 ? 'success' : d >= 80 ? 'warning' : 'danger';
+                return `<span class="badge bg-${color}">${d.toFixed(2)}%</span>`;
+            }}
+        ],
+        "footerCallback": function () {
+            var api = this.api();
+            var totalTarget = api.column(2).data().reduce((a, b) => a + b, 0);
+            var totalAchieved = api.column(4).data().reduce((a, b) => a + b, 0);
+            var avgPct = totalTarget > 0 ? (totalAchieved / totalTarget) * 100 : 0;
+
+            $(api.column(2).footer()).html(totalTarget.toFixed(2));
+            $(api.column(4).footer()).html(totalAchieved.toFixed(2));
+            $(api.column(5).footer()).html(`<strong>${avgPct.toFixed(2)}%</strong>`);
+        },
+        "drawCallback": function() {
+            var start = $('#startDate').val() || "Beginning";
+            var end = $('#endDate').val() || "Today";
+            $('#periodDisplay').text(start + " to " + end);
+        }
+    });
+
+    $('#filterForm').on('submit', e => { e.preventDefault(); table.ajax.reload(); });
+    $('#btnReset').click(() => { $('#startDate, #endDate').val(''); table.ajax.reload(); });
+
+    @*$('#btnExport').click(function () {
+        var url = "@Url.Action("ExportProcessAchievementToExcel")" +
+                  "?startDate=" + $('#startDate').val() +
+                  "&endDate=" + $('#endDate').val();
+        window.location.href = url;
+    });*@
+
+    $('#btnExport').click(function () {
+        // Get current visible + sorted + filtered data
+        var data = table.rows({ search: 'applied', order: 'applied' }).data().toArray();
+
+        var exportData = [];
+
+        // === Title & Metadata ===
+        exportData.push(["DEPOSIT ACHIEVEMENT REPORT - BY PROCESS"]);
+        exportData.push([""]);
+
+        var period = $('#startDate').val()
+            ? `${$('#startDate').val()} to ${$('#endDate').val() || 'Present'}`
+            : "All Time";
+
+        exportData.push([`Period: ${period}`]);
+        exportData.push([`Generated: ${moment().format('dddd, DD MMMM YYYY [at] HH:mm')}`]);
+        exportData.push([`Total Processes: ${data.length}`]);
+        exportData.push([""]);
+
+        // === Header Row ===
+        exportData.push([
+            "NO", "Process", "Target", "Deposited", "Achieved", "% Achieved"
+        ]);
+
+        // === Data Rows ===
+        data.forEach(function (row, i) {
+            var rowNum = table.page.info().start + i + 1;
+
+            exportData.push([
+                rowNum,
+                row.Process || "-",
+                parseFloat(row.Target || 0),
+                parseFloat(row.Deposited || 0),
+                parseFloat(row.Achieved || 0),
+                (parseFloat(row.Percentage || 0)) / 100   // Convert to 0.xx for % formatting
+            ]);
+        });
+
+        // === Grand Total Row (calculated from visible data) ===
+        var totalTarget = data.reduce((sum, r) => sum + parseFloat(r.Target || 0), 0);
+        var totalDeposited = data.reduce((sum, r) => sum + parseFloat(r.Deposited || 0), 0);
+        var totalAchieved = data.reduce((sum, r) => sum + parseFloat(r.Achieved || 0), 0);
+        var overallPct = totalTarget > 0 ? (totalAchieved / totalTarget) : 0;
+
+        exportData.push([""]);
+        exportData.push([
+            "TOTAL", "", totalTarget, totalDeposited, totalAchieved, overallPct
+        ]);
+
+        // === Create Excel Workbook ===
+        var wb = XLSX.utils.book_new();
+        var ws = XLSX.utils.aoa_to_sheet(exportData);
+        var range = XLSX.utils.decode_range(ws['!ref']);
+
+        // === Styling ===
+        for (let R = 0; R <= range.e.r; R++) {
+            for (let C = 0; C <= range.e.c; C++) {
+                let cellAddr = XLSX.utils.encode_cell({ r: R, c: C });
+                if (!ws[cellAddr]) continue;
+                let cell = ws[cellAddr];
+
+                // Title
+                if (R === 0) {
+                    cell.s = { font: { bold: true, sz: 16, color: { rgb: "1F4E79" } }, alignment: { horizontal: "center" } };
+                }
+                // Info rows
+                else if (R >= 2 && R <= 4) {
+                    cell.s = { font: { italic: true, color: { rgb: "555555" } } };
+                }
+                // Header Row (Row 6)
+                else if (R === 6) {
+                    cell.s = {
+                        font: { bold: true, color: { rgb: "FFFFFF" } },
+                        fill: { fgColor: { rgb: "366092" } },
+                        alignment: { horizontal: "center", vertical: "center" },
+                        border: { top: { style: "thin" }, bottom: { style: "medium" }, left: { style: "thin" }, right: { style: "thin" } }
+                    };
+                }
+                // Data Rows + Total Row
+                else if (R >= 7) {
+                    let isTotalRow = R === exportData.length - 1;
+                    cell.s = {
+                        font: { bold: isTotalRow },
+                        fill: { fgColor: isTotalRow ? { rgb: "D9D9D9" } : undefined },
+                        alignment: {
+                            horizontal: C === 0 ? (isTotalRow ? "right" : "center") :
+                                C === 1 ? "left" : "right"
+                        },
+                        border: {
+                            top: { style: "thin", color: { rgb: "CCCCCC" } },
+                            bottom: { style: isTotalRow ? "medium" : "thin", color: isTotalRow ? { rgb: "366092" } : { rgb: "CCCCCC" } },
+                            left: { style: "thin", color: { rgb: "CCCCCC" } },
+                            right: { style: "thin", color: { rgb: "CCCCCC" } }
+                        }
+                    };
+
+                    // Color % Achieved column (Column F = index 5)
+                    if (C === 5) {
+                        let val = parseFloat(cell.v) * 100;
+                        let color = val >= 100 ? "27AE60" : val >= 80 ? "E67E22" : "E74C3C";
+                        cell.s.font = { bold: true, color: { rgb: color } };
+                    }
+                }
+            }
+        }
+
+        // === Column Widths (Perfectly Aligned) ===
+        ws['!cols'] = [
+            { wch: 6 },   // NO
+            { wch: 32 },  // Process
+            { wch: 18 },  // Target
+            { wch: 18 },  // Deposited
+            { wch: 18 },  // Achieved
+            { wch: 14 }   // % Achieved
+        ];
+
+        // === Row Heights ===
+        ws['!rows'] = [
+            { hpt: 32 }, null, null, null, null, null,
+            { hpt: 26 }, // Header
+            ...Array(data.length).fill({ hpt: 22 }),
+            null,
+            { hpt: 30 }  // TOTAL row
+        ];
+
+        // === Merge Cells ===
+        ws["!merges"] = [
+            { s: { r: 0, c: 0 }, e: { r: 0, c: 5 } },  // Title
+            { s: { r: 2, c: 0 }, e: { r: 2, c: 5 } },  // Period
+            { s: { r: 3, c: 0 }, e: { r: 3, c: 5 } },  // Generated
+            { s: { r: 4, c: 0 }, e: { r: 4, c: 5 } },  // Total Processes
+            { s: { r: exportData.length - 1, c: 0 }, e: { r: exportData.length - 1, c: 1 } }  // "TOTAL"
+        ];
+
+        // === Number Formatting ===
+        // Data rows (C to E = numbers, F = percentage)
+        for (let r = 7; r < exportData.length - 1; r++) {
+            ['C', 'D', 'E'].forEach(col => {
+                let cell = ws[col + (r + 1)];
+                if (cell) cell.z = "#,##0.00";
+            });
+            let pctCell = ws['F' + (r + 1)];
+            if (pctCell) pctCell.z = "0.00%";
+        }
+
+        // Grand Total Row
+        ['C', 'D', 'E', 'F'].forEach(col => {
+            let cell = ws[col + exportData.length];
+            if (cell) cell.z = col === 'F' ? "0.00%" : "#,##0.00";
+        });
+
+        // === Finalize ===
+        XLSX.utils.book_append_sheet(wb, ws, "By Process");
+        var fileName = `Deposit_Achievement_By_Process_${moment().format('YYYYMMDD_HHmm')}.xlsx`;
+        XLSX.writeFile(wb, fileName);
+
+        toastr.success(`Exported ${data.length} processes successfully!`, "Export Complete");
+    });
+});
+    </script>
+}

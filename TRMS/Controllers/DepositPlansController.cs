@@ -477,6 +477,12 @@ namespace TRMS.Controllers
                 }
 
                 // --- Guard: if the account is OD  ---
+                if (vm.DepositPlan.Prev_Ini_Bal < 0)
+                {
+                    TempData["ErrorMessage"] = "The Previous Initial Balance must be Above 0";
+                    return View(vm);
+                }
+                // --- Guard: if the account is OD  ---
                 if (vm.DepositPlan.AccountBalance > 0)
                 {
                     // --- Guard: vm.amount must less than or equal to initialbalance ---

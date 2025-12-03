@@ -40,10 +40,17 @@
         </form>
     </div>
 
-    <div class="alert alert-success mb-3">
-        <i class="fa fa-trophy"></i>
-        <strong>Grand Total Achieved: <span id="grandTotal">Loading...</span></strong>
+    <div class="alert alert-success mb-3 d-flex justify-content-between align-items-center">
+        <strong>Grand Total Target: <span id="grandTotalTarget">Loading...</span></strong>
+        <strong>Grand Total Deposit: <span id="grandTotalDeposit">Loading...</span></strong>
+        <strong>Grand Total Achieved: <span id="grandTotalAchieved">Loading...</span></strong>
     </div>
+
+
+
+
+
+
 
     <div class="table-responsive">
         <table id="achievementTable" class="table table-bordered table-hover" style="width:100%">
@@ -52,8 +59,8 @@
                     <th>No</th>
                     <th>Full Name</th>
                     <th>Process</th>
-                    <th>District</th>
-                    <th>Branch</th>
+                    <th>District/Subprocess</th>
+                    <th>Branch/Team</th>
                     <th>Target</th>
                     <th>Deposited</th>
                     <th>Achieved</th>
@@ -70,6 +77,7 @@
 </div>
 
 @section Scripts {
+
     <script>
     $(document).ready(function () {
         // Get user info from server (injected via ViewBag or hidden field)
@@ -92,12 +100,12 @@
             filterMode = "bank";
         }
         else if (currentUser.role === "Maker") {
-            if (["VP", "CHF", "SeniorDirector"].includes(currentUser.position)) {
+            if (["VP", "CHF"].includes(currentUser.position)) {
                 $("#reportTitle").text(`Process: ${currentUser.process} - Achievement Report`);
                 filterMode = "process";
                 fixedFilter.process = currentUser.process;
             }
-            else if (currentUser.position === "Director") {
+            else if (["Director", "SeniorDirector"].includes(currentUser.position)) {
                 $("#reportTitle").text(`Subprocess: ${currentUser.district} - Achievement Report`);
                 filterMode = "subprocess";
                 fixedFilter.district = currentUser.district;
@@ -136,7 +144,7 @@
                     d.fixedUserName = fixedFilter.userName || "";
                 }
             },
-            "pageLength": 25,
+            "pageLength": 10,
             "order": [[8, "desc"]],
             "columns": [
                 { "data": null, "orderable": false, render: (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1 },
@@ -154,7 +162,13 @@
             ],
             "drawCallback": function (settings) {
                 if (settings.json && settings.json.grandTotalAchieved) {
-                    $('#grandTotal').text(settings.json.grandTotalAchieved);
+                    $('#grandTotalAchieved').text(settings.json.grandTotalAchieved);
+                }
+                if (settings.json && settings.json.grandTotalDeposited) {
+                    $('#grandTotalDeposit').text(settings.json.grandTotalDeposited);
+                }
+                if (settings.json && settings.json.grandTotalTarget) {
+                    $('#grandTotalTarget').text(settings.json.grandTotalTarget);
                 }
             }
         });
@@ -172,7 +186,7 @@
             table.ajax.reload();
         });
 
-        $('#btnExport').click(function () {
+        @*$('#btnExport').click(function () {
             var url = "@Url.Action("ExportSmartAchievementToExcel")" +
                 "?startDate=" + encodeURIComponent($('#startDate').val()) +
                 "&endDate=" + encodeURIComponent($('#endDate').val()) +
@@ -184,6 +198,162 @@
                 "&fixedUserName=" + encodeURIComponent(fixedFilter.userName || "");
 
             window.location.href = url;
+        });*@
+
+
+        $('#btnExport').click(function () {
+            var data = table.rows({ search: 'applied', order: 'applied' }).data().toArray();
+
+            var exportData = [];
+
+            // === 1. Title & Info ===
+            exportData.push(["DEPOSIT ACHIEVEMENT REPORT"]);
+            exportData.push([""]);
+            exportData.push([`Period: ${$('#startDate').val() ? $('#startDate').val() + " to " + ($('#endDate').val() || "Present") : "All Time"}`]);
+            exportData.push([`Scope: ${$("#reportTitle").text().trim()}`]);
+            exportData.push([`Generated: ${moment().format('dddd, DD MMMM YYYY [at] HH:mm')}`]);
+            exportData.push([`Records Shown: ${data.length.toLocaleString()}`]);
+            exportData.push([""]);
+
+            // === 2. Header ===
+            exportData.push([
+                "No", "Full Name", "Process", "District/Subprocess", "Branch/Team",
+                "Target", "Deposited", "Achieved", "% Achieved"
+            ]);
+
+            // === 3. Data Rows ===
+            data.forEach(function (row, i) {
+                var rowNum = table.page.info().start + i + 1;
+                var pct = parseFloat(row.Percentage || 0);
+
+                exportData.push([
+                    rowNum,
+                    (row.FullName || "N/A").trim(),
+                    row.Process || "-",
+                    row.District || "-",
+                    row.Branch || "-",
+                    parseFloat(row.Target || 0),
+                    parseFloat(row.Deposited || 0),
+                    parseFloat(row.Achieved || 0),
+                    pct / 100  // Will be formatted as %
+                ]);
+            });
+
+            // === 4. Grand Total ===
+            var gTarget = parseFloat($('#grandTotalTarget').text().replace(/,/g, '') || 0);
+            var gDeposit = parseFloat($('#grandTotalDeposit').text().replace(/,/g, '') || 0);
+            var gAchieved = parseFloat($('#grandTotalAchieved').text().replace(/,/g, '') || 0);
+            var gPct = gTarget > 0 ? (gAchieved / gTarget) : 0;
+
+            exportData.push([""]);
+            exportData.push([
+                "GRAND TOTAL", "", "", "", "", gTarget, gDeposit, gAchieved, gPct
+            ]);
+
+            // === Create Sheet ===
+            var wb = XLSX.utils.book_new();
+            var ws = XLSX.utils.aoa_to_sheet(exportData);
+
+            var range = XLSX.utils.decode_range(ws['!ref']);
+
+            // === Apply Styling ===
+            for (let R = 0; R <= range.e.r; R++) {
+                for (let C = 0; C <= range.e.c; C++) {
+                    let cellAddr = XLSX.utils.encode_cell({ r: R, c: C });
+                    if (!ws[cellAddr]) continue;
+
+                    let cell = ws[cellAddr];
+
+                    // Title Row
+                    if (R === 0) {
+                        cell.s = { font: { bold: true, sz: 18, color: { rgb: "1F4E79" } }, alignment: { horizontal: "center" } };
+                    }
+                    // Info rows
+                    else if (R >= 2 && R <= 5) {
+                        cell.s = { font: { italic: true, color: { rgb: "555555" } } };
+                    }
+                    // Header Row
+                    else if (R === 7) {
+                        cell.s = {
+                            font: { bold: true, color: { rgb: "FFFFFF" } },
+                            fill: { fgColor: { rgb: "366092" } },  // Dark blue-gray
+                            alignment: { horizontal: "center", vertical: "center" },
+                            border: { top: { style: "thin" }, bottom: { style: "medium" }, left: { style: "thin" }, right: { style: "thin" } }
+                        };
+                    }
+                    // Data Rows + Grand Total
+                    else if (R >= 8) {
+                        let isTotalRow = R === exportData.length - 1;
+
+                        cell.s = {
+                            font: { bold: isTotalRow },
+                            fill: { fgColor: isTotalRow ? { rgb: "D9D9D9" } : undefined }, // Light gray for total
+                            alignment: { horizontal: (C >= 5 && C <= 7) ? "right" : (C === 0 && isTotalRow) ? "right" : "left" },
+                            border: {
+                                top: { style: "thin", color: { rgb: "CCCCCC" } },
+                                bottom: { style: isTotalRow ? "medium" : "thin", color: isTotalRow ? { rgb: "366092" } : { rgb: "CCCCCC" } },
+                                left: { style: "thin", color: { rgb: "CCCCCC" } },
+                                right: { style: "thin", color: { rgb: "CCCCCC" } }
+                            }
+                        };
+
+                        // Color % Achieved (Green >=100%, Orange >=80%, Red <80%)
+                        if (C === 8) {
+                            let val = parseFloat(cell.v) * 100;
+                            let color = val >= 100 ? "27AE60" : val >= 80 ? "E67E22" : "E74C3C";
+                            cell.s.font = { bold: true, color: { rgb: color } };
+                        }
+                    }
+                }
+            }
+
+            // === Column Widths ===
+            ws['!cols'] = [
+                { wch: 6 }, { wch: 28 }, { wch: 16 }, { wch: 22 }, { wch: 20 },
+                { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 14 }
+            ];
+
+            // === Row Heights ===
+            ws['!rows'] = [
+                { hpt: 32 }, null, null, null, null, null, null,
+                { hpt: 24 }, // Header
+                ...Array(data.length).fill({ hpt: 20 }),
+                null,
+                { hpt: 28 }  // Grand Total
+            ];
+
+            // === Merges ===
+            ws["!merges"] = [
+                { s: { r: 0, c: 0 }, e: { r: 0, c: 8 } },
+                { s: { r: 2, c: 0 }, e: { r: 2, c: 8 } },
+                { s: { r: 3, c: 0 }, e: { r: 3, c: 8 } },
+                { s: { r: 4, c: 0 }, e: { r: 4, c: 8 } },
+                { s: { r: 5, c: 0 }, e: { r: 5, c: 8 } },
+                { s: { r: exportData.length - 1, c: 0 }, e: { r: exportData.length - 1, c: 4 } }
+            ];
+
+            // === Number Formats ===
+            // Target, Deposited, Achieved
+            for (let r = 8; r < exportData.length - 1; r++) {
+                ['F', 'G', 'H'].forEach(col => {
+                    let addr = col + r;
+                    if (ws[addr]) ws[addr].z = "#,##0.00";
+                });
+                if (ws['I' + r]) ws['I' + r].z = "0.00%";
+            }
+            // Grand Total
+            ['F', 'G', 'H', 'I'].forEach(col => {
+                let addr = col + (exportData.length - 1);
+                if (ws[addr]) ws[addr].z = col === 'I' ? "0.00%" : "#,##0.00";
+            });
+
+            // === Finalize ===
+            XLSX.utils.book_append_sheet(wb, ws, "Achievement Report");
+
+            var fileName = `Deposit_Achievement_${moment().format('YYYYMMDD_HHmm')}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+
+            toastr.success("Excel report generated successfully!", "Export Complete");
         });
     });
     </script>
