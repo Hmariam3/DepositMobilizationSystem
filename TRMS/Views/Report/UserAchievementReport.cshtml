@@ -10,7 +10,7 @@
     </div>
     <hr />
 
-    <!-- Filters: Only show what user is allowed to filter -->
+    <!-- Filters -->
     <div id="filterSection">
         <form id="filterForm" class="mb-4">
             <div class="row g-3">
@@ -40,17 +40,20 @@
         </form>
     </div>
 
-    <div class="alert alert-success mb-3 d-flex justify-content-between align-items-center">
-        <strong>Grand Total Target: <span id="grandTotalTarget">Loading...</span></strong>
-        <strong>Grand Total Deposit: <span id="grandTotalDeposit">Loading...</span></strong>
-        <strong>Grand Total Achieved: <span id="grandTotalAchieved">Loading...</span></strong>
+    <!-- Summary Alert - Removed "Collected" -->
+    <div class="alert alert-success mb-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <strong>Total Summary</strong>
+                <span class="badge bg-primary ms-2">Deposit Report</span>
+            </div>
+            <div class="d-flex gap-4">
+                <strong>Total Target: <span id="grandTotalTarget">Loading...</span></strong>
+                <strong>Total Achieved: <span id="grandTotalAchieved">Loading...</span></strong>
+                <strong>Achievement: <span id="grandTotalPercentage" class="badge bg-secondary">Loading...</span></strong>
+            </div>
+        </div>
     </div>
-
-
-
-
-
-
 
     <div class="table-responsive">
         <table id="achievementTable" class="table table-bordered table-hover" style="width:100%">
@@ -62,7 +65,6 @@
                     <th>District/Subprocess</th>
                     <th>Branch/Team</th>
                     <th>Target</th>
-                    <th>Deposited</th>
                     <th>Achieved</th>
                     <th>% Achieved</th>
                 </tr>
@@ -72,289 +74,244 @@
     </div>
 
     <button id="btnExport" class="btn btn-success mt-3">
-        <i class="fa fa-file-excel-o"></i> Export to Excel
+        Export to Excel
     </button>
 </div>
 
 @section Scripts {
-
     <script>
-    $(document).ready(function () {
-        // Get user info from server (injected via ViewBag or hidden field)
-        var currentUser = {
-            role: "@ViewBag.CurrentUserRole",
-            position: "@ViewBag.CurrentUserPosition",
-            process: "@ViewBag.CurrentUserProcess",
-            district: "@ViewBag.CurrentUserDistrict",
-            branch: "@ViewBag.CurrentUserBranch",
-            fullName: "@ViewBag.CurrentUserFullName"
-        };
+$(document).ready(function () {
+    var currentUser = {
+        role: "@ViewBag.CurrentUserRole",
+        position: "@ViewBag.CurrentUserPosition",
+        process: "@ViewBag.CurrentUserProcess",
+        district: "@ViewBag.CurrentUserDistrict",
+        branch: "@ViewBag.CurrentUserBranch",
+        fullName: "@ViewBag.CurrentUserFullName"
+    };
 
-        var filterMode = "";
-        var fixedFilter = {};
+    var filterMode = "";
+    var fixedFilter = {};
 
-        // DETERMINE FILTER MODE BASED ON ROLE + POSITION
-        if (currentUser.role === "Super") {
-            $("#reportTitle").text("Bank-Wide Deposit Achievement Report");
-            $("#districtFilter").show();
-            filterMode = "bank";
+    // Set report title and filters based on role
+    if (currentUser.role === "Super") {
+        $("#reportTitle").text("Bank-Wide Deposit Achievement Report");
+        $("#districtFilter").show();
+        filterMode = "bank";
+    }
+    else if (currentUser.role === "Maker") {
+        if (["VP", "CHF"].includes(currentUser.position)) {
+            $("#reportTitle").text(`Process: ${currentUser.process} - Achievement Report`);
+            filterMode = "process";
+            fixedFilter.process = currentUser.process;
         }
-        else if (currentUser.role === "Maker") {
-            if (["VP", "CHF"].includes(currentUser.position)) {
-                $("#reportTitle").text(`Process: ${currentUser.process} - Achievement Report`);
-                filterMode = "process";
-                fixedFilter.process = currentUser.process;
-            }
-            else if (["Director", "SeniorDirector"].includes(currentUser.position)) {
-                $("#reportTitle").text(`Subprocess: ${currentUser.district} - Achievement Report`);
-                filterMode = "subprocess";
-                fixedFilter.district = currentUser.district;
-                $("#districtFilter").show().find("select").val(currentUser.district).prop("disabled", true);
-            }
-            else if (["BranchManager", "Manager"].includes(currentUser.position)) {
-                $("#reportTitle").text(`Branch: ${currentUser.branch} - Achievement Report`);
-                filterMode = "branch";
-                fixedFilter.branch = currentUser.branch;
-            }
-            else {
-                // Regular Maker → only sees himself
-                $("#reportTitle").text(`My Performance: ${currentUser.fullName}`);
-                filterMode = "self";
-                fixedFilter.userName = "@ViewBag.CurrentUserName";
-                $("#filterSection").hide(); // No filters needed
-            }
+        else if (["Director", "SeniorDirector"].includes(currentUser.position)) {
+            $("#reportTitle").text(`Subprocess: ${currentUser.district} - Achievement Report`);
+            filterMode = "subprocess";
+            fixedFilter.district = currentUser.district;
+            $("#districtFilter").show().find("select").val(currentUser.district).prop("disabled", true);
         }
+        else if (["BranchManager", "Manager"].includes(currentUser.position)) {
+            $("#reportTitle").text(`Branch: ${currentUser.branch} - Achievement Report`);
+            filterMode = "branch";
+            fixedFilter.branch = currentUser.branch;
+        }
+        else {
+            $("#reportTitle").text(`My Performance: ${currentUser.fullName}`);
+            filterMode = "self";
+            fixedFilter.userName = "@ViewBag.CurrentUserName";
+            $("#filterSection").hide();
+        }
+    }
 
-        var table = $('#achievementTable').DataTable({
-            "processing": true,
-            "serverSide": true,
-            "ajax": {
-                "url": "@Url.Action("SmartAchievementReportAjax")",
-                "type": "POST",
-                "data": function (d) {
-                    d.startDate = $('#startDate').val();
-                    d.endDate = $('#endDate').val();
-                    d.district = $('#district').val();
-
-                    // Inject fixed filters based on role
-                    d.filterMode = filterMode;
-                    d.fixedProcess = fixedFilter.process || "";
-                    d.fixedDistrict = fixedFilter.district || "";
-                    d.fixedBranch = fixedFilter.branch || "";
-                    d.fixedUserName = fixedFilter.userName || "";
-                }
-            },
-            "pageLength": 10,
-            "order": [[8, "desc"]],
-            "columns": [
-                { "data": null, "orderable": false, render: (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1 },
-                { "data": "FullName" },
-                { "data": "Process" },
-                { "data": "District" },
-                { "data": "Branch" },
-                { "data": "Target", render: $.fn.dataTable.render.number(',', '.', 2) },
-                { "data": "Deposited", render: $.fn.dataTable.render.number(',', '.', 2) },
-                { "data": "Achieved", render: $.fn.dataTable.render.number(',', '.', 2) },
-                { "data": "Percentage", render: function (d) {
+    var table = $('#achievementTable').DataTable({
+        "processing": true,
+        "serverSide": true,
+        "ajax": {
+            "url": "@Url.Action("SmartAchievementReportAjax")",
+            "type": "POST",
+            "data": function (d) {
+                d.startDate = $('#startDate').val();
+                d.endDate = $('#endDate').val();
+                d.district = $('#district').val();
+                d.filterMode = filterMode;
+                d.fixedProcess = fixedFilter.process || "";
+                d.fixedDistrict = fixedFilter.district || "";
+                d.fixedBranch = fixedFilter.branch || "";
+                d.fixedUserName = fixedFilter.userName || "";
+            }
+        },
+        "pageLength": 25,
+        "order": [[7, "desc"]], // Sort by % Achieved
+        "columns": [
+            { "data": null, "orderable": false, render: (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1 },
+            { "data": "FullName" },
+            { "data": "Process" },
+            { "data": "District" },
+            { "data": "Branch" },
+            { "data": "Target", render: $.fn.dataTable.render.number(',', '.', 2) },
+            { "data": "Achieved", render: $.fn.dataTable.render.number(',', '.', 2) },
+            {
+                "data": "Percentage",
+                "render": function (d) {
                     var color = d >= 100 ? 'success' : d >= 80 ? 'warning' : 'danger';
-                    return `<span class="badge bg-${color}">${d.toFixed(1)}%</span>`;
-                }}
-            ],
-            "drawCallback": function (settings) {
-                if (settings.json && settings.json.grandTotalAchieved) {
-                    $('#grandTotalAchieved').text(settings.json.grandTotalAchieved);
-                }
-                if (settings.json && settings.json.grandTotalDeposited) {
-                    $('#grandTotalDeposit').text(settings.json.grandTotalDeposited);
-                }
-                if (settings.json && settings.json.grandTotalTarget) {
-                    $('#grandTotalTarget').text(settings.json.grandTotalTarget);
+                    return `<span class="badge bg-${color}">${parseFloat(d).toFixed(1)}%</span>`;
                 }
             }
-        });
+        ],
+        "drawCallback": function (settings) {
+            var json = settings.json;
+            if (json) {
+                $('#grandTotalTarget').text(json.grandTotalTarget || '0.00');
+                $('#grandTotalAchieved').text(json.grandTotalAchieved || '0.00');
 
-        $('#filterForm').on('submit', function (e) {
-            e.preventDefault();
-            table.ajax.reload();
-        });
+                var pct = parseFloat(json.grandTotalPercentage || 0);
+                var $badge = $('#grandTotalPercentage');
 
-        $('#btnReset').click(function () {
-            $('#startDate, #endDate').val('');
-            if ($('#district').is(':visible') && !$('#district').prop('disabled')) {
-                $('#district').val('All');
+                $badge.text(pct.toFixed(1) + '%')
+                    .removeClass('bg-success bg-warning bg-danger')
+                    .addClass(pct >= 100 ? 'bg-success' :
+                        pct >= 80 ? 'bg-warning' : 'bg-danger');
             }
-            table.ajax.reload();
-        });
+        }
+    });
 
-        @*$('#btnExport').click(function () {
-            var url = "@Url.Action("ExportSmartAchievementToExcel")" +
-                "?startDate=" + encodeURIComponent($('#startDate').val()) +
-                "&endDate=" + encodeURIComponent($('#endDate').val()) +
-                "&district=" + encodeURIComponent($('#district').val()) +
-                "&filterMode=" + filterMode +
-                "&fixedProcess=" + encodeURIComponent(fixedFilter.process || "") +
-                "&fixedDistrict=" + encodeURIComponent(fixedFilter.district || "") +
-                "&fixedBranch=" + encodeURIComponent(fixedFilter.branch || "") +
-                "&fixedUserName=" + encodeURIComponent(fixedFilter.userName || "");
+    $('#filterForm').on('submit', function (e) {
+        e.preventDefault();
+        table.ajax.reload();
+    });
 
-            window.location.href = url;
-        });*@
+    $('#btnReset').click(function () {
+        $('#startDate, #endDate').val('');
+        if ($('#district').is(':visible') && !$('#district').prop('disabled')) {
+            $('#district').val('All');
+        }
+        table.ajax.reload();
+    });
 
+    // EXPORT TO EXCEL - Client-side (All Data)
+    $('#btnExport').click(function () {
+        const $btn = $(this).prop('disabled', true).html('Exporting...');
+        const currentLength = table.page.len();
+        const currentPage = table.page();
 
-        $('#btnExport').click(function () {
-            var data = table.rows({ search: 'applied', order: 'applied' }).data().toArray();
+        table.page.len(-1).draw();
 
-            var exportData = [];
+        table.one('draw', function () {
+            try {
+                const allData = table.rows().data().toArray();
+                const json = table.settings()[0].json;
 
-            // === 1. Title & Info ===
-            exportData.push(["DEPOSIT ACHIEVEMENT REPORT"]);
-            exportData.push([""]);
-            exportData.push([`Period: ${$('#startDate').val() ? $('#startDate').val() + " to " + ($('#endDate').val() || "Present") : "All Time"}`]);
-            exportData.push([`Scope: ${$("#reportTitle").text().trim()}`]);
-            exportData.push([`Generated: ${moment().format('dddd, DD MMMM YYYY [at] HH:mm')}`]);
-            exportData.push([`Records Shown: ${data.length.toLocaleString()}`]);
-            exportData.push([""]);
+                let exportData = [];
+                exportData.push(["DEPOSIT ACHIEVEMENT REPORT"]);
+                exportData.push([]);
+                exportData.push([`Period: ${$('#startDate').val() ? $('#startDate').val() + " to " + ($('#endDate').val() || "Present") : "All Time"}`]);
+                exportData.push([`Scope: ${$("#reportTitle").text().trim()}`]);
+                exportData.push([`Generated: ${moment().format('dddd, DD MMMM YYYY [at] HH:mm')}`]);
+                exportData.push([`Total Records: ${allData.length.toLocaleString()}`]);
+                exportData.push([]);
 
-            // === 2. Header ===
-            exportData.push([
-                "No", "Full Name", "Process", "District/Subprocess", "Branch/Team",
-                "Target", "Deposited", "Achieved", "% Achieved"
-            ]);
-
-            // === 3. Data Rows ===
-            data.forEach(function (row, i) {
-                var rowNum = table.page.info().start + i + 1;
-                var pct = parseFloat(row.Percentage || 0);
-
+                // Header (8 columns now)
                 exportData.push([
-                    rowNum,
-                    (row.FullName || "N/A").trim(),
-                    row.Process || "-",
-                    row.District || "-",
-                    row.Branch || "-",
-                    parseFloat(row.Target || 0),
-                    parseFloat(row.Deposited || 0),
-                    parseFloat(row.Achieved || 0),
-                    pct / 100  // Will be formatted as %
+                    "No", "Full Name", "Process", "District/Subprocess", "Branch/Team",
+                    "Target", "Achieved", "% Achieved"
                 ]);
-            });
 
-            // === 4. Grand Total ===
-            var gTarget = parseFloat($('#grandTotalTarget').text().replace(/,/g, '') || 0);
-            var gDeposit = parseFloat($('#grandTotalDeposit').text().replace(/,/g, '') || 0);
-            var gAchieved = parseFloat($('#grandTotalAchieved').text().replace(/,/g, '') || 0);
-            var gPct = gTarget > 0 ? (gAchieved / gTarget) : 0;
+                allData.forEach((row, i) => {
+                    exportData.push([
+                        i + 1,
+                        (row.FullName || "N/A").trim(),
+                        row.Process || "-",
+                        row.District || "-",
+                        row.Branch || "-",
+                        parseFloat(row.Target || 0),
+                        parseFloat(row.Achieved || 0),
+                        (parseFloat(row.Percentage || 0)) / 100
+                    ]);
+                });
 
-            exportData.push([""]);
-            exportData.push([
-                "GRAND TOTAL", "", "", "", "", gTarget, gDeposit, gAchieved, gPct
-            ]);
+                // Grand Total
+                const gTarget = parseFloat((json?.grandTotalTarget || "0").replace(/,/g, ''));
+                const gAchieved = parseFloat((json?.grandTotalAchieved || "0").replace(/,/g, ''));
+                const gPct = gTarget > 0 ? (gAchieved / gTarget) * 100 : 0;
 
-            // === Create Sheet ===
-            var wb = XLSX.utils.book_new();
-            var ws = XLSX.utils.aoa_to_sheet(exportData);
+                exportData.push([]);
+                exportData.push(["GRAND TOTAL", "", "", "", "", gTarget, gAchieved, gPct / 100]);
 
-            var range = XLSX.utils.decode_range(ws['!ref']);
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(exportData);
+                const range = XLSX.utils.decode_range(ws['!ref']);
 
-            // === Apply Styling ===
-            for (let R = 0; R <= range.e.r; R++) {
-                for (let C = 0; C <= range.e.c; C++) {
-                    let cellAddr = XLSX.utils.encode_cell({ r: R, c: C });
-                    if (!ws[cellAddr]) continue;
+                // Styling
+                for (let R = 0; R <= range.e.r; ++R) {
+                    for (let C = 0; C <= range.e.c; ++C) {
+                        const addr = XLSX.utils.encode_cell({ r: R, c: C });
+                        if (!ws[addr]) continue;
+                        const cell = ws[addr];
 
-                    let cell = ws[cellAddr];
-
-                    // Title Row
-                    if (R === 0) {
-                        cell.s = { font: { bold: true, sz: 18, color: { rgb: "1F4E79" } }, alignment: { horizontal: "center" } };
-                    }
-                    // Info rows
-                    else if (R >= 2 && R <= 5) {
-                        cell.s = { font: { italic: true, color: { rgb: "555555" } } };
-                    }
-                    // Header Row
-                    else if (R === 7) {
-                        cell.s = {
-                            font: { bold: true, color: { rgb: "FFFFFF" } },
-                            fill: { fgColor: { rgb: "366092" } },  // Dark blue-gray
-                            alignment: { horizontal: "center", vertical: "center" },
-                            border: { top: { style: "thin" }, bottom: { style: "medium" }, left: { style: "thin" }, right: { style: "thin" } }
-                        };
-                    }
-                    // Data Rows + Grand Total
-                    else if (R >= 8) {
-                        let isTotalRow = R === exportData.length - 1;
-
-                        cell.s = {
-                            font: { bold: isTotalRow },
-                            fill: { fgColor: isTotalRow ? { rgb: "D9D9D9" } : undefined }, // Light gray for total
-                            alignment: { horizontal: (C >= 5 && C <= 7) ? "right" : (C === 0 && isTotalRow) ? "right" : "left" },
-                            border: {
-                                top: { style: "thin", color: { rgb: "CCCCCC" } },
-                                bottom: { style: isTotalRow ? "medium" : "thin", color: isTotalRow ? { rgb: "366092" } : { rgb: "CCCCCC" } },
-                                left: { style: "thin", color: { rgb: "CCCCCC" } },
-                                right: { style: "thin", color: { rgb: "CCCCCC" } }
+                        if (R === 0) {
+                            cell.s = { font: { bold: true, sz: 18, color: { rgb: "1F4E79" } }, alignment: { horizontal: "center" } };
+                        }
+                        else if (R >= 2 && R <= 5) {
+                            cell.s = { font: { italic: true, color: { rgb: "555555" } } };
+                        }
+                        else if (R === 7) {
+                            cell.s = { font: { bold: true, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "366092" } }, alignment: { horizontal: "center" } };
+                        }
+                        else if (R >= 8) {
+                            const isTotal = R === exportData.length - 1;
+                            cell.s = {
+                                font: { bold: isTotal },
+                                fill: isTotal ? { fgColor: { rgb: "D9E2F3" } } : undefined,
+                                alignment: { horizontal: C >= 5 ? "right" : "left" },
+                                border: { top: { style: "thin" }, bottom: { style: isTotal ? "double" : "thin" }, left: { style: "thin" }, right: { style: "thin" } }
+                            };
+                            if (C === 7 && !isTotal) { // % Achieved column
+                                const val = (cell.v || 0) * 100;
+                                const color = val >= 100 ? "27AE60" : val >= 80 ? "E67E22" : "E74C3C";
+                                cell.s.font = { bold: true, color: { rgb: color } };
                             }
-                        };
-
-                        // Color % Achieved (Green >=100%, Orange >=80%, Red <80%)
-                        if (C === 8) {
-                            let val = parseFloat(cell.v) * 100;
-                            let color = val >= 100 ? "27AE60" : val >= 80 ? "E67E22" : "E74C3C";
-                            cell.s.font = { bold: true, color: { rgb: color } };
                         }
                     }
                 }
-            }
 
-            // === Column Widths ===
-            ws['!cols'] = [
-                { wch: 6 }, { wch: 28 }, { wch: 16 }, { wch: 22 }, { wch: 20 },
-                { wch: 16 }, { wch: 16 }, { wch: 16 }, { wch: 14 }
-            ];
+                ws['!cols'] = [
+                    { wch: 6 }, { wch: 28 }, { wch: 16 }, { wch: 22 }, { wch: 20 },
+                    { wch: 16 }, { wch: 16 }, { wch: 14 }
+                ];
 
-            // === Row Heights ===
-            ws['!rows'] = [
-                { hpt: 32 }, null, null, null, null, null, null,
-                { hpt: 24 }, // Header
-                ...Array(data.length).fill({ hpt: 20 }),
-                null,
-                { hpt: 28 }  // Grand Total
-            ];
+                ws['!merges'] = [
+                    { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } },
+                    { s: { r: 2, c: 0 }, e: { r: 2, c: 7 } },
+                    { s: { r: 3, c: 0 }, e: { r: 3, c: 7 } },
+                    { s: { r: 4, c: 0 }, e: { r: 4, c: 7 } },
+                    { s: { r: 5, c: 0 }, e: { r: 5, c: 7 } },
+                    { s: { r: exportData.length - 1, c: 0 }, e: { r: exportData.length - 1, c: 4 } }
+                ];
 
-            // === Merges ===
-            ws["!merges"] = [
-                { s: { r: 0, c: 0 }, e: { r: 0, c: 8 } },
-                { s: { r: 2, c: 0 }, e: { r: 2, c: 8 } },
-                { s: { r: 3, c: 0 }, e: { r: 3, c: 8 } },
-                { s: { r: 4, c: 0 }, e: { r: 4, c: 8 } },
-                { s: { r: 5, c: 0 }, e: { r: 5, c: 8 } },
-                { s: { r: exportData.length - 1, c: 0 }, e: { r: exportData.length - 1, c: 4 } }
-            ];
-
-            // === Number Formats ===
-            // Target, Deposited, Achieved
-            for (let r = 8; r < exportData.length - 1; r++) {
+                // Number formats
+                for (let r = 8; r < exportData.length - 1; r++) {
+                    ['F', 'G'].forEach(col => { const c = ws[col + (r + 1)]; if (c) c.z = "#,##0.00"; });
+                    const pc = ws['H' + (r + 1)]; if (pc) pc.z = "0.00%";
+                }
                 ['F', 'G', 'H'].forEach(col => {
-                    let addr = col + r;
-                    if (ws[addr]) ws[addr].z = "#,##0.00";
+                    const c = ws[col + exportData.length];
+                    if (c) c.z = col === 'H' ? "0.00%" : "#,##0.00";
                 });
-                if (ws['I' + r]) ws['I' + r].z = "0.00%";
+
+                XLSX.utils.book_append_sheet(wb, ws, "Achievement Report");
+                XLSX.writeFile(wb, `Deposit_Achievement_${moment().format('YYYYMMDD_HHmm')}.xlsx`);
+
+                toastr.success(`Exported ${allData.length.toLocaleString()} records!`);
+            } catch (err) {
+                console.error(err);
+                toastr.error("Export failed!");
+            } finally {
+                table.page.len(currentLength).page(currentPage).draw('page');
+                $btn.prop('disabled', false).html('Export to Excel');
             }
-            // Grand Total
-            ['F', 'G', 'H', 'I'].forEach(col => {
-                let addr = col + (exportData.length - 1);
-                if (ws[addr]) ws[addr].z = col === 'I' ? "0.00%" : "#,##0.00";
-            });
-
-            // === Finalize ===
-            XLSX.utils.book_append_sheet(wb, ws, "Achievement Report");
-
-            var fileName = `Deposit_Achievement_${moment().format('YYYYMMDD_HHmm')}.xlsx`;
-            XLSX.writeFile(wb, fileName);
-
-            toastr.success("Excel report generated successfully!", "Export Complete");
         });
     });
+});
     </script>
 }

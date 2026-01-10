@@ -19,6 +19,7 @@
         --border-radius: 1rem;
         --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     }
+
     hr {
         width: 100%;
         height: 0.1px;
@@ -72,61 +73,72 @@
         .card-header i {
             margin-right: 0.5rem;
         }
-    /* Ensure Select2 matches Bootstrap form-control */
-    .select2-container--bootstrap-5 .select2-selection {
-        height: calc(2rem + 2px); /* Same as form-control height */
-        padding: 0rem 0.3rem;
-        border: 1px solid #ced4da !important; /* Visible border */
-        border-radius: 0.375rem; /* Same as Bootstrap */
-        font-size: 0.95rem;
+    /* Compact & perfectly aligned shared user rows - no Bootstrap grid issues */
+    .shared-user-row {
+        display: flex !important;
+        align-items: flex-end !important;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem !important;
     }
 
-    /* Align text vertically */
-    .select2-container--bootstrap-5 .select2-selection__rendered {
-        line-height: 2.2rem !important;
+        .shared-user-row .flex-fill {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .shared-user-row .form-label {
+            font-size: 0.8125rem;
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            color: #495057;
+        }
+
+        .shared-user-row .form-select,
+        .shared-user-row .form-control {
+            height: 34px !important;
+            font-size: 0.875rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+    /* Force Select2 to match exact height & alignment */
+    .select2-container--default .select2-selection--single {
+        height: 50px !important;
+        border-radius: 0.35rem;
+        border: 1px solid #ced4da;
     }
 
-    /* Adjust arrow position */
-    .select2-container--bootstrap-5 .select2-selection__arrow {
-        height: 100% !important;
-        top: 0.5rem !important;
-    }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 50px !important;
+            padding-left: 0.5rem !important;
+            font-size: 0.875rem;
+        }
 
-    /* Scrollable dropdown results */
-    .select2-results__options {
-        max-height: 200px !important; /* Adjust scroll height */
-        overflow-y: auto !important;
-    }
-    /* Position the clear 'x' button to the right */
-    .select2-container--bootstrap-5 .select2-selection__clear {
-        position: absolute;
-        right: 2.2rem; /* keep space before arrow */
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 1rem;
-        color: #6c757d;
-        cursor: pointer;
-        opacity: 0.7;
-    }
-
-        /* Hover effect for better UX */
-        .select2-container--bootstrap-5 .select2-selection__clear:hover {
-            color: #dc3545;
-            opacity: 1;
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 50px !important;
+            right: 0.5rem;
         }
 
     .blinking-warning {
-            animation: blink 1.5s infinite;
-        }
-    @@keyframes blink {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.6; }
+        animation: blink 1.5s infinite;
     }
+
+    @@keyframes blink {
+        0%, 100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.6;
+        }
+    }
+
     .form-floating > .form-control:focus ~ label,
     .form-floating > .form-control:not(:placeholder-shown) ~ label,
     .form-floating > .form-select ~ label {
         color: #0d6efd;
     }
+
     .form-floating > .form-control.bg-light ~ label {
         color: #6c757d;
     }
@@ -134,20 +146,21 @@
     .text-shadow-sm {
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
     }
+
 </style>
 
 <div class="card shadow-sm border-0 mt-4">
 
-        <div class="card-header">
-            <i class="fas fa-plus-circle me-2 fs-5"></i> New Deposit
-        </div>
+    <div class="card-header">
+        <i class="fas fa-plus-circle me-2 fs-5"></i> New Deposit
+    </div>
 
     <div class="card-body">
 
         @if (TempData["ErrorMessage"] != null)
         {
             <div class="alert alert-danger">
-                <strong>Error!</strong> @TempData["ErrorMessage"]
+                @Html.Raw(TempData["ErrorMessage"])
             </div>
         }
 
@@ -183,22 +196,28 @@
 
                     <!-- Row 1: Account Number + Reference Number -->
                     <div class="row g-3 mb-3">
+                        <!-- New: Select Reserved Account -->
                         <div class="col-md-6">
                             <div class="form-floating">
-                                @Html.EditorFor(model => model.DepositPlan.AccountNumber, new { htmlAttributes = new { @class = "form-control", placeholder = "Account Number" } })
-                                @Html.LabelFor(model => model.DepositPlan.AccountNumber, "Account Number")
+                                <select name="DepositPlan.AccountNumber"
+                                        id="reservedAccountSelect"
+                                        class="form-select"
+                                        required="required">
+                                    <option value="">-- Select Your Reserved Account Number --</option>
+                                </select>
+
+                                @Html.LabelFor(model => model.DepositPlan.AccountNumber, "", new { @for = "reservedAccountSelect" })
                                 @Html.ValidationMessageFor(model => model.DepositPlan.AccountNumber, "", new { @class = "text-danger small mt-1" })
                             </div>
                         </div>
+
                         <div class="col-md-6">
                             <div class="form-floating">
                                 @Html.EditorFor(model => model.DepositPlan.ReferenceNumber, new { htmlAttributes = new { @class = "form-control", placeholder = "Reference Number" } })
                                 @Html.LabelFor(model => model.DepositPlan.ReferenceNumber, "Reference Number")
                                 @Html.ValidationMessageFor(model => model.DepositPlan.ReferenceNumber, "", new { @class = "text-danger small mt-1" })
                             </div>
-                            @*<div class="mt-2">
-                        <input type="submit" name="submit" value="Validate" class="btn btn-info text-white w-100" />
-                    </div>*@
+
                             <div class="mt-2">
                                 <input type="submit" name="submit" value="Validate" class="btn btn-outline-primary btn-sm px-4" />
                             </div>
@@ -209,137 +228,149 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <div class="form-floating">
-                                @Html.EditorFor(model => model.DepositPlan.AccountHolder, new { htmlAttributes = new { @class = "form-control bg-light", @Value = ViewBag.AccountHolder, @readonly = "readonly", placeholder = "Account Holder" } })
-                                @Html.LabelFor(model => model.DepositPlan.AccountHolder, "Account Holder")
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-floating">
                                 @Html.EditorFor(model => model.DepositPlan.Amount, new { htmlAttributes = new { @class = "form-control bg-light", @Value = ViewBag.TransactionAmount, @readonly = "readonly", placeholder = "Amount" } })
                                 <label>Amount</label>
                             </div>
                         </div>
-                    </div>
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                <input type="date"
+                                       name="DepositPlan.RefDate"
+                                       id="DepositPlan_RefDate"
+                                       value="@isoDate"
+                                       class="form-control"
+                                       readonly />
 
-                    <!-- Hidden Account Balance -->
-                    <div style="display: none;">
-                        @Html.EditorFor(model => model.DepositPlan.AccountBalance, new { htmlAttributes = new { @Value = ViewBag.AccountBalance } })
-                    </div>
-                    <!-- previous Initial Account Balance -->
-                    <div style="display: none;">
-                        @Html.EditorFor(model => model.DepositPlan.Prev_Ini_Bal, new { htmlAttributes = new { @Value = ViewBag.PreviousBalance } })
-                    </div>
-                    <div class="form-floating mb-3">
-                        <input type="date"
-                               name="DepositPlan.RefDate"
-                               id="DepositPlan_RefDate"
-                               value="@isoDate"
-                               class="form-control"
-                               readonly />
-
-                        <label for="DepositPlan_RefDate">Reference Date</label>
-                    </div>
-                    <!-- Row 3: Share Deposit + Deposit Type (Manager Only) -->
-                    <div class="row g-3 mb-3 align-items-center">
-                        <!-- Share Deposit Checkbox -->
-                        @Html.CheckBoxFor(m => m.ShareDeposit, new { id = "ShareDepositCheckbox", style = "position:absolute; left:-9999px;" })
-                        <div id="shareCheckboxWrapper">
-                            <div class="col-md-6">
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="ShareDepositCheckboxVisible" />
-                                    <label class="form-check-label fw-medium text-secondary" for="ShareDepositCheckboxVisible">
-                                        Share Deposit
-                                    </label>
-                                </div>
+                                <label for="DepositPlan_RefDate">Reference Date</label>
                             </div>
                         </div>
-
-                        <!-- Deposit Type (Branch Manager Only) -->
-                        @if (Session["Position"]?.ToString() == "BranchManager")
-                        {
-                            <div class="col-md-6">
-                                <div class="form-floating">
-                                    @Html.DropDownListFor(
-                                        m => m.DepositPlan.DepositType,
-                                        new SelectList(new[] { "Individual", "Branch" }),
-                                        "Select Deposit For",
-                                        new { @class = "form-select", id = "DepositTypeSelect" })
-                                    <label>Deposit Type</label>
-                                </div>
-                            </div>
-                        }
                     </div>
-
-                    <!-- Shared Users Section -->
-                    <div id="sharedSection" class="border rounded p-4 " style="display:none;">
-                        <h5 class="mb-3 text-primary">
-                            <i class="fas fa-users me-2"></i>Shared Users
-                        </h5>
-                        <div id="shareGuidance" class="alert alert-warning py-2 px-3 mb-3 small blinking-warning" role="alert">
-                            Don't Forget to fill your amount Please.
+                        <!-- Hidden Account Balance -->
+                        <div style="display: none;">
+                            @Html.EditorFor(model => model.DepositPlan.AccountBalance, new { htmlAttributes = new { @Value = ViewBag.AccountBalance } })
                         </div>
-                        <hr class="my-3">
-                        @for (int i = 1; i <= 3; i++)
-                        {
-                            var isFirst = i == 1;
-                            var userText = isFirst ? $"{Session["FullName"]} ({Session["UserName"]})" : "";
-                            var userId = isFirst ? Session["Userid"]?.ToString() : "";
-
-                            <div class="row g-3 mb-3 align-items-end">
+                        <!-- previous Initial Account Balance -->
+                        <div style="display: none;">
+                            @Html.EditorFor(model => model.DepositPlan.Prev_Ini_Bal, new { htmlAttributes = new { @Value = ViewBag.PreviousBalance } })
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating" style="display: none;">
+                                @Html.EditorFor(model => model.DepositPlan.AccountHolder, new { htmlAttributes = new { @class = "form-control bg-light", @Value = ViewBag.AccountHolder, @readonly = "readonly", placeholder = "Account Holder" } })
+                                @Html.LabelFor(model => model.DepositPlan.AccountHolder, "Account Holder")
+                            </div>
+                        </div>
+                        <!-- Row 3: Share Deposit + Deposit Type (Manager Only) -->
+                        <div class="row g-3 mb-3 align-items-center">
+                            <!-- Share Deposit Checkbox -->
+                            @Html.CheckBoxFor(m => m.ShareDeposit, new { id = "ShareDepositCheckbox", style = "position:absolute; left:-9999px;" })
+                            <div id="shareCheckboxWrapper">
                                 <div class="col-md-6">
-                                    <label class="form-label fw-medium">User @i</label>
-                                    @if (isFirst)
-                                    {
-                                        <select class="form-select bg-light" disabled>
-                                            <option value="@userId" selected>@userText</option>
-                                        </select>
-                                        <input type="hidden" name="SharedUser1" value="@Session["UserName"]" />
-                                    }
-                                    else
-                                    {
-                                        @Html.DropDownList($"SharedUser{i}", Enumerable.Empty<SelectListItem>(), "Search User",
-                                            new { @class = "form-select user-search", id = $"SharedUser{i}" })
-                                    }
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-medium">Amount</label>
-                                    <input type="number" name="@($"SharedAmount{i}")" class="form-control" step="0.01" placeholder="0.00" />
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="ShareDepositCheckboxVisible" />
+                                        <label class="form-check-label fw-medium text-secondary" for="ShareDepositCheckboxVisible">
+                                            Share Deposit
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
+
+                            <!-- Deposit Type (Branch Manager Only) -->
+                            @if (Session["Position"]?.ToString() == "BranchManager")
+                            {
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        @Html.DropDownListFor(
+                                            m => m.DepositPlan.DepositType,
+                                            new SelectList(new[] { "Individual", "Branch" }),
+                                            "Select Deposit For",
+                                            new { @class = "form-select", id = "DepositTypeSelect" })
+                                        <label>Deposit Type</label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Shared Users Section -->
+                        <!-- Shared Users Section -->
+                        <div id="sharedSection" class="border rounded p-4" style="display:none;">
+                            <h5 class="mb-3 text-primary">
+                                <i class="fas fa-users me-2"></i>Shared Users
+                            </h5>
+
+                            <div id="shareGuidance" class="alert alert-warning py-2 px-3 mb-3 small blinking-warning" role="alert">
+                                Don't forget to fill amounts!
+                            </div>
+
+                            <hr class="my-3">
+
+                            <!-- Shared users loop - now up to 5 -->
+                            <!-- Shared users loop - compact, perfectly aligned side-by-side -->
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                var isFirst = i == 1;
+                                var userText = isFirst ? $"{Session["FullName"]} ({Session["UserName"]})" : "";
+                                var userId = isFirst ? Session["Userid"]?.ToString() : "";
+                                var rowId = $"sharedRow{i}";
+
+                                <div class="d-flex align-items-end gap-2 mb-2 shared-user-row" id="@rowId">
+                                    <!-- User (left - narrow) -->
+                                    <div class="flex-fill" style="max-width: 45%;">
+                                        <label class="form-label fw-medium mb-1 small">User @i</label>
+                                        @if (isFirst)
+                                        {
+                                            <select class="form-select form-select-sm bg-light" disabled>
+                                                <option value="@userId" selected>@userText</option>
+                                            </select>
+                                            <input type="hidden" name="SharedUser1" value="@Session["UserName"]" />
+                                        }
+                                        else
+                                        {
+                                            @Html.DropDownList($"SharedUser{i}", Enumerable.Empty<SelectListItem>(), "Search User",
+                                                new { @class = "form-select form-select-sm user-search", id = $"SharedUser{i}" })
+                                        }
+                                    </div>
+
+                                    <!-- Amount (right - medium width) -->
+                                    <div class="flex-fill" style="max-width: 55%;">
+                                        <label class="form-label fw-medium mb-1 small">Amount</label>
+                                        <input type="number"
+                                               name="@($"SharedAmount{i}")"
+                                               class="form-control form-control-sm shared-amount-input"
+                                               step="0.01"
+                                               placeholder="0.00" />
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Warning message -->
+                            <div id="sharedAmountWarning" class="text-danger fw-bold mt-2" style="display:none;"></div>
+                        </div>
+                        <!-- Action Buttons -->
+                        <div class="mt-4 text-end">
+                            <input type="submit" name="submit" value="Save" class="btn btn-primary px-5" style="background: linear-gradient(135deg, #00AEEF, #0077b6); border:none;" />
+                            @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-outline-secondary ms-2" })
+                        </div>
+
                         }
                     </div>
-
-                    <!-- Shared Amount Warning -->
-                    <div id="sharedAmountWarning" class="text-danger fw-bold mt-2" style="display:none; margin-left:15px;"></div>
-
-                    <!-- Action Buttons -->
-                    <div class="mt-4 text-end">
-                        <input type="submit" name="submit" value="Save" class="btn btn-primary px-5" style="background: linear-gradient(135deg, #00AEEF, #0077b6); border:none;" />
-                        @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-outline-secondary ms-2" })
-                    </div>
-                }
-            </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
-    @Styles.Render("~/Content/cssjqryUi")
-    @Scripts.Render("~/bundles/jqueryui")
-    @*<script src="~/Content/jquery-3.6.0.min.js"></script>*@
-    <!-- ✅ Put jQuery BEFORE Select2 -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
+    <!-- Your existing styles and bundles remain the same -->
 
     <script src="~/dist/js/select2.min.js"></script>
     <link href="~/dist/css/select2.min.css" rel="stylesheet" />
+
     <script>
     $(document).ready(function () {
         console.log("✅ jQuery and Select2 initialized");
 
-        // Ensure all .user-search dropdowns are enhanced
+        // 1. Initialize Select2 for all user-search dropdowns
         $('.user-search').each(function () {
             $(this).select2({
+                //theme: 'bootstrap-5',
                 placeholder: "Search user...",
                 allowClear: true,
                 minimumInputLength: 1,
@@ -375,48 +406,206 @@
             });
         });
 
-        // ✅ Debug message to verify connection
+        // Debug: log when Select2 opens
         $('.user-search').on('select2:open', function () {
             console.log("🟢 Select2 dropdown opened for:", this.id);
         });
-    });
-    </script>
+
+        // 2. Apply Select2 to reserved account dropdown (if you want enhanced look)
+        var $select = $('#reservedAccountSelect');
+
+        // Helper function to set a selected option manually
+        function setSelectedAccount(accountNumber, accountText) {
+            if (accountNumber) {
+                var newOption = new Option(accountText, accountNumber, true, true);
+                $select.append(newOption).trigger('change');
+            }
+        }
+
+        // Initialize Select2
+        $select.select2({
+            //theme: 'bootstrap-5',
+            placeholder: "-- Select Your Reserved Account Number --",
+            allowClear: true,
+            minimumInputLength: 3,
+            width: '100%',
+            ajax: {
+                url: '@Url.Action("SearchReservedAccounts", "DepositPlans")',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return { q: params.term };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.map(function (item) {
+                            return { id: item.Value, text: item.Text };
+                        })
+                    };
+                },
+                cache: true
+            }
+        });
+
+        // === RESTORE SELECTED VALUE AFTER VALIDATION FAILURE ===
+        var preselectedAccountNumber = '@ViewBag.SelectedReservedAccount';
+        if (preselectedAccountNumber && preselectedAccountNumber.trim() !== '') {
+            // We need the display text too: fetch it via AJAX
+            $.ajax({
+                url: '@Url.Action("GetReservedAccountByNumber", "DepositPlans")',
+                data: { accountNumber: preselectedAccountNumber },
+                dataType: 'json',
+                success: function (data) {
+                    if (data) {
+                        setSelectedAccount(data.Value, data.Text);
+                    }
+                }
+            });
+        }
+
+        // =====================================================================
+        //                   SHARED USERS DYNAMIC LOGIC
+        // =====================================================================
+
+        const THRESHOLD_LARGE_AMOUNT = 50000000;
+        const MAX_SHARED_NORMAL = 3;
+        const MAX_SHARED_LARGE = 5;
+
+        // Get current deposit amount (from readonly field)
+        // Get current deposit amount safely
+        function getDepositAmount() {
+            const val = $('#DepositPlan_Amount').val();
+            return val ? parseFloat(val.replace(/,/g, '')) || 0 : 0;
+        }
+        // Show/hide extra rows (4 & 5) based on amount
+        function updateSharedRowsVisibility() {
+            const amount = getDepositAmount();
+            const maxAllowed = amount > THRESHOLD_LARGE_AMOUNT ? MAX_SHARED_LARGE : MAX_SHARED_NORMAL;
+
+            $('.shared-user-row').each(function (index) {
+                const rowNum = index + 1;
+                if (rowNum <= maxAllowed) {
+                    $(this).slideDown(300);
+                } else {
+                    $(this).slideUp(300, function () {
+                        // Clear only after fully hidden
+                        $(this).find('select, input[type="number"]').val('').trigger('change');
+                    });
+                }
+            });
+        }
+
+        // Run on page load
+        $(window).on('load', updateSharedRowsVisibility);
+
+        // Run when amount changes
+        $('#DepositPlan_Amount').on('change input', updateSharedRowsVisibility);
 
 
-    <script>
-    $(document).ready(function () {
+        // Run every time shared section is opened
+        $('#ShareDepositCheckboxVisible').on('change', function () {
+            if (this.checked) {
+                $('#sharedSection').slideDown(300, function () {
+                    updateSharedRowsVisibility(); // Re-check after visible
+                });
+            }
+        });
 
+        // Real-time shared amount validation + visual feedback
+        $('input[name^="SharedAmount"]').on('input', function () {
+            const amount = getDepositAmount();
+            const maxAllowedUsers = (amount > THRESHOLD_LARGE_AMOUNT) ? MAX_SHARED_LARGE : MAX_SHARED_NORMAL;
 
-        // ------------------------------------------------------------------
-        // @Html.CheckBoxFor(m => m.ShareDeposit, new { id = "ShareDepositCheckbox", style = "position:absolute; left:-9999px;" })
-        // This is rendered outside the visible wrapper but always in DOM
+            let totalShared = 0;
+            let filledCount = 0;
 
+            for (let i = 1; i <= 5; i++) {
+                const val = parseFloat($(`input[name="SharedAmount${i}"]`).val()) || 0;
+                if (val > 0) filledCount++;
+                totalShared += val;
+            }
 
-        // Sync visible checkbox with hidden model-bound one
+            const $warning = $('#sharedAmountWarning');
+
+            if (totalShared > amount) {
+                $('input[name^="SharedAmount"]').css('border', '2px solid red');
+                $warning.text(`⚠️ Total shared (${totalShared.toFixed(2)}) exceeds deposit amount (${amount.toFixed(2)})!`)
+                    .fadeIn(200);
+            } else if (filledCount > maxAllowedUsers) {
+                $('input[name^="SharedAmount"]').css('border', '2px solid orange');
+                $warning.text(`Maximum ${maxAllowedUsers} shared users allowed for this amount.`)
+                    .fadeIn(200);
+            } else if (filledCount === 0 && $('#ShareDepositCheckbox').is(':checked')) {
+                $warning.text('Please assign at least one shared amount > 0.').fadeIn(200);
+            } else {
+                $('input[name^="SharedAmount"]').css('border', '');
+                $warning.fadeOut(200);
+            }
+        });
+
+        // Form submit validation (updated for dynamic max users)
+        $('form').on('submit', function (e) {
+            if (!$('#ShareDepositCheckbox').is(':checked')) return true;
+
+            const amount = getDepositAmount();
+            const maxAllowed = (amount > THRESHOLD_LARGE_AMOUNT) ? MAX_SHARED_LARGE : MAX_SHARED_NORMAL;
+
+            let totalShared = 0;
+            let filledCount = 0;
+
+            for (let i = 1; i <= 5; i++) {
+                const val = parseFloat($(`input[name="SharedAmount${i}"]`).val()) || 0;
+                if (val > 0) filledCount++;
+                totalShared += val;
+            }
+
+            if (totalShared > amount) {
+                alert(`❌ Total shared amount (${totalShared.toFixed(2)}) exceeds deposit amount (${amount.toFixed(2)})!`);
+                e.preventDefault();
+                return false;
+            }
+
+            if (filledCount === 0) {
+                alert('Please assign at least one shared amount greater than 0.');
+                e.preventDefault();
+                return false;
+            }
+
+            if (filledCount > maxAllowed) {
+                alert(`Maximum ${maxAllowed} shared users allowed when amount > 50,000,000 ETB.`);
+                e.preventDefault();
+                return false;
+            }
+
+            return true;
+        });
+
+        // =====================================================================
+        //                   YOUR ORIGINAL REMAINING LOGIC (unchanged)
+        // =====================================================================
+
+        // Checkbox sync
         $('#ShareDepositCheckboxVisible').on('change', function () {
             var isChecked = this.checked;
             $('#ShareDepositCheckbox').prop('checked', isChecked);
-
             if (isChecked) {
                 $('#sharedSection').slideDown(300);
+                updateSharedRowsVisibility(); // re-evaluate visibility when shown
             } else {
                 clearSharedSection();
                 $('#sharedSection').slideUp(300);
             }
         });
 
-        // Sync hidden → visible on page load (e.g., edit form)
         if ($('#ShareDepositCheckbox').is(':checked')) {
             $('#ShareDepositCheckboxVisible').prop('checked', true);
             $('#sharedSection').show();
+            updateSharedRowsVisibility();
         }
 
-
-        // 3. Control visibility of Share Deposit checkbox based on Deposit Type
-
+        // Deposit Type visibility control
         function updateShareCheckboxVisibility() {
             var depositType = $('#DepositTypeSelect').val();
-
             if (depositType === 'Branch') {
                 $('#shareCheckboxWrapper').fadeOut(200);
                 $('#ShareDepositCheckbox').prop('checked', false);
@@ -429,16 +618,14 @@
         }
 
         $('#DepositTypeSelect').on('change', updateShareCheckboxVisibility);
-        updateShareCheckboxVisibility(); // Run on load
+        updateShareCheckboxVisibility();
 
-
-        // 5. Clear all fields in #sharedSection
-
+        // Clear shared section
         function clearSharedSection() {
             $('#sharedSection').find('select, input').each(function () {
                 var $el = $(this);
                 if ($el.is('select')) {
-                    $el.val('').trigger('change'); // Clear Select2
+                    $el.val('').trigger('change');
                 } else if ($el.is(':checkbox,:radio')) {
                     $el.prop('checked', false);
                 } else {
@@ -447,71 +634,7 @@
             });
         }
 
-
-        // 6. Form submit validation (only if checkbox is checked)
-
-        $('input[name="submit"][value="Save"]').prop('disabled', sumShared > depositAmount || sumShared === 0);
-
-        $('form').on('submit', function (e) {
-            if (!$('#ShareDepositCheckbox').is(':checked')) {
-                return true; // Skip validation when not shared
-            }
-
-            // Read the main amount (convert formatted or empty to 0)
-            var depositAmount = parseFloat($('#DepositPlan_Amount').val().replace(/,/g, '')) || 0;
-            var sumShared = 0;
-
-            // Calculate total of shared amounts
-            for (var i = 1; i <= 3; i++) {
-                var amt = parseFloat($('input[name="SharedAmount' + i + '"]').val()) || 0;
-                sumShared += amt;
-            }
-
-            if (sumShared > depositAmount) {
-                alert('❌ The sum of shared user amounts (' + sumShared.toFixed(2) + ') cannot exceed the main deposit amount (' + depositAmount.toFixed(2) + ').');
-                e.preventDefault();
-                return false;
-            }
-
-            if (sumShared === 0) {
-                alert('Please assign at least one shared amount greater than 0.');
-                e.preventDefault();
-                return false;
-            }
-
-            return true;
-        });
-
-
-        // Live real-time validation and visual feedback
-
-        $('input[name^="SharedAmount"]').on('input', function () {
-            var depositAmount = parseFloat($('#DepositPlan_Amount').val().replace(/,/g, '')) || 0;
-            var sumShared = 0;
-
-            for (var i = 1; i <= 3; i++) {
-                sumShared += parseFloat($('input[name="SharedAmount' + i + '"]').val()) || 0;
-            }
-
-            var $warning = $('#sharedAmountWarning');
-
-            if (sumShared > depositAmount) {
-                $('input[name^="SharedAmount"]').css('border', '2px solid red');
-                $warning.text('⚠️ The total shared amount (' + sumShared.toFixed(2) + ') exceeds the main deposit amount (' + depositAmount.toFixed(2) + ').')
-                    .fadeIn(200);
-            } else if (sumShared === 0) {
-                $('input[name^="SharedAmount"]').css('border', '');
-                $warning.text('Please enter at least one valid shared amount.').fadeIn(200);
-            } else {
-                $('input[name^="SharedAmount"]').css('border', '');
-                $warning.fadeOut(200);
-            }
-        });
-
-
-
-        // 7. Datepicker & other unrelated toggles
-
+        // Datepicker & other toggles (unchanged)
         $('input[type=datetime]').datepicker({
             dateFormat: "dd/M/yy",
             changeMonth: true,

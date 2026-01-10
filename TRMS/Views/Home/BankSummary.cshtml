@@ -1,48 +1,282 @@
-﻿@{
-    ViewBag.Title = "Bank Performance Summary";
+﻿@model List<TRMS.Models.BankBalanceSummary>
+@{
+    ViewBag.Title = "Bank Summary";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var data = Model?.FirstOrDefault();
 }
 
-<div class="container mt-5">
-    <h2 class="text-center mb-4">🏦 Bank Deposit Performance Summary</h2>
+<style>
+    :root {
+        --primary: #00ADEF;
+        --primary-dark: #00ADEF;
+        --primary-light: #47c4ff;
+        --primary-gradient-start: #00ADEF;
+        --primary-gradient-end: #0099d6;
+        --credit-start: #00ADEF;
+        --credit-end: #008bc7;
+        --debit-start: #ff6b6b;
+        --debit-end: #ee5a52;
+        --balance-start: #00ADEF;
+        --balance-end: #47c4ff;
+        --bg-start: #00ADEF;
+        --bg-end: #112d4e;
+        --card-glass: rgba(255, 255, 255, 0.12);
+        --border-glass: rgba(0, 173, 239, 0.3);
+    }
 
-    <div class="row">
+    body {
+        background: linear-gradient(-45deg, var(--bg-start), #0f2b46, #112d4e, #00ADEF);
+        background-size: 400% 400%;
+        animation: gradientShift 18s ease infinite;
+        min-height: 100vh;
+        color: white;
+    }
 
-        <!-- Assigned Target -->
-        <div class="col-md-4">
-            <div class="card shadow-sm border-primary">
-                <div class="card-body">
-                    <h5 class="card-title text-primary">Assigned Target</h5>
-                    <p class="display-6 fw-bold">@ViewBag.BankAssignedTarget.ToString("N2")</p>
-                </div>
-            </div>
-        </div>
+    @@keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
 
-        <!-- Achieved -->
-        <div class="col-md-4">
-            <div class="card shadow-sm border-success">
-                <div class="card-body">
-                    <h5 class="card-title text-success">Achieved Amount</h5>
-                    <p class="display-6 fw-bold">@ViewBag.BankAchieved.ToString("N2")</p>
-                </div>
-            </div>
-        </div>
+    .particles {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+    }
 
-        <!-- Remaining -->
-        <div class="col-md-4">
-            <div class="card shadow-sm border-warning">
-                <div class="card-body">
-                    <h5 class="card-title text-warning">Remaining Amount</h5>
-                    <p class="display-6 fw-bold">@ViewBag.BankRemaining.ToString("N2")</p>
-                </div>
-            </div>
-        </div>
+    .particle {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: var(--primary-light);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--primary);
+        animation: float 20s infinite linear;
+    }
 
+    @@keyframes float {
+        0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+        10% { opacity: 0.8; }
+        90% { opacity: 0.8; }
+        100% { transform: translateY(-100px) translateX(120px); opacity: 0; }
+    }
+
+    .summary-container {
+        padding: 3rem 1.5rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+    }
+
+    .summary-header {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    .summary-header h1 {
+        font-size: 3.2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary-light), var(--primary), var(--primary-dark));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+    }
+
+    .summary-header p {
+        font-size: 1.3rem;
+        opacity: 0.9;
+        font-weight: 500;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2rem;
+    }
+
+    .summary-card {
+        border-radius: 1.8rem;
+        padding: 2.5rem;
+        color: white;
+        backdrop-filter: blur(16px);
+        background: var(--card-glass);
+        border: 1px solid var(--border-glass);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .summary-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 1.8rem;
+        padding: 2px;
+        background: linear-gradient(135deg, var(--start), var(--end));
+        mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+        mask-composite: exclude;
+        -webkit-mask-composite: xor;
+        opacity: 0;
+        transition: opacity 0.4s;
+    }
+
+    .summary-card:hover {
+        transform: translateY(-15px) scale(1.03);
+        box-shadow: 0 30px 60px rgba(0, 173, 239, 0.25);
+    }
+
+    .summary-card:hover::before {
+        opacity: 1;
+    }
+
+    .summary-card.credit { --start: var(--credit-start); --end: var(--credit-end); }
+    .summary-card.debit { --start: var(--debit-start); --end: var(--debit-end); }
+    .summary-card.balance { --start: var(--balance-start); --end: var(--balance-end); }
+
+    .summary-title {
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        opacity: 0.9;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .summary-value {
+        font-size: 2.1rem;
+        font-weight: 800;
+        line-height: 2;
+        margin-bottom: 1rem;
+        text-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    }
+
+    .summary-icon {
+        position: absolute;
+        bottom: 1.5rem;
+        right: 2rem;
+        font-size: 6rem;
+        opacity: 0.15;
+        transition: all 0.4s;
+        color: var(--primary-light);
+    }
+
+    .summary-card:hover .summary-icon {
+        transform: scale(1.2) rotate(10deg);
+        opacity: 0.3;
+    }
+
+    .balance-note {
+        margin-top: 4rem;
+        text-align: center;
+        font-size: 1.2rem;
+        font-weight: 600;
+        padding: 1.5rem 2rem;
+        border-radius: 1.5rem;
+        background: rgba(0, 173, 239, 0.15);
+        border: 1px solid rgba(0, 173, 239, 0.4);
+        color: #a0eaff;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 4rem 2rem;
+        font-size: 1.4rem;
+        color: rgba(255,255,255,0.7);
+        background: rgba(255,255,255,0.05);
+        border-radius: 1.5rem;
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border-glass);
+    }
+
+    @@media (max-width: 768px) {
+        .summary-header h1 { font-size: 2.5rem; }
+        .summary-value { font-size: 2.3rem; }
+        .summary-grid { grid-template-columns: 1fr; }
+        .summary-container { padding: 2rem 1rem; }
+    }
+</style>
+
+<!-- Floating Particles Background -->
+<div class="particles" id="particles"></div>
+
+<div class="summary-container" style="font-family: 'Poppins', sans-serif;">
+    <div class="summary-header">
+        <h1><i class="fas fa-university me-3"></i>Bank Balance Overview</h1>
+        <p>Real-time consolidated financial position across all accounts</p>
     </div>
 
-    <hr class="mt-5" />
+    @if (data != null)
+    {
+        <div class="summary-grid">
+            <!-- Total Credit -->
+            <div class="summary-card credit">
+                <div class="summary-title"><i class="fas fa-plus-circle me-2"></i>Total Credit</div>
+                <div class="summary-value">@data.TotalCredit.ToString("N2")</div>
+                <i class="fas fa-arrow-trend-up summary-icon"></i>
+            </div>
 
-    <div class="text-center">
-        <a href="@Url.Action("Index", "Home")" class="btn btn-secondary btn-lg">Back to Dashboard</a>
-    </div>
+            <!-- Total Debit -->
+            <div class="summary-card debit">
+                <div class="summary-title"><i class="fas fa-minus-circle me-2"></i>Total Debit</div>
+                <div class="summary-value">@data.TotalDebit.ToString("N2")</div>
+                <i class="fas fa-arrow-trend-down summary-icon"></i>
+            </div>
 
+            <!-- Net Balance -->
+            <div class="summary-card balance">
+                <div class="summary-title"><i class="fas fa-scale-balanced me-2"></i>Net Balance</div>
+                <div class="summary-value">@data.Difference.ToString("N2")</div>
+                <i class="fas fa-wallet summary-icon"></i>
+            </div>
+        </div>
+
+        <div class="balance-note">
+            <i class="fas fa-circle-info me-2"></i>
+            <strong>Net Balance</strong> = Total Credit − Total Debit
+            @if (data.Difference >= 0)
+            {
+                <span class="ms-3" style="color: #00ADEF;"><i class="fas fa-thumbs-up"></i> Positive cash flow</span>
+            }
+            else
+            {
+                <span class="ms-3 text-warning"><i class="fas fa-exclamation-triangle"></i> Negative balance</span>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="no-data">
+            <i class="fas fa-database fa-3x mb-3 opacity-50"></i>
+            <p>No bank balance data available at this time.</p>
+        </div>
+    }
 </div>
+
+@section Scripts {
+    <script>
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.animationDuration = (Math.random() * 15 + 10) + 's';
+            particle.style.animationDelay = Math.random() * 10 + 's';
+            document.getElementById('particles').appendChild(particle);
+
+            setTimeout(() => {
+                particle.remove();
+            }, 30000);
+        }
+
+        for (let i = 0; i < 25; i++) {
+            setTimeout(createParticle, i * 400);
+        }
+
+        setInterval(createParticle, 1800);
+    </script>
+}

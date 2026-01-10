@@ -6,7 +6,6 @@
         <h3><i class="fa fa-map-marker text-danger"></i> Deposit Achievement Report - By District</h3>
     </div>
     <hr />
-
     <form id="filterForm" class="mb-4">
         <div class="row g-3">
             <div class="col-md-4">
@@ -24,9 +23,23 @@
         </div>
     </form>
 
+    <!-- Summary Alert - Removed "Collected" -->
+    <div class="alert alert-success mb-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <strong>Total Summary</strong>
+                <span class="badge bg-danger ms-2">District Report</span>
+            </div>
+            <div class="d-flex gap-4">
+                <strong>Total Target: <span id="grandTotalTarget">Loading...</span></strong>
+                <strong>Total Achieved: <span id="grandTotalAchieved">Loading...</span></strong>
+                <strong>Achievement: <span id="grandTotalPercentage" class="badge bg-success">0%</span></strong>
+            </div>
+        </div>
+    </div>
+
     <div class="alert alert-info mb-3">
-        <strong>Period:</strong> <span id="periodDisplay">All Time</span> |
-        <strong>Scope:</strong> District Report
+        <strong>Period:</strong> <span id="periodDisplay">All Time</span>
     </div>
 
     <div class="table-responsive">
@@ -36,26 +49,16 @@
                     <th>NO</th>
                     <th>District</th>
                     <th>Target</th>
-                    <th>Deposited</th>
                     <th>Achieved</th>
                     <th>% Achieved</th>
                 </tr>
             </thead>
             <tbody></tbody>
-            <tfoot>
-                <tr class="table-dark">
-                    <th colspan="2">TOTAL:</th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                </tr>
-            </tfoot>
         </table>
     </div>
 
     <button id="btnExport" class="btn btn-success mt-3">
-        <i class="fa fa-file-excel-o"></i> Export to Excel
+        Export to Excel
     </button>
 </div>
 
@@ -74,196 +77,154 @@ $(document).ready(function () {
             }
         },
         "pageLength": 50,
-        "order": [[5, "desc"]],
+        "order": [[4, "desc"]], // Sort by % Achieved
         "columns": [
-            { "data": "No" },
-            { "data": "District" },
+            {
+                "data": null,
+                "orderable": false,
+                "render": (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1
+            },
+            { "data": "Name" },
             { "data": "Target", render: $.fn.dataTable.render.number(',', '.', 2) },
-            { "data": "Deposited", render: $.fn.dataTable.render.number(',', '.', 2) },
             { "data": "Achieved", render: $.fn.dataTable.render.number(',', '.', 2) },
-            { "data": "Percentage", render: function(d) {
-                var color = d >= 100 ? 'success' : d >= 80 ? 'warning' : 'danger';
-                return `<span class="badge bg-${color}">${d.toFixed(2)}%</span>`;
-            }}
+            {
+                "data": "Percentage",
+                "render": function(d) {
+                    var color = d >= 100 ? 'success' : d >= 80 ? 'warning' : 'danger';
+                    return `<span class="badge bg-${color}">${parseFloat(d).toFixed(2)}%</span>`;
+                }
+            }
         ],
-        "footerCallback": function () {
-            var api = this.api();
-            var totalTarget = api.column(2).data().reduce((a, b) => a + b, 0);
-            var totalAch = api.column(4).data().reduce((a, b) => a + b, 0);
-            var avgPct = totalTarget > 0 ? (totalAch / totalTarget) * 100 : 0;
+        "drawCallback": function (settings) {
+            var json = settings.json;
+            if (json) {
+                $('#grandTotalTarget').text(json.grandTotalTarget || '0.00');
+                $('#grandTotalAchieved').text(json.grandTotalAchieved || '0.00');
 
-            $(api.column(2).footer()).html(totalTarget.toLocaleString('en', {minimumFractionDigits: 2}));
-            $(api.column(3).footer()).html(api.column(3).data().reduce((a, b) => a + b, 0).toLocaleString('en', {minimumFractionDigits: 2}));
-            $(api.column(4).footer()).html(totalAch.toLocaleString('en', {minimumFractionDigits: 2}));
-            $(api.column(5).footer()).html(`<strong>${avgPct.toFixed(2)}%</strong>`);
-        },
-        "drawCallback": function() {
+                var pct = parseFloat(json.grandTotalPercentage || 0);
+                var $badge = $('#grandTotalPercentage');
+                $badge.text(pct.toFixed(2) + '%')
+                      .removeClass('bg-success bg-warning bg-danger')
+                      .addClass(pct >= 100 ? 'bg-success' : pct >= 80 ? 'bg-warning' : 'bg-danger');
+            }
+
             var start = $('#startDate').val() || "Beginning";
             var end = $('#endDate').val() || "Today";
             $('#periodDisplay').text(start + " to " + end);
         }
     });
 
-    $('#filterForm').on('submit', e => { e.preventDefault(); table.ajax.reload(); });
-    $('#btnReset').click(() => { $('#startDate, #endDate').val(''); table.ajax.reload(); });
+    $('#filterForm').on('submit', function(e) { e.preventDefault(); table.ajax.reload(); });
+    $('#btnReset').click(function() { $('#startDate, #endDate').val(''); table.ajax.reload(); });
 
-    @*$('#btnExport').click(function () {
-        var url = "@Url.Action("ExportDistrictAchievementToExcel")" +
-                  "?startDate=" + $('#startDate').val() +
-                  "&endDate=" + $('#endDate').val();
-        window.location.href = url;
-    });*@
-
+    // EXPORT TO EXCEL - All Data
     $('#btnExport').click(function () {
-        var data = table.rows({ search: 'applied', order: 'applied' }).data().toArray();
+        const $btn = $(this).prop('disabled', true).html('Exporting...');
+        const currentLength = table.page.len();
+        table.page.len(-1).draw();
 
-        var exportData = [];
+        table.one('draw', function () {
+            try {
+                const allData = table.rows().data().toArray();
+                const json = table.settings()[0].json;
 
-        // === Title & Info ===
-        exportData.push(["DEPOSIT ACHIEVEMENT REPORT - BY DISTRICT"]);
-        exportData.push([""]);
+                let exportData = [];
+                exportData.push(["DEPOSIT ACHIEVEMENT REPORT - BY DISTRICT"]);
+                exportData.push([]);
+                const period = $('#startDate').val()
+                    ? `${$('#startDate').val()} to ${$('#endDate').val() || 'Present'}`
+                    : "All Time";
+                exportData.push([`Period: ${period}`]);
+                exportData.push([`Generated: ${moment().format('dddd, DD MMMM YYYY [at] HH:mm')}`]);
+                exportData.push([`Total Districts: ${allData.length}`]);
+                exportData.push([]);
 
-        var period = $('#startDate').val()
-            ? `${$('#startDate').val()} to ${$('#endDate').val() || 'Present'}`
-            : "All Time";
+                exportData.push(["NO", "District", "Target", "Achieved", "% Achieved"]);
 
-        exportData.push([`Period: ${period}`]);
-        exportData.push([`Generated: ${moment().format('dddd, DD MMMM YYYY [at] HH:mm')}`]);
-        exportData.push([`Total Districts: ${data.length}`]);
-        exportData.push([""]);
+                allData.forEach((row, i) => {
+                    exportData.push([
+                        i + 1,
+                        row.Name || "-",
+                        parseFloat(row.Target || 0),
+                        parseFloat(row.Achieved || 0),
+                        (parseFloat(row.Percentage || 0)) / 100
+                    ]);
+                });
 
-        // === Header (exactly matches your table) ===
-        exportData.push([
-            "NO", "District", "Target", "Deposited", "Achieved", "% Achieved"
-        ]);
+                const gTarget = parseFloat((json.grandTotalTarget || "0").replace(/,/g, ''));
+                const gAchieved = parseFloat((json.grandTotalAchieved || "0").replace(/,/g, ''));
+                const gPct = gTarget > 0 ? (gAchieved / gTarget) * 100 : 0;
 
-        // === Data Rows ===
-        data.forEach(function (row, i) {
-            var rowNum = table.page.info().start + i + 1;
+                exportData.push([]);
+                exportData.push(["GRAND TOTAL", "", gTarget, gAchieved, gPct / 100]);
 
-            exportData.push([
-                rowNum,
-                row.District || "-",
-                parseFloat(row.Target || 0),
-                parseFloat(row.Deposited || 0),
-                parseFloat(row.Achieved || 0),
-                (parseFloat(row.Percentage || 0)) / 100   // 92.34 → 0.9234 → will show as 92.34%
-            ]);
-        });
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(exportData);
+                const range = XLSX.utils.decode_range(ws['!ref']);
 
-        // === Grand Total (calculated from visible/filtered data) ===
-        var totalTarget = data.reduce((sum, r) => sum + parseFloat(r.Target || 0), 0);
-        var totalDeposited = data.reduce((sum, r) => sum + parseFloat(r.Deposited || 0), 0);
-        var totalAchieved = data.reduce((sum, r) => sum + parseFloat(r.Achieved || 0), 0);
-        var overallPct = totalTarget > 0 ? (totalAchieved / totalTarget) : 0;
+                // Red Theme Styling
+                for (let R = 0; R <= range.e.r; R++) {
+                    for (let C = 0; C <= range.e.c; C++) {
+                        const addr = XLSX.utils.encode_cell({ r: R, c: C });
+                        if (!ws[addr]) continue;
+                        const cell = ws[addr];
 
-        exportData.push([""]);
-        exportData.push([
-            "TOTAL", "", totalTarget, totalDeposited, totalAchieved, overallPct
-        ]);
-
-        // === Create Workbook ===
-        var wb = XLSX.utils.book_new();
-        var ws = XLSX.utils.aoa_to_sheet(exportData);
-        var range = XLSX.utils.decode_range(ws['!ref']);
-
-        // === Styling (beautiful & professional) ===
-        for (let R = 0; R <= range.e.r; R++) {
-            for (let C = 0; C <= range.e.c; C++) {
-                let addr = XLSX.utils.encode_cell({ r: R, c: C });
-                if (!ws[addr]) continue;
-                let cell = ws[addr];
-
-                // Title
-                if (R === 0) {
-                    cell.s = { font: { bold: true, sz: 16, color: { rgb: "C0392B" } }, alignment: { horizontal: "center" } };
-                }
-                // Info rows
-                else if (R >= 2 && R <= 4) {
-                    cell.s = { font: { italic: true, color: { rgb: "555555" } } };
-                }
-                // Header Row
-                else if (R === 6) {
-                    cell.s = {
-                        font: { bold: true, color: { rgb: "FFFFFF" } },
-                        fill: { fgColor: { rgb: "C0392B" } },     // Red header to match table-danger
-                        alignment: { horizontal: "center", vertical: "center" },
-                        border: { top: { style: "thin" }, bottom: { style: "medium" }, left: { style: "thin" }, right: { style: "thin" } }
-                    };
-                }
-                // Data + Total Row
-                else if (R >= 7) {
-                    let isTotal = R === exportData.length - 1;
-                    cell.s = {
-                        font: { bold: isTotal },
-                        fill: { fgColor: isTotal ? { rgb: "D9D9D9" } : undefined },
-                        alignment: {
-                            horizontal: C === 0 ? (isTotal ? "right" : "center") :
-                                C === 1 ? "left" : "right"
-                        },
-                        border: {
-                            top: { style: "thin", color: { rgb: "CCCCCC" } },
-                            bottom: { style: isTotal ? "medium" : "thin", color: isTotal ? { rgb: "C0392B" } : { rgb: "CCCCCC" } },
-                            left: { style: "thin", color: { rgb: "CCCCCC" } },
-                            right: { style: "thin", color: { rgb: "CCCCCC" } }
+                        if (R === 0) {
+                            cell.s = { font: { bold: true, sz: 16, color: { rgb: "C0392B" } }, alignment: { horizontal: "center" } };
                         }
-                    };
-
-                    // Color % column (Green ≥100%, Orange ≥80%, Red <80%)
-                    if (C === 5) {
-                        let val = parseFloat(cell.v) * 100;
-                        let color = val >= 100 ? "27AE60" : val >= 80 ? "E67E22" : "E74C3C";
-                        cell.s.font = { bold: true, color: { rgb: color } };
+                        else if (R >= 2 && R <= 4) {
+                            cell.s = { font: { italic: true, color: { rgb: "555555" } } };
+                        }
+                        else if (R === 6) {
+                            cell.s = { font: { bold: true, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "C0392B" } }, alignment: { horizontal: "center" } };
+                        }
+                        else if (R >= 7) {
+                            const isTotal = R === exportData.length - 1;
+                            cell.s = {
+                                font: { bold: isTotal },
+                                fill: isTotal ? { fgColor: { rgb: "FADBD8" } } : undefined,
+                                alignment: { horizontal: C <= 1 ? "left" : "right" },
+                                border: { top: { style: "thin" }, bottom: { style: isTotal ? "double" : "thin" }, left: { style: "thin" }, right: { style: "thin" } }
+                            };
+                            if (C === 4 && !isTotal) { // % column
+                                const val = (cell.v || 0) * 100;
+                                const color = val >= 100 ? "27AE60" : val >= 80 ? "E67E22" : "E74C3C";
+                                cell.s.font = { bold: true, color: { rgb: color } };
+                            }
+                        }
                     }
                 }
+
+                ws['!cols'] = [{wch:6}, {wch:35}, {wch:18}, {wch:18}, {wch:14}];
+                ws['!merges'] = [
+                    { s: { r:0, c:0 }, e: { r:0, c:4 } },
+                    { s: { r:2, c:0 }, e: { r:2, c:4 } },
+                    { s: { r:3, c:0 }, e: { r:3, c:4 } },
+                    { s: { r:4, c:0 }, e: { r:4, c:4 } },
+                    { s: { r:exportData.length-1, c:0 }, e: { r:exportData.length-1, c:1 } }
+                ];
+
+                // Number formatting
+                for (let r = 7; r < exportData.length - 1; r++) {
+                    ['C','D'].forEach(col => { const c = ws[col+(r+1)]; if(c) c.z = "#,##0.00"; });
+                    const pc = ws['E'+(r+1)]; if(pc) pc.z = "0.00%";
+                }
+                ['C','D','E'].forEach(col => {
+                    const c = ws[col + exportData.length];
+                    if(c) c.z = col === 'E' ? "0.00%" : "#,##0.00";
+                });
+
+                XLSX.utils.book_append_sheet(wb, ws, "By District");
+                XLSX.writeFile(wb, `Deposit_Achievement_By_District_${moment().format('YYYYMMDD_HHmm')}.xlsx`);
+                toastr.success(`Exported ${allData.length} districts successfully!`);
+            } catch (err) {
+                console.error(err);
+                toastr.error("Export failed!");
+            } finally {
+                table.page.len(currentLength).draw('page');
+                $btn.prop('disabled', false).html('Export to Excel');
             }
-        }
-
-        // === Column Widths (perfect fit) ===
-        ws['!cols'] = [
-            { wch: 6 },   // NO
-            { wch: 32 },  // District
-            { wch: 18 },  // Target
-            { wch: 18 },  // Deposited
-            { wch: 18 },  // Achieved
-            { wch: 14 }   // % Achieved
-        ];
-
-        // === Row Heights ===
-        ws['!rows'] = [
-            { hpt: 32 }, null, null, null, null, null,
-            { hpt: 26 }, // Header
-            ...Array(data.length).fill({ hpt: 22 }),
-            null,
-            { hpt: 30 }  // TOTAL
-        ];
-
-        // === Merge Cells ===
-        ws["!merges"] = [
-            { s: { r: 0, c: 0 }, e: { r: 0, c: 5 } },  // Title
-            { s: { r: 2, c: 0 }, e: { r: 2, c: 5 } },  // Period
-            { s: { r: 3, c: 0 }, e: { r: 3, c: 5 } },  // Generated
-            { s: { r: 4, c: 0 }, e: { r: 4, c: 5 } },  // Total Districts
-            { s: { r: exportData.length - 1, c: 0 }, e: { r: exportData.length - 1, c: 1 } }  // "TOTAL"
-        ];
-
-        // === Number Formatting ===
-        for (let r = 7; r < exportData.length - 1; r++) {
-            ['C', 'D', 'E'].forEach(col => { let c = ws[col + (r + 1)]; if (c) c.z = "#,##0.00"; });
-            let pct = ws['F' + (r + 1)]; if (pct) pct.z = "0.00%";
-        }
-        // Grand Total
-        ['C', 'D', 'E', 'F'].forEach(col => {
-            let c = ws[col + exportData.length];
-            if (c) c.z = col === 'F' ? "0.00%" : "#,##0.00";
         });
-
-        // === Finalize & Download ===
-        XLSX.utils.book_append_sheet(wb, ws, "By District");
-        var fileName = `Deposit_Achievement_By_District_${moment().format('YYYYMMDD_HHmm')}.xlsx`;
-        XLSX.writeFile(wb, fileName);
-
-        toastr.success(`Exported ${data.length} districts successfully!`, "Export Complete");
     });
 });
     </script>

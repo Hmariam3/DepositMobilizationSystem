@@ -23,6 +23,13 @@ namespace TRMS.Models
         public string SharedUser3 { get; set; }
         public decimal? SharedAmount3 { get; set; }
 
+        // New: 4th & 5th users (only visible when Amount > 50M)
+        public string SharedUser4 { get; set; }
+        public decimal? SharedAmount4 { get; set; }
+
+        public string SharedUser5 { get; set; }
+        public decimal? SharedAmount5 { get; set; }
+
         public bool ShareDeposit { get; set; } // <-- NEW
     }
 }

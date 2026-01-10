@@ -1,0 +1,213 @@
+﻿@model TRMS.Models.AccountReserve
+
+@{
+    ViewBag.Title = "Delete Account Reserve";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    :root {
+        --primary: #00AEEF;
+        --danger: #dc3545;
+        --danger-dark: #c82333;
+        --gray: #6c757d;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --border-radius: 1rem;
+        --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .delete-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .page-header h1 {
+        font-weight: 800;
+        font-size: 2.2rem;
+        color: var(--danger);
+        letter-spacing: 0.5px;
+        margin: 0;
+    }
+
+    .delete-card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+        border: 2px solid var(--danger);
+    }
+
+    .card-header {
+        background: var(--danger);
+        color: white;
+        padding: 1rem 2rem;
+        font-weight: 600;
+        font-size: 1.3rem;
+        text-align: center;
+    }
+
+    .card-header i {
+        margin-right: 0.5rem;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .warning-text {
+        background: #fff3cd;
+        color: #856404;
+        padding: 1rem;
+        border-radius: 0.75rem;
+        font-weight: 500;
+        text-align: center;
+        margin-bottom: 2rem;
+        border: 1px solid #ffeaa7;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.2rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: var(--dark);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .info-value {
+        font-size: 1rem;
+        color: var(--danger-dark);
+        font-weight: 500;
+        margin-top: 0.3rem;
+    }
+
+    .info-value code {
+        background: #f8d7da;
+        padding: 0.2rem 0.5rem;
+        border-radius: 0.4rem;
+        font-family: 'Courier New', monospace;
+    }
+
+    .btn-container {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 1.5rem;
+    }
+
+    .btn-delete {
+        background: var(--danger);
+        color: white;
+        padding: 0.75rem 2rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        border: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-delete:hover {
+        background: var(--danger-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3);
+    }
+
+    .btn-cancel {
+        background: #6c757d;
+        color: white;
+        padding: 0.75rem 2rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+
+    @@media (max-width: 768px) {
+        .btn-container {
+            flex-direction: column;
+        }
+        .btn-delete, .btn-cancel {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="delete-container">
+    <div class="delete-card mt-3">
+        <div class="card-header">
+            <i class="fas fa-exclamation-triangle"></i> Confirm Deletion
+        </div>
+
+        <div class="card-body">
+            <div class="warning-text">
+                <i class="fas fa-skull-crossbones me-2"></i>
+                You are about to permanently delete this reserve account record. This action cannot be undone.
+            </div>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Account Number</div>
+                    <div class="info-value"><code>@Html.DisplayFor(m => m.AccountNumber)</code></div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Account Holder</div>
+                    <div class="info-value">@Html.DisplayFor(m => m.AccountHolder)</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Current Balance</div>
+                    <div class="info-value">@String.Format("{0:N2}", Model.AccountBalance)</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Username (Maker)</div>
+                    <div class="info-value">@Html.DisplayFor(m => m.UserName)</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Created Date</div>
+                    <div class="info-value">@Html.DisplayFor(m => m.CreatedDate)</div>
+                </div>
+            </div>
+
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+                <div class="btn-container">
+                    <input type="submit" value="Delete Permanently" class="btn-delete" />
+                    @Html.ActionLink("Cancel", "Index", null, new { @class = "btn-cancel" })
+                </div>
+            }
+        </div>
+    </div>
+</div>

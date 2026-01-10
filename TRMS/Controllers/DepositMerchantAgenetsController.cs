@@ -66,11 +66,19 @@ namespace TRMS.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(DepositMerchantAgenet depositMerchantAgenet, string submit)
         {
+
+
+            // ✅ Normalize input once (IMPORTANT)
+            depositMerchantAgenet.AccountNumber = depositMerchantAgenet.AccountNumber?.Trim();
+            depositMerchantAgenet.ReferenceNumber = depositMerchantAgenet.ReferenceNumber?.Trim();
+            depositMerchantAgenet.LinkAccount = depositMerchantAgenet.LinkAccount?.Trim();
+
             if (depositMerchantAgenet == null)
             {
                 TempData["errorRes"] = "Invalid Transaction Data!";
                 return View(depositMerchantAgenet);
             }
+
             if (depositMerchantAgenet.AccountNumber == null)
             {
                 TempData["errorRes"] = "Please Account Number!";
@@ -326,11 +334,36 @@ namespace TRMS.Controllers
             }
             else
             {
+                // Check for merchantid duplication
+                if (!string.IsNullOrEmpty(depositMerchantAgenet.LinkAccount))
+                {
+                    var existingRecord = db.DepositMerchantAgenets
+                        .FirstOrDefault(t => t.LinkAccount == depositMerchantAgenet.LinkAccount);
+
+                    // If record exists AND it was created by someone else → block
+                    if (existingRecord != null &&
+                        !string.Equals(existingRecord.CreatedBY, Session["username"]?.ToString(),
+                                       StringComparison.OrdinalIgnoreCase))
+                    {
+                        var phoneNumber = db.Users
+                            .Where(u => u.UserName == existingRecord.CreatedBY)
+                            .Select(u => u.PhoneNumber)
+                            .FirstOrDefault() ?? string.Empty;
+
+                        TempData["ErrorMessage"] =
+                            $"MerchantID already registered by {existingRecord.CreatedBY}. Contact phone: {phoneNumber}.";
+
+                        return View(depositMerchantAgenet);
+                    }
+
+                    // ✅ If same user → allowed automatically
+                }
+
                 // Check for reference number duplication
                 if (!string.IsNullOrEmpty(depositMerchantAgenet.ReferenceNumber))
                 {
                     var existingMerchant = db.DepositMerchantAgenets
-                        .Where(t => t.ReferenceNumber != null && t.ReferenceNumber.Trim() == depositMerchantAgenet.ReferenceNumber.Trim())
+                        .Where(t => t.ReferenceNumber != null && t.ReferenceNumber == depositMerchantAgenet.ReferenceNumber)
                         .ToList();
                     if (existingMerchant.Any())
                     {
@@ -343,8 +376,11 @@ namespace TRMS.Controllers
                         return View(depositMerchantAgenet);
                     }
                 }
-             
-                    if (ModelState.IsValid)
+
+
+
+
+                if (ModelState.IsValid)
                     {
                         depositMerchantAgenet.CreatedBY = Session["UserName"].ToString();
                         var userName = Session["UserName"]?.ToString();

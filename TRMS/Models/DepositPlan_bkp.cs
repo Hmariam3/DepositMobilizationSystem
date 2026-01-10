@@ -12,29 +12,26 @@ namespace TRMS.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class DepositMerchantAgenet
+    public partial class DepositPlan_bkp
     {
-        public int MID { get; set; }
+        public int DID { get; set; }
         public int UserID { get; set; }
         public string Process { get; set; }
         public string District { get; set; }
         public string Branch { get; set; }
-        public decimal Target { get; set; }
-        public string LinkAccount { get; set; }
+        public decimal Amount { get; set; }
         public string AccountNumber { get; set; }
         public string ReferenceNumber { get; set; }
+        public Nullable<System.DateTime> RefDate { get; set; }
         public string AccountHolder { get; set; }
         public Nullable<decimal> Prev_Ini_Bal { get; set; }
         public decimal IntialAccountBalance { get; set; }
         public decimal AccountBalance { get; set; }
-        public string Merchant_Type { get; set; }
-        public string Business_Type { get; set; }
-        public string QR { get; set; }
+        public string MMACC { get; set; }
+        public Nullable<decimal> MMBAL { get; set; }
         public string Narative { get; set; }
-        public string CreatedBY { get; set; }
+        public string User { get; set; }
         public System.DateTime CreatedDate { get; set; }
         public string DepositType { get; set; }
-    
-        public virtual User User { get; set; }
     }
 }

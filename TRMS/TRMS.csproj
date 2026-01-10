@@ -196,6 +196,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\AccountReservesController.cs" />
     <Compile Include="Controllers\DepositBankReportController.cs" />
     <Compile Include="Controllers\DepositDistrictReportController.cs" />
     <Compile Include="Controllers\DepositFCiesController.cs" />
@@ -204,9 +205,11 @@
     <Compile Include="Controllers\DepositPlansController.cs" />
     <Compile Include="Controllers\DepositVPReportController.cs" />
     <Compile Include="Controllers\DistrictPlansController.cs" />
+    <Compile Include="Controllers\FcyReportController.cs" />
     <Compile Include="Controllers\Fcy_BranchController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ISReportController.cs" />
+    <Compile Include="Controllers\MerchantReportController.cs" />
     <Compile Include="Controllers\PostionsController.cs" />
     <Compile Include="Controllers\DepositBranchReportController.cs" />
     <Compile Include="Controllers\ReportController.cs" />
@@ -219,8 +222,12 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\AccountReserve.cs">
+      <DependentUpon>Target.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\ADUserViewModel.cs" />
     <Compile Include="Models\BankAccountSummaryResult.cs" />
+    <Compile Include="Models\BankBalanceSummary.cs" />
     <Compile Include="Models\Branch.cs">
       <DependentUpon>Target.tt</DependentUpon>
     </Compile>
@@ -248,11 +255,14 @@
     <Compile Include="Models\DepositPlan.cs">
       <DependentUpon>Target.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\DepositPlanupdated.cs">
+    <Compile Include="Models\DepositPlanFinal.cs">
       <DependentUpon>Target.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\DepositPlanViewModel.cs" />
     <Compile Include="Models\DepositplanVM.cs" />
+    <Compile Include="Models\DepositPlan_bkp.cs">
+      <DependentUpon>Target.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\DistrictDataViewModel.cs" />
     <Compile Include="Models\DistrictDepositViewModel.cs" />
     <Compile Include="Models\DistrictPlan.cs">
@@ -261,10 +271,19 @@
     <Compile Include="Models\ECO.cs">
       <DependentUpon>Target.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\EcoShareReportVM.cs" />
     <Compile Include="Models\Fcy_Branch.cs">
       <DependentUpon>Target.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\loginVM.cs" />
+    <Compile Include="Models\MerchantAchieved.cs">
+      <DependentUpon>Target.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\MerchantAchievementBreakdown.cs" />
+    <Compile Include="Models\MerchantOnboardedViewModel.cs" />
+    <Compile Include="Models\mnemonicccsv.cs">
+      <DependentUpon>Target.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\Postion.cs">
       <DependentUpon>Target.tt</DependentUpon>
     </Compile>
@@ -294,6 +313,9 @@
     </Compile>
     <Compile Include="Models\TransactionReportViewModel.cs" />
     <Compile Include="Models\User.cs">
+      <DependentUpon>Target.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\UserAchieved.cs">
       <DependentUpon>Target.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\UserEngagement.cs">
@@ -9456,6 +9478,7 @@
     <Content Include="Scripts\jquery-3.1.1.slim.min.map" />
     <None Include="Properties\PublishProfiles\CustomProfile1.pubxml" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
+    <None Include="Properties\PublishProfiles\FolderProfile1.pubxml" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <None Include="Scripts\jquery-3.1.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.1.1.js" />
@@ -9582,6 +9605,22 @@
     <Content Include="Views\Report\UserAchievementReport.cshtml" />
     <Content Include="Views\Report\ProcessAchievementReport.cshtml" />
     <Content Include="Views\Report\DistrictAchievementReport.cshtml" />
+    <Content Include="Views\Report\SubprocessAchievementReport.cshtml" />
+    <Content Include="Views\DepositPlans\AssignMM.cshtml" />
+    <Content Include="Views\Report\EcoShareReport.cshtml" />
+    <Content Include="Views\MerchantReport\MerchantAchievementReport.cshtml" />
+    <Content Include="Views\MerchantReport\MerchantProcessReport.cshtml" />
+    <Content Include="Views\MerchantReport\MerchantDistrictReport.cshtml" />
+    <Content Include="Views\MerchantReport\MerchantSubprocessReport.cshtml" />
+    <Content Include="Views\FcyReport\FcyAchievementReport.cshtml" />
+    <Content Include="Views\FcyReport\FcyProcessReport.cshtml" />
+    <Content Include="Views\FcyReport\FcyDistrictReport.cshtml" />
+    <Content Include="Views\FcyReport\FcySubprocessReport.cshtml" />
+    <Content Include="Views\AccountReserves\Create.cshtml" />
+    <Content Include="Views\AccountReserves\Delete.cshtml" />
+    <Content Include="Views\AccountReserves\Details.cshtml" />
+    <Content Include="Views\AccountReserves\Edit.cshtml" />
+    <Content Include="Views\AccountReserves\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

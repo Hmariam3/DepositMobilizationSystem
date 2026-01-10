@@ -84,7 +84,7 @@
                 <!--end::End Navbar links-->
                 <!-- Right Side: User Dropdown -->
                 <ul class="navbar-nav ms-auto">
-                    <ul class="navbar-nav ms-auto">
+                    @*<ul class="navbar-nav ms-auto">
                         <li class="nav-item dropdown">
                             <button class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center"
                                     id="bd-theme"
@@ -132,7 +132,7 @@
                                 </li>
                             </ul>
                         </li>
-                    </ul>
+                    </ul>*@
                     <li class="nav-item dropdown user-menu">
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                             <img src="~/dist/assets/img/FREE-PROFILE-AVATARS.jpg" class="user-image rounded-circle shadow" alt="User Image" />
@@ -226,27 +226,19 @@
                                     </p>
                                 </a>
                                 <ul class="nav nav-treeview">
-                                    @if (Session["UserRole"].ToString() == "Super")
-                                    {
-                                        <li class="nav-item">
-                                            <a href="~/Home/Dashboard" class="nav-link">
-                                                <i class="fas fa-home"></i>
-                                                <p>Bank Dashboard</p>
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="~/Home/Process" class="nav-link">
-                                                <i class="fas fa-university"></i>
-                                                <p>Process Dashboard</p>
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="~/Home/BydistrictReport" class="nav-link">
-                                                <i class="fas fa-university"></i>
-                                                <p>District Dashboard</p>
-                                            </a>
-                                        </li>
-                                    }
+                                    @*<li class="nav-item">
+                        <a href="~/Home/BankSummary" class="nav-link">
+                            <i class="fas fa-home"></i>
+                            <p>Bank Summary</p>
+                        </a>
+                    </li>*@
+                                    <li class="nav-item">
+                                        <a href="~/Home/Dashboard" class="nav-link">
+                                            <i class="fas fa-home"></i>
+                                            <p>Main Dashboard</p>
+                                        </a>
+                                    </li>
+
 
                                     <li class="nav-item">
                                         <a href="~/Home/Index" class="nav-link">
@@ -257,10 +249,35 @@
                                 </ul>
                             </li>
 
-                            <!-- Deposit Plan -->
+                            <!-- Account Reserve -->
                             <li class="nav-item">
                                 <a href="#" class="nav-link">
                                     <i class="fa fa-money"></i>
+                                    <p>
+                                       Account Reserve
+                                        <i class="nav-arrow bi bi-chevron-right"></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="~/AccountReserves/Create" class="nav-link">
+                                            <i class="fa fa-plus-circle"></i>
+                                            <p>Add Account</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="~/AccountReserves/Index" class="nav-link">
+                                            <i class="fa fa-list-alt"></i>
+                                            <p>View Account</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <!-- Deposit Plan -->
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="fa fa-coins"></i>
                                     <p>
                                         Deposit Plan
                                         <i class="nav-arrow bi bi-chevron-right"></i>
@@ -279,6 +296,16 @@
                                             <p>View Deposit Plans</p>
                                         </a>
                                     </li>
+                                    @if ((Session["username"]?.ToString() ?? "") == "hailemariamk")
+                                    {
+                                        <li class="nav-item">
+                                            <a href="~/DepositPlans/AssignMM" class="nav-link">
+                                                <i class="fa fa-plus-circle"></i>
+                                                <p>Add MM</p>
+                                            </a>
+                                        </li>
+                                    }
+
                                 </ul>
                             </li>
 
@@ -301,7 +328,7 @@
                                     <li class="nav-item">
                                         <a href="~/DepositMerchantAgenets/Index" class="nav-link">
                                             <i class="fa fa-table"></i>
-                                            <p>View Deposits</p>
+                                            <p>View Merchant</p>
                                         </a>
                                     </li>
                                 </ul>
@@ -334,34 +361,157 @@
 
                             <li class="nav-header" style="font-weight:600; letter-spacing:1px;">REPORT</li>
 
-                            if (Session["Position"]?.ToString() != "Individual" || Session["UserRole"].ToString() == "Super")
-                            {
-                                <!-- Deposit Report -->
-                                <li class="nav-item">
-                                    <a href="~/Report/UserAchievementReport" class="nav-link">
-                                        <i class="fas fa-piggy-bank"></i>
-                                        <p>Deposit Report</p>
-                                    </a>
-                                </li>
-                            }
+                            <!-- ============================== -->
+                            <!--        DEPOSIT REPORTS        -->
+                            <!-- ============================== -->
+                            <li class="nav-item has-treeview">
+                                <a href="#" class="nav-link">
+                                    <i class="nav-icon fas fa-piggy-bank"></i>
+                                    <p>
+                                        Deposit Reports
+                                        <i class="nav-arrow bi bi-chevron-right"></i>
+                                    </p>
+                                </a>
 
-                            if (Session["UserRole"].ToString() == "Super")
-                            {
-                                <!-- Process Report -->
-                                <li class="nav-item">
-                                    <a href="~/Report/ProcessAchievementReport" class="nav-link">
-                                        <i class="fas fa-cogs"></i>
-                                        <p>By Process Report</p>
-                                    </a>
-                                </li>
-                                <!-- District Report -->
-                                <li class="nav-item">
-                                    <a href="~/Report/DistrictAchievementReport" class="nav-link">
-                                        <i class="fas fa-map-marked-alt"></i>
-                                        <p>By District Report</p>
-                                    </a>
-                                </li>
-                            }
+                                <ul class="nav nav-treeview">
+                                    <!-- User Achievement -->
+                                    <li class="nav-item">
+                                        <a href="~/Report/UserAchievementReport" class="nav-link">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>User Achievement Report</p>
+                                        </a>
+                                    </li>
+
+                                    @if (Session["UserRole"].ToString() == "Super")
+                                    {
+                                        <li class="nav-item">
+                                            <a href="~/Report/ProcessAchievementReport" class="nav-link">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>By Process Report</p>
+                                            </a>
+                                        </li>
+
+                                        <li class="nav-item">
+                                            <a href="~/Report/DistrictAchievementReport" class="nav-link">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>By District Report</p>
+                                            </a>
+                                        </li>
+
+                                        <li class="nav-item">
+                                            <a href="~/Report/SubprocessAchievementReport" class="nav-link">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>By Subprocess Report</p>
+                                            </a>
+                                        </li>
+
+                                        <li class="nav-item">
+                                            <a href="~/Report/EcoShareReport" class="nav-link">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>Eco Acc (60/40) Report</p>
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            </li>
+
+
+
+
+                            <!-- ============================== -->
+                            <!--       MERCHANT REPORTS        -->
+                            <!-- ============================== -->
+                            <li class="nav-item has-treeview">
+                                <a href="#" class="nav-link">
+                                    <i class="nav-icon fas fa-store"></i>
+                                    <p>
+                                        Merchant Reports
+                                        <i class="nav-arrow bi bi-chevron-right"></i>
+                                    </p>
+                                </a>
+
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="~/MerchantReport/MerchantAchievementReport" class="nav-link">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Merchant Achievement Report</p>
+                                        </a>
+                                    </li>
+
+                                    @if (Session["UserRole"].ToString() == "Super" || Session["UserRole"].ToString() == "SuperMerchant")
+                                    {
+                                        <li class="nav-item">
+                                            <a href="~/MerchantReport/MerchantProcessReport" class="nav-link">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>By Process Report</p>
+                                            </a>
+                                        </li>
+
+                                        <li class="nav-item">
+                                            <a href="~/MerchantReport/MerchantDistrictReport" class="nav-link">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>By District Report</p>
+                                            </a>
+                                        </li>
+
+                                        <li class="nav-item">
+                                            <a href="~/MerchantReport/MerchantSubprocessReport" class="nav-link">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>By Subprocess Report</p>
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            </li>
+
+
+
+                            <!-- ============================== -->
+                            <!--       FCY REPORTS        -->
+                            <!-- ============================== -->
+                            <li class="nav-item has-treeview">
+                                <a href="#" class="nav-link">
+                                    <i class="nav-icon fas fa-dollar-sign"></i>
+                                    <p>
+                                        FCY Reports
+                                        <i class="nav-arrow bi bi-chevron-right"></i>
+                                    </p>
+                                </a>
+
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="~/FcyReport/FcyAchievementReport" class="nav-link">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>Fcy Achievement Report</p>
+                                        </a>
+                                    </li>
+
+                                    @if (Session["UserRole"].ToString() == "Super" || Session["UserRole"].ToString() == "SuperMerchant")
+                                    {
+                                        <li class="nav-item">
+                                            <a href="~/FcyReport/FcyProcessReport" class="nav-link">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>By Process Report</p>
+                                            </a>
+                                        </li>
+
+                                        <li class="nav-item">
+                                            <a href="~/FcyReport/FcyDistrictReport" class="nav-link">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>By District Report</p>
+                                            </a>
+                                        </li>
+
+                                        <li class="nav-item">
+                                            <a href="~/FcyReport/FcySubprocessReport" class="nav-link">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>By Subprocess Report</p>
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            </li>
+
 
                             if (Session["UserRole"].ToString() == "SuperMerchant")
                             {
@@ -500,7 +650,7 @@
             cardHeader.style.cursor = 'move';
         });
     </script>
-    <script>
+    @*<script>
         // Color Mode Toggler
         (() => {
             "use strict";
@@ -581,7 +731,7 @@
                 }
             });
         })();
-    </script>
+    </script>*@
     <script src="~/dist/js/apexchart.js"></script>
     @RenderSection("scripts", required: false)
 

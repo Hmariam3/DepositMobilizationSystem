@@ -13,6 +13,7 @@ namespace TRMS.Models
         public decimal UserContribution { get; set; }
         public decimal FinalBalance { get; set; }
         public decimal TotalWithdrawal { get; set; }
+        public decimal AvailableFund { get; set; }
         public decimal UserAchieved { get; set; }
     }
 }

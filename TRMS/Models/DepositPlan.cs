@@ -24,13 +24,15 @@ namespace TRMS.Models
         public string ReferenceNumber { get; set; }
         public Nullable<System.DateTime> RefDate { get; set; }
         public string AccountHolder { get; set; }
+        public Nullable<decimal> Prev_Ini_Bal { get; set; }
         public decimal IntialAccountBalance { get; set; }
         public decimal AccountBalance { get; set; }
+        public string MMACC { get; set; }
+        public Nullable<decimal> MMBAL { get; set; }
         public string Narative { get; set; }
         public string User { get; set; }
         public System.DateTime CreatedDate { get; set; }
         public string DepositType { get; set; }
-        public Nullable<decimal> Prev_Ini_Bal { get; set; }
     
         public virtual User User1 { get; set; }
     }

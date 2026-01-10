@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Web;
+using TRMS.Models;
 
 namespace TRMS.Security
 {
@@ -69,6 +71,27 @@ namespace TRMS.Security
                 var responseContent = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
 
                 return responseContent;
+            }
+        }
+
+
+
+        public List<BankBalanceSummary> GetBankBalanceSummary()
+        {
+            string url = "http://10.1.130.17:5108/api/balance/balances";
+
+            using (var client = new HttpClient())
+            {
+                var request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri(url),
+                    Method = HttpMethod.Get
+                };
+
+                var response = client.SendAsync(request).GetAwaiter().GetResult();
+                var responseContent = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+
+                return JsonConvert.DeserializeObject<List<BankBalanceSummary>>(responseContent);
             }
         }
     }

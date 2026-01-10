@@ -65,6 +65,10 @@ namespace TRMS.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(DepositFCY depositFCY, string submit)
         {
+            depositFCY.AccountNumber = depositFCY.AccountNumber?.Trim();
+            depositFCY.RefernceNumber = depositFCY.RefernceNumber?.Trim();
+
+
             if (depositFCY == null)
             {
                 TempData["errorRes"] = "Invalid Transaction Data!";

@@ -431,7 +431,7 @@ namespace UserProfile.Controllers
                         "gadibehi","gelashgo","geledage","fayebewe","girmhuke","hikaaleje","kebegeyo","legearfi","oliyaalmu",
                         "shelguche","shibebmi","shummara","surahuti","tadefide","tamiabge","tolagibi","waktimbe","wagageki",
                         "wesefebe","yeromobu","solosubi","dereabte","yabstoof","dinafile","adefalbu", "dtarressa","zebba",
-                        "tayele","zgudito","meticha","lfila"
+                        "tayele","zgudito","meticha","lfila", "enmekuriya"
                     };
 
                 // ✅ Check if the user is one of the local (non-AD) users

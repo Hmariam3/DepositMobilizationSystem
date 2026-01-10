@@ -1,0 +1,252 @@
+﻿@{
+    ViewBag.Title = "Merchant Achievement By Head Office Unit";
+}
+
+<div class="panel panel-default" style="padding:15px;">
+    <div class="panel-heading">
+        <h3><i class="fa fa-university text-purple"></i> Merchant Onboarding Achievement Report - By Head Office Unit</h3>
+    </div>
+    <hr />
+
+    <form id="filterForm" class="mb-4">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label><strong>Start Date</strong></label>
+                <input type="date" id="startDate" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label><strong>End Date</strong></label>
+                <input type="date" id="endDate" class="form-control" />
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">Apply Filter</button>
+                <button type="button" id="btnReset" class="btn btn-secondary">Reset</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Summary Alert -->
+    <div class="alert alert-info mb-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <strong>Total Summary</strong>
+                <span class="badge bg-primary ms-2">Head Office Units</span>
+            </div>
+            <div class="d-flex gap-4">
+                <strong>Total Target: <span id="grandTotalTarget">Loading...</span> merchants</strong>
+                <strong>Total Collected: <span id="grandTotalCollected">Loading...</span></strong>
+                <strong>Achieved: <span id="grandTotalAchieved">Loading...</span> merchants</strong>
+                <strong>Achievement: <span id="grandTotalPercentage" class="badge bg-secondary">0%</span></strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table id="subprocessTable" class="table table-bordered table-hover" style="width:100%">
+            <thead class="table-purple text-white">
+                <tr>
+                    <th>NO</th>
+                    <th>Head Office Unit</th>
+                    <th>Target<br><small>(Merchants)</small></th>
+                    <th>Collected Amount</th>
+                    <th>Achieved<br><small>(Merchants)</small></th>
+                    <th>% Achieved</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <button id="btnExport" class="btn btn-success mt-3">
+        <i class="fa fa-file-excel"></i> Export to Excel
+    </button>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var table = $('#subprocessTable').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    "url": "@Url.Action("MerchantSubprocessAjax", "MerchantReport")",
+                    "type": "POST",
+                    "data": function (d) {
+                        d.startDate = $('#startDate').val();
+                        d.endDate = $('#endDate').val();
+                    }
+                },
+                "pageLength": 50,
+                "order": [[5, "desc"]], // Sort by % Achieved descending
+                "columns": [
+                    {
+                        "data": null,
+                        "orderable": false,
+                        "render": (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1
+                    },
+                    { "data": "Name" },
+                    { "data": "Target", render: $.fn.dataTable.render.number(',', '.', 0) },
+                    { "data": "CollectedAmount", render: $.fn.dataTable.render.number(',', '.', 2) },
+                    { "data": "AchievedMerchants", render: $.fn.dataTable.render.number(',', '.', 0) },
+                    {
+                        "data": "Percentage",
+                        "render": function (d) {
+                            var color = d >= 100 ? 'success' : d >= 80 ? 'warning' : 'danger';
+                            return `<span class="badge bg-${color}">${parseFloat(d).toFixed(2)}%</span>`;
+                        }
+                    }
+                ],
+                "drawCallback": function (settings) {
+                    var json = settings.json;
+                    if (json) {
+                        $('#grandTotalTarget').text(json.grandTotalTarget || '0');
+                        $('#grandTotalCollected').text(json.grandTotalCollected || '0.00');
+                        $('#grandTotalAchieved').text(json.grandTotalAchieved || '0');
+                        var pct = parseFloat(json.grandTotalPercentage || 0);
+                        var $badge = $('#grandTotalPercentage');
+                        $badge.text(pct.toFixed(2) + '%')
+                              .removeClass('bg-success bg-warning bg-danger')
+                              .addClass(pct >= 100 ? 'bg-success' :
+                                        pct >= 80 ? 'bg-warning' : 'bg-danger');
+                    }
+                }
+            });
+
+            $('#filterForm').on('submit', function (e) {
+                e.preventDefault();
+                table.ajax.reload();
+            });
+
+            $('#btnReset').click(function () {
+                $('#startDate, #endDate').val('');
+                table.ajax.reload();
+            });
+
+            // EXPORT TO EXCEL
+            $('#btnExport').click(function () {
+                const $btn = $(this).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Exporting...');
+                const currentLength = table.page.len();
+
+                table.page.len(-1).draw();
+
+                table.one('draw', function () {
+                    try {
+                        const allData = table.rows().data().toArray();
+                        const json = table.settings()[0].json;
+
+                        let exportData = [];
+                        exportData.push(["MERCHANT ONBOARDING ACHIEVEMENT REPORT - BY HEAD OFFICE UNIT"]);
+                        exportData.push([]);
+
+                        const period = $('#startDate').val()
+                            ? `${$('#startDate').val()} to ${$('#endDate').val() || 'Present'}`
+                            : "All Time";
+                        exportData.push([`Period: ${period}`]);
+                        exportData.push([`Generated: ${moment().format('dddd, DD MMMM YYYY [at] HH:mm')}`]);
+                        exportData.push([`Total Units: ${allData.length}`]);
+                        exportData.push([]);
+
+                        exportData.push([
+                            "NO", "Head Office Unit", "Target (Merchants)", "Collected Amount", "Achieved (Merchants)", "% Achieved"
+                        ]);
+
+                        allData.forEach((row, i) => {
+                            exportData.push([
+                                i + 1,
+                                row.Name || "-",
+                                parseInt(row.Target || 0),
+                                parseFloat(row.CollectedAmount || 0),
+                                parseInt(row.AchievedMerchants || 0),
+                                (parseFloat(row.Percentage || 0)) / 100
+                            ]);
+                        });
+
+                        // Grand Total
+                        const gTarget = parseInt((json?.grandTotalTarget || "0").replace(/,/g, ''));
+                        const gCollected = parseFloat((json?.grandTotalCollected || "0").replace(/,/g, ''));
+                        const gAchieved = parseInt((json?.grandTotalAchieved || "0").replace(/,/g, ''));
+                        const gPct = gTarget > 0 ? (gAchieved / gTarget) * 100 : 0;
+
+                        exportData.push([]);
+                        exportData.push(["GRAND TOTAL", "", gTarget, gCollected, gAchieved, gPct / 100]);
+
+                        const wb = XLSX.utils.book_new();
+                        const ws = XLSX.utils.aoa_to_sheet(exportData);
+
+                        const range = XLSX.utils.decode_range(ws['!ref']);
+                        // Purple Theme Styling
+                        for (let R = 0; R <= range.e.r; ++R) {
+                            for (let C = 0; C <= range.e.c; ++C) {
+                                const addr = XLSX.utils.encode_cell({ r: R, c: C });
+                                if (!ws[addr]) continue;
+                                const cell = ws[addr];
+                                if (R === 0) {
+                                    cell.s = { font: { bold: true, sz: 16, color: { rgb: "4A148C" } }, alignment: { horizontal: "center" } };
+                                }
+                                else if (R >= 2 && R <= 4) {
+                                    cell.s = { font: { italic: true, color: { rgb: "555555" } } };
+                                }
+                                else if (R === 6) {
+                                    cell.s = { font: { bold: true, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "7B1FA2" } }, alignment: { horizontal: "center" } };
+                                }
+                                else if (R >= 7) {
+                                    const isTotal = R === exportData.length - 1;
+                                    cell.s = {
+                                        font: { bold: isTotal },
+                                        fill: isTotal ? { fgColor: { rgb: "E8EAF6" } } : undefined,
+                                        alignment: { horizontal: C <= 1 ? "left" : "right" },
+                                        border: { top: { style: "thin" }, bottom: { style: isTotal ? "double" : "thin" }, left: { style: "thin" }, right: { style: "thin" } }
+                                    };
+                                    if (C === 5 && !isTotal) { // % Achieved column
+                                        const val = (cell.v || 0) * 100;
+                                        const color = val >= 100 ? "27AE60" : val >= 80 ? "E67E22" : "E74C3C";
+                                        cell.s.font = { bold: true, color: { rgb: color } };
+                                    }
+                                }
+                            }
+                        }
+
+                        ws['!cols'] = [
+                            { wch: 6 }, { wch: 40 }, { wch: 20 }, { wch: 22 }, { wch: 20 }, { wch: 14 }
+                        ];
+
+                        ws['!merges'] = [
+                            { s: { r: 0, c: 0 }, e: { r: 0, c: 5 } },
+                            { s: { r: 2, c: 0 }, e: { r: 2, c: 5 } },
+                            { s: { r: 3, c: 0 }, e: { r: 3, c: 5 } },
+                            { s: { r: 4, c: 0 }, e: { r: 4, c: 5 } },
+                            { s: { r: exportData.length - 1, c: 0 }, e: { r: exportData.length - 1, c: 1 } }
+                        ];
+
+                        // Number formatting
+                        for (let r = 7; r < exportData.length - 1; r++) {
+                            ['C', 'E'].forEach(col => { const c = ws[col + (r + 1)]; if (c) c.z = "#,##0"; });        // Target & Achieved
+                            const ca = ws['D' + (r + 1)]; if (ca) ca.z = "#,##0.00";                                     // Collected
+                            const pc = ws['F' + (r + 1)]; if (pc) pc.z = "0.00%";                                         // %
+                        }
+
+                        ['C', 'D', 'E', 'F'].forEach(col => {
+                            const c = ws[col + exportData.length];
+                            if (c) {
+                                if (col === 'C' || col === 'E') c.z = "#,##0";
+                                if (col === 'D') c.z = "#,##0.00";
+                                if (col === 'F') c.z = "0.00%";
+                            }
+                        });
+
+                        XLSX.utils.book_append_sheet(wb, ws, "By Head Office Unit");
+                        XLSX.writeFile(wb, `Merchant_Onboarding_By_HeadOfficeUnit_${moment().format('YYYYMMDD_HHmm')}.xlsx`);
+
+                        toastr.success(`Exported ${allData.length} units successfully!`);
+                    } catch (err) {
+                        console.error(err);
+                        toastr.error("Export failed!");
+                    } finally {
+                        table.page.len(currentLength).draw('page');
+                        $btn.prop('disabled', false).html('<i class="fa fa-file-excel"></i> Export to Excel');
+                    }
+                });
+            });
+        });
+    </script>
+}

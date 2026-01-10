@@ -33,7 +33,7 @@ namespace TRMS.Controllers
             // Apply search filter if term is provided
             if (!string.IsNullOrWhiteSpace(term))
             {
-                term = term.Trim();
+                term = term;
 
                 query = query.Where(s =>
                     (s.FullName != null && s.FullName.Contains(term)) ||
@@ -78,7 +78,36 @@ namespace TRMS.Controllers
                 .ToList();           
         }
 
+        private void PopulateReservedAccounts(string selectedAccount = null)
+        {
+            var currentUserName = Session["UserName"]?.ToString();
 
+            // 1. Get raw data first (this is executed in SQL)
+            var reservedAccountsRaw = db.AccountReserves
+                .Where(a => a.UserName == currentUserName)
+                .Select(a => new
+                {
+                    a.AccountNumber,
+                    a.AccountHolder
+                })
+                .ToList();  // ← Execute query here
+
+            // 2. Now format in memory (safe!)
+            var reservedAccounts = reservedAccountsRaw
+                .Select(a => new SelectListItem
+                {
+                    Value = a.AccountNumber,
+                    Text = $"{a.AccountNumber} ({a.AccountHolder})"
+                })
+                .ToList();
+
+            ViewBag.ReservedAccountNumbers = new SelectList(
+                reservedAccounts,
+                "Value",
+                "Text",
+                selectedAccount
+            );
+        }
 
         // GET: DepositPlans
         public ActionResult Index()
@@ -115,9 +144,74 @@ namespace TRMS.Controllers
             return View(depositPlan);
         }
 
+        public JsonResult SearchReservedAccounts(string q)
+        {
+            var currentUserName = Session["UserName"]?.ToString();
+
+            if (string.IsNullOrEmpty(currentUserName))
+            {
+                return Json(new List<object>(), JsonRequestBehavior.AllowGet);
+            }
+
+            if (string.IsNullOrEmpty(q) || q.Length < 3)
+            {
+                return Json(new List<object>(), JsonRequestBehavior.AllowGet);
+            }
+
+            // Step 1: Get raw data that EF can translate to SQL
+            var rawResults = db.AccountReserves
+                .Where(a => a.UserName == currentUserName &&
+                            (a.AccountNumber.Contains(q) || a.AccountHolder.Contains(q)))
+                .Select(a => new
+                {
+                    a.AccountNumber,
+                    a.AccountHolder
+                })
+                .Take(50)
+                .ToList(); // ← Execute query HERE, bring data into memory
+
+            // Step 2: Now format safely in C# (in memory)
+            var results = rawResults.Select(a => new
+            {
+                Value = a.AccountNumber,
+                Text = $"{a.AccountNumber} ({a.AccountHolder})" // Safe now!
+            }).ToList();
+
+            return Json(results, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetReservedAccountByNumber(string accountNumber)
+        {
+            var currentUserName = Session["UserName"]?.ToString();
+
+            if (string.IsNullOrEmpty(accountNumber) || string.IsNullOrEmpty(currentUserName))
+                return Json(null, JsonRequestBehavior.AllowGet);
+
+            var account = db.AccountReserves
+                .Where(a => a.UserName == currentUserName && a.AccountNumber == accountNumber)
+                .Select(a => new
+                {
+                    a.AccountNumber,
+                    a.AccountHolder
+                })
+                .FirstOrDefault();
+
+            if (account == null)
+                return Json(null, JsonRequestBehavior.AllowGet);
+
+            return Json(new
+            {
+                Value = account.AccountNumber,
+                Text = $"{account.AccountNumber} ({account.AccountHolder})"
+            }, JsonRequestBehavior.AllowGet);
+        }
         public ActionResult Create()
         {
             PopulateUserDropdown();
+
+            var currentUserName = Session["UserName"]?.ToString(); // or Session["UserName"]?.ToString();
+            //PopulateReservedAccounts(); // no selection
+
             var model = new DepositPlanViewModel
             {
                 DepositPlan = new DepositPlan()
@@ -137,10 +231,16 @@ namespace TRMS.Controllers
         {
 
             PopulateUserDropdown(); // ✅ always load before any View return
+                                    // Pass the posted AccountNumber so it stays selected after validation
+                                    //PopulateReservedAccounts(vm?.DepositPlan?.AccountNumber);
+            ViewBag.SelectedReservedAccount = vm?.DepositPlan?.AccountNumber;
 
-          
             var depositPlan = vm.DepositPlan;
+        
 
+            // ✅ Normalize input once (IMPORTANT)
+            depositPlan.AccountNumber = depositPlan.AccountNumber?.Trim();
+            depositPlan.ReferenceNumber = depositPlan.ReferenceNumber?.Trim();
 
             // Validate input model
             if (depositPlan == null || string.IsNullOrEmpty(depositPlan.AccountNumber))
@@ -153,6 +253,12 @@ namespace TRMS.Controllers
             if (depositPlan.AccountNumber.Length < 5)
             {
                 TempData["ErrorMessage"] = "The Minimum Length for Account Number is 5";
+                return View(vm);
+            }
+
+            if (depositPlan.ReferenceNumber == "FT25284D3J02")
+            {
+                TempData["ErrorMessage"] = "Invalid Reference! The Amount exceeds the Initial Current Balance.";
                 return View(vm);
             }
 
@@ -243,6 +349,7 @@ namespace TRMS.Controllers
                     bool isTT = refType == "TT";
                     bool isTF = refType == "TF";
                     bool isDC = refType == "DC";
+                    bool isMM = refType == "MM";
 
                     var transactionDetails = new List<dynamic>();
                     string debitAccount = "";
@@ -328,6 +435,16 @@ namespace TRMS.Controllers
                             currency = curr;
                             txnDate = date;
                         }
+                        else if (isMM)
+                        {
+                            // MM transactions have only one record
+                            debitAccount = "";
+                            creditAccount = account;
+                            amount = amtClean;
+                            txnRef = refValue;
+                            currency = curr;
+                            txnDate = date;
+                        }
                     }
 
                     // ✅ Populate ViewBag for UI
@@ -368,6 +485,13 @@ namespace TRMS.Controllers
                         TempData["ErrorMessage"] = "Account number does not match transaction account for TF reference.";
                         return View(vm);
                     }
+                    else if ((isMM) && accountNo != creditAccount)
+                    {
+                        TempData["AccountMismatch"] = true;
+                        ViewBag.ReferenceExists = false;
+                        TempData["ErrorMessage"] = "Account number does not match transaction account for TF reference.";
+                        return View(vm);
+                    }
                     else
                     {
                         TempData["AccountMismatch"] = false;
@@ -386,20 +510,64 @@ namespace TRMS.Controllers
                     // Fetch previous balance (string JSON)
                     string json = callbyReference.GetPreviousBalance(depositPlan.AccountNumber, depositPlan.ReferenceNumber);
                     decimal opening = 0;
+                    bool hasValidOpeningBalance = false;
+
                     if (!string.IsNullOrEmpty(json))
                     {
-                        // Parse JSON array
-                        JArray arr = JArray.Parse(json);
-
-                        if (arr.Count > 0)
+                        try
                         {
-                            JObject txn = (JObject)arr[0];
+                            JArray arr = JArray.Parse(json);
+                            if (arr.Count > 0)
+                            {
+                                JObject txn = (JObject)arr[0];
 
-                             opening = (decimal?)txn["openingBalance"] ?? 0;
-
+                                // Try to get and convert the value safely
+                                if (txn["openingBalance"] != null)
+                                {
+                                    if (decimal.TryParse(txn["openingBalance"].ToString(), out decimal parsedValue))
+                                    {
+                                        opening = parsedValue;
+                                        hasValidOpeningBalance = true;
+                                    }
+                                    else
+                                    {
+                                        // Log: value exists but is not a valid decimal
+                                        System.Diagnostics.Debug.WriteLine($"Invalid decimal format for openingBalance in account {depositPlan.AccountNumber}");
+                                    }
+                                }
+                                else
+                                {
+                                    // Log: key missing
+                                    System.Diagnostics.Debug.WriteLine($"openingBalance key missing in response for account {depositPlan.AccountNumber}");
+                                }
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.WriteLine($"Empty array returned for account {depositPlan.AccountNumber}");
+                            }
+                        }
+                        catch (JsonException ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"JSON parse error for account {depositPlan.AccountNumber}: {ex.Message}");
                         }
                     }
-                    ViewBag.PreviousBalance = opening;
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"GetPreviousBalance returned null/empty for account {depositPlan.AccountNumber}");
+                    }
+
+                    // Now decide what to show in UI
+                    if (hasValidOpeningBalance)
+                    {
+                        ViewBag.PreviousBalance = opening;
+                        ViewBag.PreviousBalanceStatus = "success"; // optional - for UI coloring
+                    }
+                    else
+                    {
+                        ViewBag.PreviousBalance = null;                  // or "-" or string.Empty
+                        ViewBag.PreviousBalanceStatus = "error";         // optional
+                        ViewBag.PreviousBalanceError = "Unable to load previous balance"; // optional message
+                    }
 
 
                     // Populate dropdowns and return
@@ -425,16 +593,38 @@ namespace TRMS.Controllers
             if (!string.IsNullOrEmpty(depositPlan.ReferenceNumber))
             {
                 var existingDeposits = db.DepositPlans
-                    .Where(t => t.ReferenceNumber != null && t.ReferenceNumber.Trim() == depositPlan.ReferenceNumber.Trim())
+                    .Where(t => t.ReferenceNumber != null && t.ReferenceNumber == depositPlan.ReferenceNumber)
                     .ToList();
                 if (existingDeposits.Any())
                 {
                     var createdBy = existingDeposits.FirstOrDefault()?.User ?? string.Empty;
+                    var fullName = db.Users
+                        .Where(u => u.UserName == createdBy)
+                        .FirstOrDefault()?.FullName ?? string.Empty;
                     var phoneNumber = db.Users
                         .Where(u => u.UserName == createdBy)
                         .FirstOrDefault()?.PhoneNumber ?? string.Empty;
+                    var emailAddress = db.Users
+                        .Where(u => u.UserName == createdBy)
+                        .FirstOrDefault()?.MailAdress ?? string.Empty;
+                    var process = db.Users
+                        .Where(u => u.UserName == createdBy)
+                        .FirstOrDefault()?.Process ?? string.Empty;
+                    var district = db.Users
+                        .Where(u => u.UserName == createdBy)
+                        .FirstOrDefault()?.District ?? string.Empty;
+                    var branch = db.Users
+                        .Where(u => u.UserName == createdBy)
+                        .FirstOrDefault()?.Branch ?? string.Empty;
 
-                    TempData["ErrorMessage"] = $"Reference number already registered by {createdBy}. Contact phone: {phoneNumber}.";
+                    TempData["ErrorMessage"] =
+                        $"<b>Registered By:</b> {fullName}<br/>" +
+                        $"<b>Phone:</b> {phoneNumber}<br/>" +
+                        $"<b>Email:</b> {emailAddress}<br/>" +
+                        $"<b>Process:</b> {process}<br/>" +
+                        $"<b>District/SubProcess:</b> {district}<br/>" +
+                        $"<b>Branch/Team:</b> {branch}";
+
                     return View(vm);
                 }
             }
@@ -476,12 +666,13 @@ namespace TRMS.Controllers
                     return View(vm);
                 }
 
-                // --- Guard: if the account is OD  ---
-                if (vm.DepositPlan.Prev_Ini_Bal < 0)
+                //// --- Guard: if the account is OD  ---
+                if (vm.DepositPlan.Prev_Ini_Bal < 0 || vm.DepositPlan.Prev_Ini_Bal == null)
                 {
-                    TempData["ErrorMessage"] = "The Previous Initial Balance must be Above 0";
+                    TempData["ErrorMessage"] = "The Previous Initial Balance must be greater than 0";
                     return View(vm);
                 }
+
                 // --- Guard: if the account is OD  ---
                 if (vm.DepositPlan.AccountBalance > 0)
                 {
@@ -504,11 +695,7 @@ namespace TRMS.Controllers
 
 
                 // --- Guard: vm.DepositPlan must exist ---
-                if (vm.DepositPlan.Prev_Ini_Bal == null)
-                {
-                    TempData["ErrorMessage"] = "Enter Valid Reference Number.";
-                    return View(vm);
-                }
+
                 //var depositPlan = vm.DepositPlan;
 
                 // --- Read checkbox safely (HTML sends "true,false" if unchecked) ---
@@ -620,7 +807,9 @@ namespace TRMS.Controllers
                         {
                             (vm.SharedUser1, vm.SharedAmount1),
                             (vm.SharedUser2, vm.SharedAmount2),
-                            (vm.SharedUser3, vm.SharedAmount3)
+                            (vm.SharedUser3, vm.SharedAmount3),
+                            (vm.SharedUser4, vm.SharedAmount4),
+                            (vm.SharedUser5, vm.SharedAmount5)
                         }
                     .Where(x => !string.IsNullOrWhiteSpace(x.username) && x.amount.GetValueOrDefault() > 0)
                     .ToList();
@@ -704,8 +893,123 @@ namespace TRMS.Controllers
 
 
 
+        public ActionResult AssignMM()
+        {
+            // Don't load anything initially
+            ViewBag.AccountList = new SelectList(new List<string>());
+            return View();
+        }
 
+        // Separate AJAX endpoint for searching
+        [HttpGet]
+        public JsonResult SearchAccounts(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term) || term.Length < 8) // Minimum 2 chars
+            {
+                return Json(new List<object>(), JsonRequestBehavior.AllowGet);
+            }
 
+            var accounts = db.DepositPlans
+                .AsNoTracking()
+                .Where(x => x.AccountNumber != null &&
+                           x.AccountNumber != "" &&
+                           x.AccountNumber.Contains(term))
+                .Select(x => x.AccountNumber)
+                .Distinct()
+                .Take(100)
+                .OrderBy(x => x)
+                .Select(x => new {
+                    id = x,
+                    text = x
+                })
+                .ToList();
+
+            return Json(accounts, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult ValidateMM(string accountNumber, string mmReference)
+        {
+            if (string.IsNullOrEmpty(accountNumber) || string.IsNullOrEmpty(mmReference))
+                return Json(new { success = false, message = "Account number and MM reference are required." });
+
+            try
+            {
+                // Call your API
+                var response = callbyReference.GetAccountinformationByrefrence(mmReference);
+
+                if (string.IsNullOrEmpty(response))
+                    return Json(new { success = false, message = "Invalid MM reference or no data returned." });
+
+                // Parse XML
+                XmlDocument doc = new XmlDocument();
+                doc.LoadXml(response);
+
+                var ns = new XmlNamespaceManager(doc.NameTable);
+                ns.AddNamespace("S", "http://schemas.xmlsoap.org/soap/envelope/");
+                ns.AddNamespace("ns3", "http://temenos.com/FTTTTXNDETAIL");
+                ns.AddNamespace("ns4", "http://temenos.com/TWSTXNDETAIL");
+
+                var txnNode = doc.SelectSingleNode("//S:Body/ns4:CBOTXNDETAILResponse/FTTTTXNDETAILType/ns3:gFTTTTXNDETAILDetailType/ns3:mFTTTTXNDETAILDetailType", ns);
+
+                if (txnNode == null)
+                    return Json(new { success = false, message = "MM transaction details not found." });
+
+                var account = txnNode.SelectSingleNode("ns3:Account", ns)?.InnerText ?? "";
+                var amtRaw = txnNode.SelectSingleNode("ns3:Amount", ns)?.InnerText ?? "";
+
+                string amtClean = Regex.Replace(amtRaw, @"^[A-Za-z]+", "").Trim();
+
+                // Cross-check account
+                if (account != accountNumber)
+                    return Json(new { success = false, message = "MM reference account doesn't match selected account." });
+
+                return Json(new
+                {
+                    success = true,
+                    amount = amtClean
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public ActionResult SaveMM(string accountNumber, string mmReference, decimal amount)
+        {
+            if (string.IsNullOrEmpty(accountNumber) || string.IsNullOrEmpty(mmReference))
+                return Json(new { success = false, message = "Account number and MM reference are required." });
+
+            try
+            {
+                var rows = db.DepositPlans
+                    .Where(x => x.AccountNumber == accountNumber)
+                    .ToList();
+
+                if (!rows.Any())
+                    return Json(new { success = false, message = "No deposit records found with that account number." });
+
+                foreach (var row in rows)
+                {
+                    row.MMACC = mmReference;
+                    row.MMBAL = amount;
+                }
+
+                db.SaveChanges();
+
+                return Json(new
+                {
+                    success = true,
+                    message = $"Successfully updated {rows.Count} records with MMACC and MMBAL."
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
 
         // GET: DepositPlans/Edit/5
         public ActionResult Edit(int? id)

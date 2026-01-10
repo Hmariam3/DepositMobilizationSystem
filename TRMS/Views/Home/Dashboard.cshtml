@@ -1,6 +1,7 @@
 ﻿@{
     ViewBag.Title = "Dashboard";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var bank = ViewBag.BankBalanceSummary as TRMS.Models.BankBalanceSummary;
 }
 
 <style>
@@ -356,30 +357,23 @@
 
 <div class="container-fluid p-4">
     @{
-        var position = Session["Position"] != null ? Session["Position"].ToString() : "";
+        string position = Session["Position"] != null ? Session["Position"].ToString() : "";
         string title = "";
 
-        if (position == "VP" || position == "CHF")
+        // Controller already sets:
+        // ViewBag.Scope → Branch / District / Process / Bank / Individual
+        // ViewBag.ScopeName → branch / district / process / COOPBANK / username
+
+        if (ViewBag.Scope != null && ViewBag.ScopeName != null)
         {
-            title = ViewBag.VP + " Deposit Performance";
-        }
-        else if (position == "Director" || position == "SeniorDirector")
-        {
-            title = ViewBag.District + " Deposit Performance";
-        }
-        else if (position == "BranchManager" || position == "Manager")
-        {
-            title = ViewBag.Branch + " Deposit Performance";
-        }
-        else if (position == "CEO")
-        {
-            title = ViewBag.CEO + " Deposit Performance";
+            title = ViewBag.ScopeName + " Deposit Performance";
         }
         else
         {
             title = "Deposit Performance";
         }
     }
+
 
     <!-- Page Header -->
     <div class="page-header" style="display: flex; justify-content: center;">
@@ -402,7 +396,13 @@
                 <table class="metric-table">
                     <tr><th>Assigned Target</th><td>@String.Format("{0:N2}", ViewBag.DepositPlanTarget)</td></tr>
                     <tr><th>Achieved Amount</th><td>@String.Format("{0:N2}", ViewBag.DepositPlanAchieved)</td></tr>
+                    @if (Session["UserRole"].ToString() == "Super")
+                    {
+                        <tr><th>CBS Amount</th><td>@(bank != null ? bank.Difference.ToString("N2") : "0.00")</td></tr>
+                    }
                     <tr><th>Remaining Amount</th><td>@String.Format("{0:N2}", ViewBag.DepositRemainingAmount)</td></tr>
+
+
                 </table>
                 <div class="progress-container">
                     <div class="progress-percentage">
@@ -416,9 +416,9 @@
                     </div>
                     <div class="progress-message @(ViewBag.DepositPlanProgress < 33 ? "progress-message-behind" : ViewBag.DepositPlanProgress <= 66 ? "progress-message-good" : ViewBag.DepositPlanProgress <= 100 ? "progress-message-strong" : "progress-message-above")">
                         @(ViewBag.DepositPlanProgress < 33 ? "Catch Up: Push harder to reach your goal!" :
-                                                                      ViewBag.DepositPlanProgress <= 66 ? "On Track: Keep up the steady progress!" :
-                                                                      ViewBag.DepositPlanProgress <= 100 ? "Strong Performance: You're close to the goal!" :
-                                                                      "Target Exceeded: Outstanding achievement!")
+                                                                              ViewBag.DepositPlanProgress <= 66 ? "On Track: Keep up the steady progress!" :
+                                                                              ViewBag.DepositPlanProgress <= 100 ? "Strong Performance: You're close to the goal!" :
+                                                                              "Target Exceeded: Outstanding achievement!")
                     </div>
                 </div>
             </div>
@@ -447,9 +447,9 @@
                     </div>
                     <div class="progress-message @(ViewBag.MerchantProgress < 33 ? "progress-message-behind" : ViewBag.MerchantProgress <= 66 ? "progress-message-good" : ViewBag.MerchantProgress <= 100 ? "progress-message-strong" : "progress-message-above")">
                         @(ViewBag.MerchantProgress < 33 ? "Catch Up: Push harder to reach your goal!" :
-                                                                      ViewBag.MerchantProgress <= 66 ? "On Track: Keep up the steady progress!" :
-                                                                      ViewBag.MerchantProgress <= 100 ? "Strong Performance: You're close to the goal!" :
-                                                                      "Target Exceeded: Outstanding achievement!")
+                                                                              ViewBag.MerchantProgress <= 66 ? "On Track: Keep up the steady progress!" :
+                                                                              ViewBag.MerchantProgress <= 100 ? "Strong Performance: You're close to the goal!" :
+                                                                              "Target Exceeded: Outstanding achievement!")
                     </div>
                 </div>
             </div>
@@ -478,9 +478,9 @@
                     </div>
                     <div class="progress-message @(ViewBag.FCYProgress < 33 ? "progress-message-behind" : ViewBag.FCYProgress <= 66 ? "progress-message-good" : ViewBag.FCYProgress <= 100 ? "progress-message-strong" : "progress-message-above")">
                         @(ViewBag.FCYProgress < 33 ? "Catch Up: Push harder to reach your goal!" :
-                                                                      ViewBag.FCYProgress <= 66 ? "On Track: Keep up the steady progress!" :
-                                                                      ViewBag.FCYProgress <= 100 ? "Strong Performance: You're close to the goal!" :
-                                                                      "Target Exceeded: Outstanding achievement!")
+                                                                              ViewBag.FCYProgress <= 66 ? "On Track: Keep up the steady progress!" :
+                                                                              ViewBag.FCYProgress <= 100 ? "Strong Performance: You're close to the goal!" :
+                                                                              "Target Exceeded: Outstanding achievement!")
                     </div>
                 </div>
             </div>
