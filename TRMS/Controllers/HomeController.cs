@@ -246,7 +246,11 @@ namespace TRMS.Controllers
                     //int totalDays = 90;
                     //int daysElapsed = Math.Max(0, Math.Min(totalDays, (today - startDate).Days));
 
-                    decimal expectedMerchants = Math.Ceiling((assignedTargetMerchant / totalDays) * daysElapsed); // round up
+                    decimal expectedMerchants = Math.Min(
+                        assignedTargetMerchant,
+                        Math.Ceiling((assignedTargetMerchant * 1.0m / totalDays) * daysElapsed)
+                    );
+
                     decimal progressPercentAgent = assignedTargetMerchant == 0 ? 0 :
                         (achievedMerchants / assignedTargetMerchant) * 100;
 

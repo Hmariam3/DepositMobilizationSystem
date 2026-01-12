@@ -111,25 +111,59 @@
         font-size: 0.95rem;
     }
 
+    /* === Base styling for both normal inputs and Select2 visible field === */
     .form-control,
-    .select2-container--bootstrap-5 .select2-selection {
+    .select2-container--bootstrap-5 .select2-selection--single {
         border-radius: 0.75rem;
         border: 1px solid #ced4da;
-        padding: 0.65rem 1rem;
+        padding: 0.1rem 1rem;
         font-size: 0.95rem;
+        height: calc(3rem + 2px); /* consistent height */
         transition: all 0.3s ease;
+        background-color: #fff; /* optional: ensure white bg */
     }
 
-    .form-control:focus,
-    .select2-container--bootstrap-5 .select2-selection:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 0.2rem rgba(0, 174, 239, 0.25);
+        /* Focus / active state - same for both */
+        .form-control:focus,
+        .select2-container--bootstrap-5 .select2-selection--single:focus-within,
+        .select2-container--bootstrap-5.select2-container--focus .select2-selection--single {
+            border-color: var(--primary); /* your primary color, e.g. #00AEEF */
+            box-shadow: 0 0 0 0.2rem rgba(0, 174, 239, 0.25);
+            outline: none;
+        }
+
+        /* Make sure the inner text aligns nicely inside Select2 */
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+            line-height: calc(3.5rem - 2px); /* centers text vertically */
+            padding-left: 0; /* remove default left padding if needed */
+            padding-right: 2rem; /* space for arrow */
+        }
+
+    /* Dropdown results - scrollable when many items */
+    .select2-container--bootstrap-5 .select2-results__options {
+        max-height: 320px; /* ≈ 9–11 visible items */
+        overflow-y: auto;
+        overflow-x: hidden;
     }
 
-    .select2-container--bootstrap-5 .select2-selection {
+        /* Optional: nicer scrollbar */
+        .select2-container--bootstrap-5 .select2-results__options::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .select2-container--bootstrap-5 .select2-results__options::-webkit-scrollbar-thumb {
+            background: #adb5bd;
+            border-radius: 3px;
+        }
+
+            .select2-container--bootstrap-5 .select2-results__options::-webkit-scrollbar-thumb:hover {
+                background: #6c757d;
+            }
+
+    /* Optional: consistent arrow color / style */
+    .select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow {
         height: calc(3.5rem + 2px);
-        padding-top: 0.375rem;
-        padding-bottom: 0.375rem;
+        top: 0;
     }
 
     .target-section h5 {
@@ -293,63 +327,65 @@
 
                         @Html.ValidationSummary(true, "", new { @class = "text-danger small" })
 
-                        <div class="row g-3">
-                            <!-- Process -->
-                            <div class="col-md-6">
-                                <label class="form-label">Process <span class="text-danger">*</span></label>
-                                @Html.DropDownListFor(m => m.Process, (SelectList)ViewBag.Processes, "Select Process", new { @class = "form-select select2", id = "ProcessDropdown" })
-                                @Html.ValidationMessageFor(m => m.Process, "", new { @class = "text-danger small mt-1" })
-                            </div>
-
-                            <!-- Subprocess/District -->
-                            <div class="col-md-6">
-                                <label class="form-label">Subprocess/District <span class="text-danger">*</span></label>
-                                @Html.DropDownListFor(m => m.District, (SelectList)ViewBag.Subprocesses, "Select Subprocess", new { @class = "form-select select2", id = "SubprocessDropdown" })
-                                @Html.ValidationMessageFor(m => m.District, "", new { @class = "text-danger small mt-1" })
-                            </div>
-
-                            <!-- Branch -->
-                            <div class="col-md-6">
-                                <label class="form-label">Team/Branch <span class="text-danger">*</span></label>
-                                @Html.DropDownListFor(m => m.Branch, (SelectList)ViewBag.Branches, "Select Branch", new { @class = "form-select select2", id = "BranchDropdown" })
-                                @Html.ValidationMessageFor(m => m.Branch, "", new { @class = "text-danger small mt-1" })
-                            </div>
-
-                            <!-- Organizational Unit -->
-                            <div class="col-md-6">
-                                <label class="form-label">Organizational Unit <span class="text-danger">*</span></label>
-                                @Html.DropDownListFor(m => m.OrganizatinalUnit, new List<SelectListItem>
-                                {
-                                    new SelectListItem { Text = "HO", Value = "HO" },
-                                    new SelectListItem { Text = "District", Value = "District" },
-                                    new SelectListItem { Text = "Branch", Value = "Branch" }
-                                }, "Select Unit", new { @class = "form-select select2" })
-                                @Html.ValidationMessageFor(m => m.OrganizatinalUnit, "", new { @class = "text-danger small mt-1" })
-                            </div>
-
-                            <!-- Position -->
-                            <div class="col-md-6">
-                                <label class="form-label">Position <span class="text-danger">*</span></label>
-                                @Html.DropDownListFor(m => m.Postion, new List<SelectListItem>
-                                {
-                                    new SelectListItem { Text = "Individual", Value = "Individual" },
-                                    new SelectListItem { Text = "BranchManager", Value = "BranchManager" },
-                                    new SelectListItem { Text = "Manager", Value = "Manager" },
-                                    new SelectListItem { Text = "Director", Value = "Director" },
-                                    new SelectListItem { Text = "VP", Value = "VP" },
-                                    new SelectListItem { Text = "CHF", Value = "CHF" },
-                                    new SelectListItem { Text = "CEO", Value = "CEO" }
-                                }, "Select Position", new { @class = "form-select select2", id = "positionId" })
-                                @Html.ValidationMessageFor(m => m.Postion, "", new { @class = "text-danger small mt-1" })
-                            </div>
-
-                            <!-- Phone Number -->
-                            <div class="col-md-6">
-                                <label class="form-label">Phone Number</label>
-                                @Html.EditorFor(m => m.PhoneNumber, new { htmlAttributes = new { @class = "form-control", placeholder = "e.g. +251911234567" } })
-                                @Html.ValidationMessageFor(m => m.PhoneNumber, "", new { @class = "text-danger small mt-1" })
-                            </div>
+                    <div class="row g-3">
+                        <!-- Process -->
+                        <div class="col-md-6">
+                            <label class="form-label">Process <span class="text-danger">*</span></label>
+                            @Html.DropDownListFor(m => m.Process, (SelectList)ViewBag.Processes, "Select Process", new { @class = "form-select select2", id = "ProcessDropdown" })
+                            @Html.ValidationMessageFor(m => m.Process, "", new { @class = "text-danger small mt-1" })
                         </div>
+
+                        <!-- Subprocess/District -->
+                        <div class="col-md-6">
+                            <label class="form-label">Subprocess/District <span class="text-danger">*</span></label>
+                            @Html.DropDownListFor(m => m.District, (SelectList)ViewBag.Subprocesses, "Select Subprocess", new { @class = "form-select select2", id = "SubprocessDropdown" })
+                            @Html.ValidationMessageFor(m => m.District, "", new { @class = "text-danger small mt-1" })
+                        </div>
+
+                        <!-- Branch -->
+                        <div class="col-md-6">
+                            <label class="form-label">Team/Branch <span class="text-danger">*</span></label>
+                            @Html.DropDownListFor(m => m.Branch, (SelectList)ViewBag.Branches, "Select Branch", new { @class = "form-select select2", id = "BranchDropdown" })
+                            @Html.ValidationMessageFor(m => m.Branch, "", new { @class = "text-danger small mt-1" })
+                        </div>
+
+                        <!-- Organizational Unit -->
+                        <div class="col-md-6">
+                            <label class="form-label">Organizational Unit <span class="text-danger">*</span></label>
+                            @Html.DropDownListFor(m => m.OrganizatinalUnit, new List<SelectListItem>
+                            {
+                                new SelectListItem { Text = "HO", Value = "HO" },
+                                new SelectListItem { Text = "District", Value = "District" },
+                                new SelectListItem { Text = "Branch", Value = "Branch" }
+                            }, "Select Unit", new { @class = "form-select select2" })
+                            @Html.ValidationMessageFor(m => m.OrganizatinalUnit, "", new { @class = "text-danger small mt-1" })
+                        </div>
+
+                        <!-- Position -->
+                        <div class="col-md-6">
+                            <label class="form-label">Position <span class="text-danger">*</span></label>
+                            @Html.DropDownListFor(m => m.Postion, new List<SelectListItem>
+                            {
+                                new SelectListItem { Text = "Individual", Value = "Individual" },
+                                new SelectListItem { Text = "BranchManager", Value = "BranchManager" },
+                                new SelectListItem { Text = "Manager", Value = "Manager" },
+                                new SelectListItem { Text = "SeniorManager", Value = "SeniorManager" },
+                                new SelectListItem { Text = "Director", Value = "Director" },
+                                new SelectListItem { Text = "SeniorDirector", Value = "SeniorDirector" },
+                                new SelectListItem { Text = "VP", Value = "VP" },
+                                new SelectListItem { Text = "CHIEF", Value = "CHF" },
+                                new SelectListItem { Text = "CEO", Value = "CEO" }
+                            }, "Select Position", new { @class = "form-select select2", id = "positionId" })
+                            @Html.ValidationMessageFor(m => m.Postion, "", new { @class = "text-danger small mt-1" })
+                        </div>
+
+                        <!-- Phone Number -->
+                        <div class="col-md-6">
+                            <label class="form-label">Phone Number</label>
+                            @Html.EditorFor(m => m.PhoneNumber, new { htmlAttributes = new { @class = "form-control", placeholder = "e.g. +251911234567" } })
+                            @Html.ValidationMessageFor(m => m.PhoneNumber, "", new { @class = "text-danger small mt-1" })
+                        </div>
+                    </div>
 
                         <!-- Target Sections -->
                         <div class="row mt-4 g-4">

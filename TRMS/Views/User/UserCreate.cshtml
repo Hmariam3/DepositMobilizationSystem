@@ -161,25 +161,59 @@
             font-size: 0.95rem;
         }
 
+        /* === Base styling for both normal inputs and Select2 visible field === */
         .form-control,
-        .select2-container--bootstrap-5 .select2-selection {
+        .select2-container--bootstrap-5 .select2-selection--single {
             border-radius: 0.75rem;
             border: 1px solid #ced4da;
-            padding: 0.65rem 1rem;
+            padding: 0.1rem 1rem;
             font-size: 0.95rem;
+            height: calc(3rem + 2px); /* consistent height */
             transition: all 0.3s ease;
+            background-color: #fff; /* optional: ensure white bg */
         }
 
+            /* Focus / active state - same for both */
             .form-control:focus,
-            .select2-container--bootstrap-5 .select2-selection:focus {
-                border-color: var(--primary);
+            .select2-container--bootstrap-5 .select2-selection--single:focus-within,
+            .select2-container--bootstrap-5.select2-container--focus .select2-selection--single {
+                border-color: var(--primary); /* your primary color, e.g. #00AEEF */
                 box-shadow: 0 0 0 0.2rem rgba(0, 174, 239, 0.25);
+                outline: none;
             }
 
-        .select2-container--bootstrap-5 .select2-selection {
+            /* Make sure the inner text aligns nicely inside Select2 */
+            .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+                line-height: calc(3.5rem - 2px); /* centers text vertically */
+                padding-left: 0; /* remove default left padding if needed */
+                padding-right: 2rem; /* space for arrow */
+            }
+
+        /* Dropdown results - scrollable when many items */
+        .select2-container--bootstrap-5 .select2-results__options {
+            max-height: 320px; /* ≈ 9–11 visible items */
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+            /* Optional: nicer scrollbar */
+            .select2-container--bootstrap-5 .select2-results__options::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .select2-container--bootstrap-5 .select2-results__options::-webkit-scrollbar-thumb {
+                background: #adb5bd;
+                border-radius: 3px;
+            }
+
+                .select2-container--bootstrap-5 .select2-results__options::-webkit-scrollbar-thumb:hover {
+                    background: #6c757d;
+                }
+
+        /* Optional: consistent arrow color / style */
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow {
             height: calc(3.5rem + 2px);
-            padding-top: 0.375rem;
-            padding-bottom: 0.375rem;
+            top: 0;
         }
 
         .target-section h5 {
@@ -387,10 +421,11 @@
                                         new SelectListItem { Text = "Individual", Value = "Individual" },
                                         new SelectListItem { Text = "BranchManager", Value = "BranchManager" },
                                         new SelectListItem { Text = "Manager", Value = "Manager" },
-                                        new SelectListItem { Text = "SeniorDirector", Value = "SeniorDirector" },
+                                        new SelectListItem { Text = "SeniorManager", Value = "SeniorManager" },
                                         new SelectListItem { Text = "Director", Value = "Director" },
+                                        new SelectListItem { Text = "SeniorDirector", Value = "SeniorDirector" },                                  
                                         new SelectListItem { Text = "VP", Value = "VP" },
-                                        new SelectListItem { Text = "CHF", Value = "CHF" },
+                                        new SelectListItem { Text = "CHIEF", Value = "CHF" },
                                         new SelectListItem { Text = "CEO", Value = "CEO" }
                                     }, "Select Position", new { @class = "form-select select2", id = "positionId" })
                                     @Html.ValidationMessageFor(m => m.Postion, "", new { @class = "text-danger small mt-1" })
