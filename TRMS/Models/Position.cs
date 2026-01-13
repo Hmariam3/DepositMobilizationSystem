@@ -12,11 +12,9 @@ namespace TRMS.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class Postion
+    public partial class Position
     {
-        public int Id { get; set; }
-        public string Postion1 { get; set; }
-        public Nullable<decimal> LimitAmout { get; set; }
-        public string Remark { get; set; }
+        public int PO_ID { get; set; }
+        public string Position1 { get; set; }
     }
 }

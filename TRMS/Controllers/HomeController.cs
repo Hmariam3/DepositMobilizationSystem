@@ -127,9 +127,9 @@ namespace TRMS.Controllers
                     ViewBag.remaing = remaining < 0 ? 0 : remaining;
 
                     // ---- DAILY PROGRESS LOGIC (unchanged) ----
-                    DateTime startDate = new DateTime(2025, 10, 1);
+                    DateTime startDate = new DateTime(2026, 01, 1);
                     DateTime today = DateTime.Today;
-                    int totalDays = 91;
+                    int totalDays = 90;
 
                     int daysElapsed = (today - startDate).Days;
                     if (daysElapsed < 0) daysElapsed = 0;
@@ -842,7 +842,27 @@ namespace TRMS.Controllers
             IQueryable<User> userTargetScope = db.Users.AsQueryable(); // For Merchant & FCY targets from Users table
             IQueryable<DepositFCY> fcyScope = db.DepositFCies.AsQueryable(); // FCY still from raw table
 
-            if (role == "Maker" && (position == "Manager" || position == "BranchManager"))
+            var directorPositions = new[]
+                    {
+                            "Director",
+                            "Acting Director",
+                            "District Director",
+                            "District Senior Director",
+                            "Senior Director"
+                        };
+
+            var managerPositions = new[]
+                                {
+                            "Branch Manager I",
+                            "Branch Manager II",
+                            "Branch Manager III",
+                            "Branch Manager IV",
+                            "Senior Manager",
+                            "Manager",
+                            "Acting Manager"
+                        };
+
+            if (role == "Maker" && managerPositions.Contains(position))
             {
                 ViewBag.Scope = "Branch";
                 ViewBag.ScopeName = branch;
@@ -853,7 +873,7 @@ namespace TRMS.Controllers
                 fcyScope = fcyScope.Where(f => f.Branch == branch);
 
             }
-            else if (role == "Maker" && (position == "Director" || position == "SeniorDirector"))
+            else if (role == "Maker" && directorPositions.Contains(position))
             {
                 ViewBag.Scope = "District";
                 ViewBag.ScopeName = district;
@@ -863,7 +883,7 @@ namespace TRMS.Controllers
                 userTargetScope = userTargetScope.Where(u => u.Branch == branch);
                 fcyScope = fcyScope.Where(f => f.District == district);
             }
-            else if (role == "Maker" && (position == "VP" || position == "CHF"))
+            else if (role == "Maker" && (position == "VP" || position == "Chief"))
             {
                 ViewBag.Scope = "Process";
                 ViewBag.ScopeName = process;
@@ -882,7 +902,7 @@ namespace TRMS.Controllers
             else
             {
                 // Fallback: individual user only
-                ViewBag.Scope = "Individual";
+                ViewBag.Scope = position;
                 ViewBag.ScopeName = currentUser.FullName ?? currentUserName;
 
                 depositScope = depositScope.Where(ua => ua.UserName == currentUserName);

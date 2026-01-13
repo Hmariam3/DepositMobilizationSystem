@@ -18,6 +18,8 @@ namespace TRMS.Models
         public string AccountNumber { get; set; }
         public string AccountHolder { get; set; }
         public Nullable<decimal> AccountBalance { get; set; }
+        public string MMACC { get; set; }
+        public Nullable<decimal> MMBAL { get; set; }
         public string UserName { get; set; }
         public Nullable<System.DateTime> CreatedDate { get; set; }
     }

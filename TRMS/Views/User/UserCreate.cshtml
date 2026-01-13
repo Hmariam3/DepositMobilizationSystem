@@ -308,7 +308,15 @@
         <!-- Page Header -->
         <div class="page-header">
             <h1>User Registration</h1>
-            <p>Create User Profile with targets</p>
+            <div class="alert alert-info" role="alert">
+                <i class="glyphicon glyphicon-info-sign"></i>&nbsp;
+                <strong>Important:</strong> Since your profile directly affects reporting &
+                target assignments,
+                please fill it <strong>accurately.</strong><br />
+                <strong>Some fields may become impossible to edit later.</strong><br />
+                If your Process, Subprocess/District, Branch or Position is missing,
+                contact the Administrator team <strong>before submitting</strong>.
+            </div>
         </div>
 
         <!-- Error Message -->
@@ -414,7 +422,7 @@
                                 </div>
 
                                 <!-- Position -->
-                                <div class="col-md-6">
+                                @*<div class="col-md-6">
                                     <label class="form-label">Position <span class="text-danger">*</span></label>
                                     @Html.DropDownListFor(m => m.Postion, new List<SelectListItem>
                                     {
@@ -423,14 +431,19 @@
                                         new SelectListItem { Text = "Manager", Value = "Manager" },
                                         new SelectListItem { Text = "SeniorManager", Value = "SeniorManager" },
                                         new SelectListItem { Text = "Director", Value = "Director" },
-                                        new SelectListItem { Text = "SeniorDirector", Value = "SeniorDirector" },                                  
+                                        new SelectListItem { Text = "SeniorDirector", Value = "SeniorDirector" },
                                         new SelectListItem { Text = "VP", Value = "VP" },
                                         new SelectListItem { Text = "CHIEF", Value = "CHF" },
                                         new SelectListItem { Text = "CEO", Value = "CEO" }
                                     }, "Select Position", new { @class = "form-select select2", id = "positionId" })
                                     @Html.ValidationMessageFor(m => m.Postion, "", new { @class = "text-danger small mt-1" })
+                                </div>*@
+                                <!-- Position -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Position <span class="text-danger">*</span></label>
+                                    @Html.DropDownListFor(m => m.Postion, (SelectList)ViewBag.Position, "Select Process", new { @class = "form-select select2", id = "PositionDropdown" })
+                                    @Html.ValidationMessageFor(m => m.Postion, "", new { @class = "text-danger small mt-1" })
                                 </div>
-
                                 <!-- Phone Number -->
                                 <div class="col-md-6">
                                     <label class="form-label">Phone Number</label>
@@ -585,30 +598,61 @@
 
             // Toggle Targets based on Position
             function toggleTargets() {
-                const position = $('#positionId').val();
+                const position = $('#PositionDropdown').val() || '';  // safe-guard against null/undefined
+
                 const $branchContainer = $('#branchTargetContainer');
                 const $fcyContainer = $('#fcyTargetContainer');
 
-                // Branch Targets
-                if (position === 'BranchManager') {
+                // Define position groups (exact matches – case sensitive!)
+                const branchManagerPositions = [
+                    "Branch Manager I",
+                    "Branch Manager II",
+                    "Branch Manager III",
+                    "Branch Manager IV"
+                ];
+
+                const directorPositions = [
+                    "Director",
+                    "Acting Director",
+                    "District Director",
+                    "District Senior Director",
+                    "Senior Director",
+                    "VP",
+                    "Chief",
+                    "CEO"
+                ];
+
+                // ──────────────────────────────────────────────
+                // Branch Targets: ONLY for Branch Managers I–IV
+                // ──────────────────────────────────────────────
+                if (branchManagerPositions.includes(position)) {
                     $branchContainer.slideDown();
                 } else {
                     $branchContainer.slideUp();
-                    $branchContainer.find('input').val('');
+                    $branchContainer.find('input').val('');   // optional: clear values when hidden
                 }
 
-                // FCY Target
-                if (position === 'Individual') {
-                    $fcyContainer.slideUp();
-                    $fcyContainer.find('input').val('');
-                } else {
+                // ──────────────────────────────────────────────
+                // FCY Target: Branch Managers + Director-level
+                // ──────────────────────────────────────────────
+                const shouldShowFCY =
+                    branchManagerPositions.includes(position) ||
+                    directorPositions.includes(position);
+
+                if (shouldShowFCY) {
                     $fcyContainer.slideDown();
+                } else {
+                    $fcyContainer.slideUp();
+                    $fcyContainer.find('input').val('');     // optional: clear when hidden
                 }
+
             }
 
-            // Initialize
-            toggleTargets();
-            $('#positionId').on('change', toggleTargets);
+            // Run once on page load
+            $(document).ready(function () {
+                toggleTargets();
+                $('#PositionDropdown').on('change', toggleTargets);
+            });
 
             // Form Validation
             const form = document.getElementById('createUserForm');

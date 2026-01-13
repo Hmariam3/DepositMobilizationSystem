@@ -158,7 +158,7 @@ namespace UserProfile.Controllers
         {
 
             ViewBag.Branch = new SelectList(db.Branches, "ID", "BranchName");
-            ViewBag.Postion = new SelectList(db.Postions, "Postion1", "Postion1");
+            //ViewBag.Postion = new SelectList(db.Postions, "Postion1", "Postion1");
             ViewBag.Processes = new SelectList(db.Processes, "proces_id", "process_name");
             ViewBag.SubProcesses = new SelectList(db.Subprocesses, "subprocess_Id", "subprocess_name");
             string role = Session["UserRole"].ToString();
@@ -179,7 +179,7 @@ namespace UserProfile.Controllers
         public ActionResult Create(User userInput)
         {
             ViewBag.Branch = new SelectList(db.DepartementInfoes, "DID", "DepartemntName");
-            ViewBag.Postion = new SelectList(db.Postions, "Postion1", "Postion1");
+            //ViewBag.Postion = new SelectList(db.Postions, "Postion1", "Postion1");
 
 
             if (ModelState.IsValid)
@@ -214,8 +214,8 @@ namespace UserProfile.Controllers
                             user.Password = "123456";
                             user.Role = userInput.Role;
 
-                            decimal userlimit = db.Postions.Where(p => p.Postion1 == userInput.Postion).FirstOrDefault().LimitAmout.Value;
-                            user.DepositTargetAmount = userlimit;
+                            //decimal userlimit = db.Postions.Where(p => p.Postion1 == userInput.Postion).FirstOrDefault().LimitAmout.Value;
+                            //user.DepositTargetAmount = userlimit;
                             if (userInput.Branch == "")
                             {
                                 user.Branch = "";

@@ -25,6 +25,7 @@ namespace TRMS.Models
             throw new UnintentionalCodeFirstException();
         }
     
+        public virtual DbSet<AccountReserve> AccountReserves { get; set; }
         public virtual DbSet<Branch> Branches { get; set; }
         public virtual DbSet<BranchTarget> BranchTargets { get; set; }
         public virtual DbSet<CheckInCheckOut> CheckInCheckOuts { get; set; }
@@ -36,14 +37,13 @@ namespace TRMS.Models
         public virtual DbSet<ECO> ECOes { get; set; }
         public virtual DbSet<Fcy_Branch> Fcy_Branch { get; set; }
         public virtual DbSet<MerchantAchieved> MerchantAchieveds { get; set; }
-        public virtual DbSet<Postion> Postions { get; set; }
+        public virtual DbSet<Position> Positions { get; set; }
         public virtual DbSet<Process> Processes { get; set; }
         public virtual DbSet<Subprocess> Subprocesses { get; set; }
         public virtual DbSet<Transaction> Transactions { get; set; }
         public virtual DbSet<UserAchieved> UserAchieveds { get; set; }
         public virtual DbSet<UserEngagement> UserEngagements { get; set; }
         public virtual DbSet<User> Users { get; set; }
-        public virtual DbSet<AccountReserve> AccountReserves { get; set; }
         public virtual DbSet<DepositPlan_bkp> DepositPlan_bkp { get; set; }
         public virtual DbSet<DepositPlanFinal> DepositPlanFinals { get; set; }
         public virtual DbSet<mnemonicccsv> mnemonicccsvs { get; set; }

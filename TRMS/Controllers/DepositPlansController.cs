@@ -909,7 +909,7 @@ namespace TRMS.Controllers
                 return Json(new List<object>(), JsonRequestBehavior.AllowGet);
             }
 
-            var accounts = db.DepositPlans
+            var accounts = db.AccountReserves
                 .AsNoTracking()
                 .Where(x => x.AccountNumber != null &&
                            x.AccountNumber != "" &&
@@ -984,7 +984,7 @@ namespace TRMS.Controllers
 
             try
             {
-                var rows = db.DepositPlans
+                var rows = db.AccountReserves
                     .Where(x => x.AccountNumber == accountNumber)
                     .ToList();
 

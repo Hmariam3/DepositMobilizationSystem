@@ -210,7 +210,6 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ISReportController.cs" />
     <Compile Include="Controllers\MerchantReportController.cs" />
-    <Compile Include="Controllers\PostionsController.cs" />
     <Compile Include="Controllers\DepositBranchReportController.cs" />
     <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="Controllers\TransactionIndivisualController.cs" />
@@ -284,7 +283,7 @@
     <Compile Include="Models\mnemonicccsv.cs">
       <DependentUpon>Target.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\Postion.cs">
+    <Compile Include="Models\Position.cs">
       <DependentUpon>Target.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Process.cs">
@@ -9503,7 +9502,9 @@
     <Content Include="Scripts\tether.js" />
     <Content Include="Scripts\tether.min.js" />
     <None Include="Scripts\_references.js" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>

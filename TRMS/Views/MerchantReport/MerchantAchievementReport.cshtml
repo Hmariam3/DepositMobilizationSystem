@@ -95,7 +95,23 @@
 
             var filterMode = "";
             var fixedFilter = {};
+            const managerPositions = [
+                "Branch Manager I",
+                "Branch Manager II",
+                "Branch Manager III",
+                "Branch Manager IV",
+                "Senior Manager",
+                "Manager",
+                "Acting Manager"
+            ];
 
+            const directorPositions = [
+                "Director",
+                "Acting Director",
+                "District Director",
+                "District Senior Director",
+                "Senior Director"
+            ];
             // Set report title and filters based on role
             if (currentUser.role === "Super" || currentUser.role === "SuperMerchant") {
                 $("#reportTitle").text("Bank-Wide Merchant Onboarding Achievement Report");
@@ -108,13 +124,13 @@
                     filterMode = "process";
                     fixedFilter.process = currentUser.process;
                 }
-                else if (["Director", "SeniorDirector"].includes(currentUser.position)) {
+                else if (directorPositions.includes(currentUser.position)) {
                     $("#reportTitle").text(`Subprocess: ${currentUser.district} - Merchant Achievement Report`);
                     filterMode = "subprocess";
                     fixedFilter.district = currentUser.district;
                     $("#districtFilter").show().find("select").val(currentUser.district).prop("disabled", true);
                 }
-                else if (["BranchManager", "Manager"].includes(currentUser.position)) {
+                else if (managerPositions.includes(currentUser.position)) {
                     $("#reportTitle").text(`Branch: ${currentUser.branch} - Merchant Achievement Report`);
                     filterMode = "branch";
                     fixedFilter.branch = currentUser.branch;

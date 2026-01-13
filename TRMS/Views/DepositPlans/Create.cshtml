@@ -275,7 +275,7 @@
                             </div>
 
                             <!-- Deposit Type (Branch Manager Only) -->
-                            @if (Session["Position"]?.ToString() == "BranchManager")
+                            @if (Session["Position"]?.ToString() == "Branch Manager I" || Session["Position"]?.ToString() == "Branch Manager II" || Session["Position"]?.ToString() == "Branch Manager III" || Session["Position"]?.ToString() == "Branch Manager IV")
                             {
                                 <div class="col-md-6">
                                     <div class="form-floating">
