@@ -103,19 +103,19 @@
 
     /* Force Select2 to match exact height & alignment */
     .select2-container--default .select2-selection--single {
-        height: 50px !important;
+        height: 33px !important;
         border-radius: 0.35rem;
         border: 1px solid #ced4da;
     }
 
         .select2-container--default .select2-selection--single .select2-selection__rendered {
-            line-height: 50px !important;
+            line-height:33px !important;
             padding-left: 0.5rem !important;
             font-size: 0.875rem;
         }
 
         .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 50px !important;
+            height: 33px !important;
             right: 0.5rem;
         }
 
@@ -197,8 +197,12 @@
                     <!-- Row 1: Account Number + Reference Number -->
                     <div class="row g-3 mb-3">
                         <!-- New: Select Reserved Account -->
-                        <div class="col-md-6">
+                        <div class="col-md-6 mb-auto">
+                            <label for="reservedAccountSelect" >
+                                Account Number 
+                            </label>
                             <div class="form-floating">
+
                                 <select name="DepositPlan.AccountNumber"
                                         id="reservedAccountSelect"
                                         class="form-select"

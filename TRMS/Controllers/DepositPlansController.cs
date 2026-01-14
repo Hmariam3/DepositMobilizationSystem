@@ -660,7 +660,7 @@ namespace TRMS.Controllers
                 }
 
                 // --- Guard: vm.depositplan.refdate after 20251015  ---
-                if (vm.DepositPlan.RefDate < new DateTime(2025, 10, 1))
+                if (vm.DepositPlan.RefDate < new DateTime(2026, 01, 1))
                 {
                     TempData["ErrorMessage"] = "You cannot register a transaction before the project date";
                     return View(vm);

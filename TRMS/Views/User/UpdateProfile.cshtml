@@ -382,7 +382,7 @@
                         <!-- Position -->
                         <div class="col-md-6">
                             <label class="form-label">Position <span class="text-danger">*</span></label>
-                            @Html.DropDownListFor(m => m.Postion, (SelectList)ViewBag.Position, "Select Process", new { @class = "form-select select2", id = "PositionDropdown" })
+                            @Html.DropDownListFor(m => m.Postion, (SelectList)ViewBag.Position, "Select Position", new { @class = "form-select select2", id = "PositionDropdown" })
                             @Html.ValidationMessageFor(m => m.Postion, "", new { @class = "text-danger small mt-1" })
                         </div>
                         <!-- Phone Number -->

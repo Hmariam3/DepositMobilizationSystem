@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="TRMSModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="TRMSModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="AccountReserve">
           <Key>
             <PropertyRef Name="ACC_ID" />
@@ -363,7 +363,7 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
           <Property Name="District" Type="nvarchar" MaxLength="200" />
           <Property Name="Branch" Type="nvarchar" MaxLength="200" />
           <Property Name="OrganizatinalUnit" Type="nvarchar" MaxLength="50" />
-          <Property Name="Postion" Type="nvarchar" MaxLength="50" />
+          <Property Name="Postion" Type="nvarchar" MaxLength="500" />
           <Property Name="Role" Type="nvarchar" MaxLength="50" />
           <Property Name="PhoneNumber" Type="nvarchar" MaxLength="50" />
           <Property Name="DepositTargetAmount" Type="decimal" Precision="18" Scale="2" />
@@ -558,8 +558,7 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
             <End Role="DepositPlan" EntitySet="DepositPlan" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="TRMSModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -841,7 +840,7 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
           <Property Name="District" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
           <Property Name="Branch" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
           <Property Name="OrganizatinalUnit" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="Postion" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Postion" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="Role" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="PhoneNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="DepositTargetAmount" Type="Decimal" Precision="18" Scale="2" />
