@@ -45,7 +45,11 @@ namespace TRMS.Controllers
                         .Where(d => d.User == UserName)
                         .ToList();
 
-                    // 3. Group by unique AccountNumber
+                    // 3. Get user raw deposit 
+                    var rawuserdeposit = userDeposits.Sum(d => d.Amount);
+
+
+                    // 4. Group by unique AccountNumber
                     var accounts = userDeposits
                         .Select(d => d.AccountNumber)
                         .Distinct()
@@ -121,6 +125,7 @@ namespace TRMS.Controllers
                     // Outputs
                     ViewBag.AchievedBreakdown = breakdownList;
                     ViewBag.achivedDeposit = totalUserAchieved;
+                    ViewBag.depositplan = rawuserdeposit;
 
                     // Remaining target
                     decimal remaining = assignedTarget - totalUserAchieved;
@@ -386,7 +391,7 @@ namespace TRMS.Controllers
                         UserAchieved entityToSave;
 
                         // These are the values we *hope* to write
-                        //decimal? newCollectedAmount = rawUserDeposits;
+                        decimal? newCollectedAmount = rawuserdeposit;
                         decimal? newAchievedAmount = totalUserAchieved;
                         decimal? newAchievedPercent = null;
                         decimal? newUserTarget = assignedTarget > 0 ? assignedTarget : (decimal?)null;
@@ -399,7 +404,7 @@ namespace TRMS.Controllers
                         else if (existingRecord != null)
                         {
                             // If calculation failed → keep old values
-                            //newCollectedAmount = existingRecord.CollectedAmount;
+                            newCollectedAmount = existingRecord.CollectedAmount;
                             newAchievedAmount = existingRecord.AchievedAmount;
                             newAchievedPercent = existingRecord.AchievedPercent;
                             // UserTarget usually stays the same unless explicitly changed
@@ -421,7 +426,7 @@ namespace TRMS.Controllers
                                 Branch = branch,
                                 Position = position,
                                 UserTarget = newUserTarget,
-                                //CollectedAmount = newCollectedAmount ?? 0,
+                                CollectedAmount = newCollectedAmount ?? 0,
                                 AchievedAmount = newAchievedAmount ?? 0,
                                 AchievedPercent = newAchievedPercent ?? 0,
                                 UpdatedDate = DateTime.Now
@@ -438,7 +443,7 @@ namespace TRMS.Controllers
                             existingRecord.Position = position ?? existingRecord.Position;
 
                             existingRecord.UserTarget = newUserTarget;
-                            //existingRecord.CollectedAmount = newCollectedAmount ?? existingRecord.CollectedAmount;
+                            existingRecord.CollectedAmount = newCollectedAmount ?? existingRecord.CollectedAmount;
                             existingRecord.AchievedAmount = newAchievedAmount ?? existingRecord.AchievedAmount;
                             existingRecord.AchievedPercent = newAchievedPercent ?? existingRecord.AchievedPercent;
 

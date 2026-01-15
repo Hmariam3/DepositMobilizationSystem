@@ -757,7 +757,7 @@ namespace UserProfile.Controllers
         {
             if (submit == "Save")
             {
-                bool isHO = model.OrganizatinalUnit == "HO";
+                bool isBranch = model.OrganizatinalUnit == "Branch";
                 // Skip Password validation for AD users
                 ModelState.Remove("Password");
                 if (string.IsNullOrEmpty(model.Postion))
@@ -802,6 +802,15 @@ namespace UserProfile.Controllers
                                     "Chief",
                                     "CEO",
                                 };
+
+                    var exceptdirectorPositions = new[]
+                                {
+                                    "Director",
+                                    "Acting Director",
+                                    "District Director",
+                                    "District Senior Director",
+                                    "Senior Director",
+                                };
                     // Check for UserName uniqueness
                     // Username uniqueness
                     if (db.Users.Any(u => u.UserName == model.UserName))
@@ -811,7 +820,7 @@ namespace UserProfile.Controllers
                         return View(model);
                     }
 
-                    if (exceptPositions.Contains(model.Postion) && string.IsNullOrEmpty(model.District))
+                    if (exceptdirectorPositions.Contains(model.Postion) && string.IsNullOrEmpty(model.District))
                     {
                         TempData["ErrorMessage"] = "Please Choose your Subprocess or District.";
                         PopulateDropdowns(model);
@@ -830,7 +839,7 @@ namespace UserProfile.Controllers
                     }
 
                     // Targets
-                    if (model.DepositTargetAmount == null || (!isHO && model.MerchantTarget == null))
+                    if (model.DepositTargetAmount == null || (isBranch && model.MerchantTarget == null))
                     {
                         TempData["ErrorMessage"] = "Please Fill Your Target.";
                         PopulateDropdowns(model);
@@ -899,7 +908,7 @@ namespace UserProfile.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult UpdateProfile(User model)
         {
-            bool isHO = model.OrganizatinalUnit == "HO";
+            bool isBranch = model.OrganizatinalUnit == "Branch";
 
             // Protect AD / fixed fields – remove from model validation
             ModelState.Remove("UserName");
@@ -938,27 +947,36 @@ namespace UserProfile.Controllers
 
             var exceptPositions = new[]
             {
-        "Director",
-        "Acting Director",
-        "District Director",
-        "District Senior Director",
-        "Senior Director",
-        "VP",
-        "Chief",
-        "CEO"
-    };
+                    "Director",
+                    "Acting Director",
+                    "District Director",
+                    "District Senior Director",
+                    "Senior Director",
+                    "VP",
+                    "Chief",
+                    "CEO"
+                };
+
+            var exceptdirectorPositions = new[]
+                                {
+                                    "Director",
+                                    "Acting Director",
+                                    "District Director",
+                                    "District Senior Director",
+                                    "Senior Director",
+                                };
 
             var branchManagerPositions = new[]
-            {
-        "Branch Manager I",
-        "Branch Manager II",
-        "Branch Manager III",
-        "Branch Manager IV"
-        // Add "BranchManager" here too if that's still being used
-    };
+                             {
+                                    "Branch Manager I",
+                                    "Branch Manager II",
+                                    "Branch Manager III",
+                                    "Branch Manager IV"
+                                    // Add "BranchManager" here too if that's still being used
+                                };
 
             // Director-level → District required
-            if (exceptPositions.Contains(model.Postion) && string.IsNullOrEmpty(model.District))
+            if (exceptdirectorPositions.Contains(model.Postion) && string.IsNullOrEmpty(model.District))
             {
                 TempData["ErrorMessage"] = "Please Choose your Subprocess or District.";
                 PopulateDropdowns(model);
@@ -982,7 +1000,7 @@ namespace UserProfile.Controllers
             // Target validations
             // ──────────────────────────────────────────────
 
-            if (model.DepositTargetAmount == null || (!isHO && model.MerchantTarget == null))
+            if (model.DepositTargetAmount == null || (isBranch && model.MerchantTarget == null))
             {
                 TempData["ErrorMessage"] = "Please Fill Your Target.";
                 PopulateDropdowns(model);
