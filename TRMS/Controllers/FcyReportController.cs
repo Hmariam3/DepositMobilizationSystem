@@ -55,6 +55,7 @@ namespace TRMS.Controllers
             ViewBag.CurrentUserBranch = Session["UserHomeBranch"]?.ToString() ?? "";
             ViewBag.CurrentUserFullName = Session["FullName"]?.ToString() ?? "";
             ViewBag.CurrentUserName = Session["UserName"]?.ToString() ?? "";
+            ViewBag.ReportStatus = Session["ReportStatus"]?.ToString() ?? "";
         }
 
         // ======================== AJAX HANDLERS ========================
@@ -71,6 +72,7 @@ namespace TRMS.Controllers
             var fixedProcess = Request.Form["fixedProcess"];
             var fixedDistrict = Request.Form["fixedDistrict"];
             var fixedBranch = Request.Form["fixedBranch"];
+            var fixedPosition = Request.Form["fixedPosition"];
             var fixedUserName = Request.Form["fixedUserName"];
 
             // Base query from Users with FCY targets
@@ -86,7 +88,7 @@ namespace TRMS.Controllers
                                District = u.District ?? "-",
                                Branch = u.Branch ?? "-",
                                Position = u.Postion ?? "-", // Note: typo in model (should be Position)
-                   UserTarget = u.FCYTargetAmount ?? 0m,
+                               UserTarget = u.FCYTargetAmount ?? 0m,
                                AchievedAmount = deposits.Sum(d => (decimal?)d.TransactionAmount) ?? 0m
                            })
                 .Select(ma => new
@@ -165,6 +167,7 @@ namespace TRMS.Controllers
                 r.Process,
                 r.District,
                 r.Branch,
+                r.Position,
                 Target = r.UserTarget,
                 AchievedAmount = r.AchievedAmount,
                 Percentage = Math.Round(r.AchievedPercent, 2)

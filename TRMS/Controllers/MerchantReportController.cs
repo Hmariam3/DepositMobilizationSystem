@@ -57,6 +57,7 @@ namespace TRMS.Controllers
             ViewBag.CurrentUserBranch = Session["UserHomeBranch"]?.ToString() ?? "";
             ViewBag.CurrentUserFullName = Session["FullName"]?.ToString() ?? "";
             ViewBag.CurrentUserName = Session["UserName"]?.ToString() ?? "";
+            ViewBag.ReportStatus = Session["ReportStatus"]?.ToString() ?? "";
         }
 
         // ======================== AJAX HANDLERS ========================
@@ -74,6 +75,7 @@ namespace TRMS.Controllers
             var fixedProcess = Request.Form["fixedProcess"];
             var fixedDistrict = Request.Form["fixedDistrict"];
             var fixedBranch = Request.Form["fixedBranch"];
+            var fixedPosition = Request.Form["fixedPosition"];
             var fixedUserName = Request.Form["fixedUserName"];
 
             // Base query from pre-calculated MerchantAchieved table
@@ -94,7 +96,7 @@ namespace TRMS.Controllers
                 query = query.Where(ma => ma.District.Trim() == districtFilter.Trim());
 
             // Only users with a merchant target
-            query = query.Where(ma => ma.UserTarget > 0);
+            query = query.Where(ma => (ma.UserTarget ?? 0) >= 0);
 
             // Global search
             if (!string.IsNullOrEmpty(searchValue))
@@ -130,6 +132,7 @@ namespace TRMS.Controllers
                     Process = x.MA.Process ?? "-",
                     District = x.MA.District ?? "-",
                     Branch = x.MA.Branch ?? "-",
+                    Postion = x.MA.Position ?? "-",
                     Target = x.MA.UserTarget ?? 0,
                     CollectedAmount = x.MA.CollectedAmount ?? 0m,
                     AchievedMerchants = x.MA.AchievedMerchant ?? 0,
@@ -160,6 +163,7 @@ namespace TRMS.Controllers
                 r.Process,
                 r.District,
                 r.Branch,
+                r.Postion,
                 Target = r.Target,
                 CollectedAmount = r.CollectedAmount,
                 AchievedMerchants = r.AchievedMerchants,

@@ -7008,6 +7008,7 @@
     <Content Include="dist\js\bootstrap-select.min.js" />
     <Content Include="dist\js\moment.min.js" />
     <Content Include="dist\js\select2.min.js" />
+    <Content Include="dist\js\xlsx.bundle.js" />
     <Content Include="dist\js\xlsx.full.min.js" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\bootstrap-icons.css" />

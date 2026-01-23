@@ -56,6 +56,7 @@ namespace TRMS.Controllers
             ViewBag.CurrentUserBranch = Session["UserHomeBranch"]?.ToString() ?? "";
             ViewBag.CurrentUserFullName = Session["FullName"]?.ToString() ?? "";
             ViewBag.CurrentUserName = Session["UserName"]?.ToString() ?? "";
+            ViewBag.ReportStatus = Session["ReportStatus"]?.ToString() ?? "";
         }
 
 
@@ -72,6 +73,7 @@ namespace TRMS.Controllers
             var fixedProcess = Request.Form["fixedProcess"];
             var fixedDistrict = Request.Form["fixedDistrict"];
             var fixedBranch = Request.Form["fixedBranch"];
+            var fixedPosition = Request.Form["fixedPosition"];
             var fixedUserName = Request.Form["fixedUserName"];
 
             // Base query from the PRE-CALCULATED UserAchieved table
@@ -137,6 +139,7 @@ namespace TRMS.Controllers
                     Process = x.UA.Process ?? "-",
                     District = x.UA.District ?? "-",
                     Branch = x.UA.Branch ?? "-",
+                    Postion = x.UA.Position ?? "-",
                     Target = x.UA.UserTarget ?? 0,
                     //Deposited = x.UA.CollectedAmount ?? 0,
                     Achieved = x.UA.AchievedAmount ?? 0,
@@ -167,6 +170,7 @@ namespace TRMS.Controllers
                 r.Process,
                 r.District,
                 r.Branch,
+                r.Postion,
                 Target = r.Target,
                 //Deposited = r.Deposited,
                 Achieved = r.Achieved,

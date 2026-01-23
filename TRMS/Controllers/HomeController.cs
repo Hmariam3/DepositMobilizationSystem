@@ -21,7 +21,7 @@ namespace TRMS.Controllers
             }
             else
             {
-                //string UserName = "ABEBESD";
+                //string UserName = "habtamugg";
                 string UserName = Session["UserName"].ToString();
                 string UserID = Session["UserID"]?.ToString() ?? "";
                 string process = Session["Process"]?.ToString() ?? "";
@@ -474,29 +474,29 @@ namespace TRMS.Controllers
                         MerchantAchieved entityToSave;
 
                         // These are the values we *try* to write
-                        int? newUserTarget = assignedTargetMerchant > 0 ? (int?)assignedTargetMerchant : null;
+                        int? newUserTarget = assignedTargetMerchant >= 0 ? (int?)assignedTargetMerchant : null;
                         decimal? newCollectedAmount = collectedAmountByUser;
                         int? newAchievedMerchant = achievedMerchants;
-                        decimal? newAchievedPercent = null;
+                        decimal? newAchievedPercent = progressPercentAgent;
 
                         // Only calculate percentage if we have reasonable data
-                        bool calculationLooksGood =
-                            achievedMerchants > 0 ||
-                            assignedTargetMerchant > 0 ||
-                            collectedAmountByUser > 0;
+                        //bool calculationLooksGood =
+                        //    achievedMerchants >= 0 ||
+                        //    assignedTargetMerchant >= 0 ||
+                        //    collectedAmountByUser >= 0;
 
-                        if (calculationLooksGood && assignedTargetMerchant > 0)
-                        {
-                            newAchievedPercent = Math.Round((achievedMerchants * 100m) / assignedTargetMerchant, 2);
-                        }
-                        else if (existingMerchantRecord != null)
-                        {
-                            // Calculation failed → preserve previous good values
-                            newUserTarget = existingMerchantRecord.UserTarget;
-                            newCollectedAmount = existingMerchantRecord.CollectedAmount;
-                            newAchievedMerchant = existingMerchantRecord.AchievedMerchant;
-                            newAchievedPercent = existingMerchantRecord.AchievedPercent;
-                        }
+                        //if (calculationLooksGood && assignedTargetMerchant > 0)
+                        //{
+                        //    newAchievedPercent = Math.Round((achievedMerchants * 100m) / assignedTargetMerchant, 2);
+                        //}
+                        //else if (existingMerchantRecord != null)
+                        //{
+                        //    // Calculation failed → preserve previous good values
+                        //    newUserTarget = existingMerchantRecord.UserTarget;
+                        //    newCollectedAmount = existingMerchantRecord.CollectedAmount;
+                        //    newAchievedMerchant = existingMerchantRecord.AchievedMerchant;
+                        //    newAchievedPercent = existingMerchantRecord.AchievedPercent;
+                        //}
                         // else: new record + bad calculation → will be created with zeros/nulls
 
                         if (existingMerchantRecord == null)
@@ -835,6 +835,10 @@ namespace TRMS.Controllers
             string district = currentUser.District?.Trim();
             string process = currentUser.Process?.Trim();
 
+            // If ReportStatus is bool? (nullable boolean)
+            bool reportStatus = currentUser.ReportStatus ?? false;
+
+
             // Default values
             // Default values
             decimal depositTarget = 0, depositAchieved = 0, depositCollected = 0;
@@ -867,7 +871,7 @@ namespace TRMS.Controllers
                             "Acting Manager"
                         };
 
-            if (role == "Maker" && managerPositions.Contains(position))
+            if (role == "Maker" && managerPositions.Contains(position) && reportStatus)
             {
                 ViewBag.Scope = "Branch";
                 ViewBag.ScopeName = branch;
@@ -878,7 +882,7 @@ namespace TRMS.Controllers
                 fcyScope = fcyScope.Where(f => f.Branch == branch);
 
             }
-            else if (role == "Maker" && directorPositions.Contains(position))
+            else if (role == "Maker" && directorPositions.Contains(position) && reportStatus)
             {
                 ViewBag.Scope = "District";
                 ViewBag.ScopeName = district;
@@ -888,7 +892,7 @@ namespace TRMS.Controllers
                 userTargetScope = userTargetScope.Where(u => u.Branch == branch);
                 fcyScope = fcyScope.Where(f => f.District == district);
             }
-            else if (role == "Maker" && (position == "VP" || position == "Chief"))
+            else if (role == "Maker" && (position == "VP" || position == "Chief") && reportStatus)
             {
                 ViewBag.Scope = "Process";
                 ViewBag.ScopeName = process;
@@ -898,7 +902,7 @@ namespace TRMS.Controllers
                 userTargetScope = userTargetScope.Where(u => u.Process == process);
                 fcyScope = fcyScope.Where(f => f.Process == process);
             }
-            else if ((role == "Maker" && position == "CEO") || role == "Super")
+            else if ((role == "Maker" && position == "CEO" && reportStatus) || role == "Super")
             {
                 ViewBag.Scope = "Bank";
                 ViewBag.ScopeName = "COOPBANK";

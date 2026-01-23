@@ -365,6 +365,7 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
           <Property Name="OrganizatinalUnit" Type="nvarchar" MaxLength="50" />
           <Property Name="Postion" Type="nvarchar" MaxLength="500" />
           <Property Name="Role" Type="nvarchar" MaxLength="50" />
+          <Property Name="ReportStatus" Type="bit" />
           <Property Name="PhoneNumber" Type="nvarchar" MaxLength="50" />
           <Property Name="DepositTargetAmount" Type="decimal" Precision="18" Scale="2" />
           <Property Name="MerchantTarget" Type="int" />
@@ -854,6 +855,7 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
           <NavigationProperty Name="DepositFCies" Relationship="Self.FK_DepositFCY_Users" FromRole="Users" ToRole="DepositFCY" />
           <NavigationProperty Name="DepositMerchantAgenets" Relationship="Self.FK_DepositMerchantAgenet_Users" FromRole="Users" ToRole="DepositMerchantAgenet" />
           <NavigationProperty Name="DepositPlans" Relationship="Self.FK_DepositPlan_Users" FromRole="Users" ToRole="DepositPlan" />
+          <Property Name="ReportStatus" Type="Boolean" />
         </EntityType>
         <EntityType Name="DepositPlan_bkp">
           <Key>
@@ -1341,6 +1343,7 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
           <EntitySetMapping Name="Users">
             <EntityTypeMapping TypeName="TRMSModel.User">
               <MappingFragment StoreEntitySet="Users">
+                <ScalarProperty Name="ReportStatus" ColumnName="ReportStatus" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="UserName" ColumnName="UserName" />
                 <ScalarProperty Name="FullName" ColumnName="FullName" />

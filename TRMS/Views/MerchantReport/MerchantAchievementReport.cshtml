@@ -66,6 +66,7 @@
                     <th>Process</th>
                     <th>District/Subprocess</th>
                     <th>Branch/Team</th>
+                    <th>Position</th>
                     <th>Target<br><small>(Merchants)</small></th>
                     <th>Collected Amount</th>
                     <th>Achieved<br><small>(Merchants)</small></th>
@@ -90,7 +91,8 @@
                 process: "@ViewBag.CurrentUserProcess",
                 district: "@ViewBag.CurrentUserDistrict",
                 branch: "@ViewBag.CurrentUserBranch",
-                fullName: "@ViewBag.CurrentUserFullName"
+                fullName: "@ViewBag.CurrentUserFullName",
+                reportstatus: "@ViewBag.ReportStatus"
             };
 
             var filterMode = "";
@@ -119,18 +121,18 @@
                 filterMode = "bank";
             }
             else if (currentUser.role === "Maker") {
-                if (["VP", "CHF"].includes(currentUser.position)) {
+                if (["VP", "CHF"].includes(currentUser.position) && ["True"].includes(currentUser.reportstatus)) {
                     $("#reportTitle").text(`Process: ${currentUser.process} - Merchant Achievement Report`);
                     filterMode = "process";
                     fixedFilter.process = currentUser.process;
                 }
-                else if (directorPositions.includes(currentUser.position)) {
+                else if (directorPositions.includes(currentUser.position) && ["True"].includes(currentUser.reportstatus)) {
                     $("#reportTitle").text(`Subprocess: ${currentUser.district} - Merchant Achievement Report`);
                     filterMode = "subprocess";
                     fixedFilter.district = currentUser.district;
                     $("#districtFilter").show().find("select").val(currentUser.district).prop("disabled", true);
                 }
-                else if (managerPositions.includes(currentUser.position)) {
+                else if (managerPositions.includes(currentUser.position) && ["True"].includes(currentUser.reportstatus)) {
                     $("#reportTitle").text(`Branch: ${currentUser.branch} - Merchant Achievement Report`);
                     filterMode = "branch";
                     fixedFilter.branch = currentUser.branch;
@@ -157,17 +159,19 @@
                         d.fixedProcess = fixedFilter.process || "";
                         d.fixedDistrict = fixedFilter.district || "";
                         d.fixedBranch = fixedFilter.branch || "";
+                        d.fixedPosition = fixedFilter.position || "";
                         d.fixedUserName = fixedFilter.userName || "";
                     }
                 },
                 "pageLength": 25,
-                "order": [[8, "desc"]], // Sort by % Achieved descending
+                "order": [[9, "desc"]], // Sort by % Achieved descending
                 "columns": [
                     { "data": null, "orderable": false, render: (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1 },
                     { "data": "FullName" },
                     { "data": "Process" },
                     { "data": "District" },
                     { "data": "Branch" },
+                    { "data": "Postion" },
                     { "data": "Target", render: $.fn.dataTable.render.number(',', '.', 0) },
                     { "data": "CollectedAmount", render: $.fn.dataTable.render.number(',', '.', 2) },
                     { "data": "AchievedMerchants", render: $.fn.dataTable.render.number(',', '.', 0) },
@@ -231,7 +235,7 @@
                         exportData.push([]);
 
                         exportData.push([
-                            "No", "Full Name", "Process", "District/Subprocess", "Branch/Team",
+                            "No", "Full Name", "Process", "District/Subprocess", "Branch/Team", "Position",
                             "Target (Merchants)", "Collected Amount", "Achieved (Merchants)", "% Achieved"
                         ]);
 
@@ -242,6 +246,7 @@
                                 row.Process || "-",
                                 row.District || "-",
                                 row.Branch || "-",
+                                row.Postion || "-",
                                 parseInt(row.Target || 0),
                                 parseFloat(row.CollectedAmount || 0),
                                 parseInt(row.AchievedMerchants || 0),
@@ -256,7 +261,7 @@
                         const gPct = gTarget > 0 ? (gAchieved / gTarget) * 100 : 0;
 
                         exportData.push([]);
-                        exportData.push(["GRAND TOTAL", "", "", "", "", gTarget, gCollected, gAchieved, gPct / 100]);
+                        exportData.push(["GRAND TOTAL", "", "", "", "", "", gTarget, gCollected, gAchieved, gPct / 100]);
 
                         const wb = XLSX.utils.book_new();
                         const ws = XLSX.utils.aoa_to_sheet(exportData);
@@ -295,37 +300,37 @@
                         }
 
                         ws['!cols'] = [
-                            { wch: 6 }, { wch: 28 }, { wch: 18 }, { wch: 24 }, { wch: 20 },
-                            { wch: 16 }, { wch: 18 }, { wch: 16 }, { wch: 14 }
+                            { wch: 6 }, { wch: 28 }, { wch: 28 }, { wch: 28 }, { wch: 25 },
+                            { wch: 30 }, { wch: 18 }, { wch: 16 }, { wch: 20 }, { wch: 16 }
                         ];
 
                         ws['!merges'] = [
-                            { s: { r: 0, c: 0 }, e: { r: 0, c: 8 } },
-                            { s: { r: 2, c: 0 }, e: { r: 2, c: 8 } },
-                            { s: { r: 3, c: 0 }, e: { r: 3, c: 8 } },
-                            { s: { r: 4, c: 0 }, e: { r: 4, c: 8 } },
-                            { s: { r: 5, c: 0 }, e: { r: 5, c: 8 } },
-                            { s: { r: exportData.length - 1, c: 0 }, e: { r: exportData.length - 1, c: 4 } }
+                            { s: { r: 0, c: 0 }, e: { r: 0, c: 9 } },
+                            { s: { r: 2, c: 0 }, e: { r: 2, c: 9 } },
+                            { s: { r: 3, c: 0 }, e: { r: 3, c: 9 } },
+                            { s: { r: 4, c: 0 }, e: { r: 4, c: 9 } },
+                            { s: { r: 5, c: 0 }, e: { r: 5, c: 9 } },
+                            { s: { r: exportData.length - 1, c: 0 }, e: { r: exportData.length - 1, c: 5 } }
                         ];
 
                         // Number formats
                         for (let r = 8; r < exportData.length - 1; r++) {
-                            ['F', 'G', 'H'].forEach(col => {
+                            ['G', 'H', 'I'].forEach(col => {
                                 const c = ws[col + (r + 1)];
                                 if (c) {
-                                    if (col === 'F' || col === 'H') c.z = "#,##0"; // Target & Achieved
-                                    if (col === 'G') c.z = "#,##0.00"; // Collected
+                                    if (col === 'G' || col === 'I') c.z = "#,##0"; // Target & Achieved
+                                    if (col === 'H') c.z = "#,##0.00"; // Collected
                                 }
                             });
-                            const pc = ws['I' + (r + 1)]; if (pc) pc.z = "0.00%";
+                            const pc = ws['J' + (r + 1)]; if (pc) pc.z = "0.00%";
                         }
 
-                        ['F', 'G', 'H', 'I'].forEach(col => {
+                        ['G', 'H', 'I', 'J'].forEach(col => {
                             const c = ws[col + exportData.length];
                             if (c) {
-                                if (col === 'F' || col === 'H') c.z = "#,##0";
-                                if (col === 'G') c.z = "#,##0.00";
-                                if (col === 'I') c.z = "0.00%";
+                                if (col === 'G' || col === 'I') c.z = "#,##0";
+                                if (col === 'H') c.z = "#,##0.00";
+                                if (col === 'J') c.z = "0.00%";
                             }
                         });
 

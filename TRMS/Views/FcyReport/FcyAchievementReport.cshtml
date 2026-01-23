@@ -65,6 +65,7 @@
                     <th>Process</th>
                     <th>District/Subprocess</th>
                     <th>Branch/Team</th>
+                    <th>Position</th>
                     <th>Target Amount</th>
                     <th>Achieved Amount</th>
                     <th>% Achieved</th>
@@ -88,7 +89,8 @@
                 process: "@ViewBag.CurrentUserProcess",
                 district: "@ViewBag.CurrentUserDistrict",
                 branch: "@ViewBag.CurrentUserBranch",
-                fullName: "@ViewBag.CurrentUserFullName"
+                fullName: "@ViewBag.CurrentUserFullName",
+                reportstatus: "@ViewBag.ReportStatus"
             };
 
             var filterMode = "";
@@ -116,18 +118,18 @@
                 filterMode = "bank";
             }
             else if (currentUser.role === "Maker") {
-                if (["VP", "CHF"].includes(currentUser.position)) {
+                if (["VP", "CHF"].includes(currentUser.position) && ["True"].includes(currentUser.reportstatus)) {
                     $("#reportTitle").text(`Process: ${currentUser.process} - FCY Achievement Report`);
                     filterMode = "process";
                     fixedFilter.process = currentUser.process;
                 }
-                else if (directorPositions.includes(currentUser.position)) {
+                else if (directorPositions.includes(currentUser.position) && ["True"].includes(currentUser.reportstatus)) {
                     $("#reportTitle").text(`Subprocess: ${currentUser.district} - FCY Achievement Report`);
                     filterMode = "subprocess";
                     fixedFilter.district = currentUser.district;
                     $("#districtFilter").show().find("select").val(currentUser.district).prop("disabled", true);
                 }
-                else if (managerPositions.includes(currentUser.position)) {
+                else if (managerPositions.includes(currentUser.position) && ["True"].includes(currentUser.reportstatus)) {
                     $("#reportTitle").text(`Branch: ${currentUser.branch} - FCY Achievement Report`);
                     filterMode = "branch";
                     fixedFilter.branch = currentUser.branch;
@@ -154,6 +156,7 @@
                         d.fixedProcess = fixedFilter.process || "";
                         d.fixedDistrict = fixedFilter.district || "";
                         d.fixedBranch = fixedFilter.branch || "";
+                        d.fixedPosition = fixedFilter.position || "";
                         d.fixedUserName = fixedFilter.userName || "";
                     }
                 },
@@ -165,6 +168,7 @@
                     { "data": "Process" },
                     { "data": "District" },
                     { "data": "Branch" },
+                    { "data": "Position" },
                     { "data": "Target", render: $.fn.dataTable.render.number(',', '.', 2, '$ ') },
                     { "data": "AchievedAmount", render: $.fn.dataTable.render.number(',', '.', 2, '$ ') },
                     {
@@ -224,7 +228,7 @@
                         exportData.push([`Total Records: ${allData.length.toLocaleString()}`]);
                         exportData.push([]);
                         exportData.push([
-                            "No", "Full Name", "Process", "District/Subprocess", "Branch/Team",
+                            "No", "Full Name", "Process", "District/Subprocess", "Branch/Team", "Position",
                             "Target Amount", "Achieved Amount", "% Achieved"
                         ]);
 
@@ -235,6 +239,7 @@
                                 row.Process || "-",
                                 row.District || "-",
                                 row.Branch || "-",
+                                row.Position || "-",
                                 parseFloat(row.Target || 0),
                                 parseFloat(row.AchievedAmount || 0),
                                 (parseFloat(row.Percentage || 0)) / 100
@@ -246,7 +251,7 @@
                         const gAchieved = parseFloat((json?.grandTotalAchieved || "0").replace(/,/g, ''));
                         const gPct = gTarget > 0 ? (gAchieved / gTarget) * 100 : 0;
                         exportData.push([]);
-                        exportData.push(["GRAND TOTAL", "", "", "", "", gTarget, gAchieved, gPct / 100]);
+                        exportData.push(["GRAND TOTAL", "", "", "", "", "", gTarget, gAchieved, gPct / 100]);
 
                         const wb = XLSX.utils.book_new();
                         const ws = XLSX.utils.aoa_to_sheet(exportData);
@@ -286,32 +291,32 @@
                         }
 
                         ws['!cols'] = [
-                            { wch: 6 }, { wch: 28 }, { wch: 18 }, { wch: 24 }, { wch: 20 },
-                            { wch: 18 }, { wch: 18 }, { wch: 14 }
+                            { wch: 6 }, { wch: 28 }, { wch: 28 }, { wch: 28 }, { wch: 25 },
+                            { wch: 30 }, { wch: 18 }, { wch: 16 }, { wch: 16 }
                         ];
 
                         ws['!merges'] = [
-                            { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } },
-                            { s: { r: 2, c: 0 }, e: { r: 2, c: 7 } },
-                            { s: { r: 3, c: 0 }, e: { r: 3, c: 7 } },
-                            { s: { r: 4, c: 0 }, e: { r: 4, c: 7 } },
-                            { s: { r: 5, c: 0 }, e: { r: 5, c: 7 } },
-                            { s: { r: exportData.length - 1, c: 0 }, e: { r: exportData.length - 1, c: 4 } }
+                            { s: { r: 0, c: 0 }, e: { r: 0, c: 8 } },
+                            { s: { r: 2, c: 0 }, e: { r: 2, c: 8 } },
+                            { s: { r: 3, c: 0 }, e: { r: 3, c: 8 } },
+                            { s: { r: 4, c: 0 }, e: { r: 4, c: 8 } },
+                            { s: { r: 5, c: 0 }, e: { r: 5, c: 8 } },
+                            { s: { r: exportData.length - 1, c: 0 }, e: { r: exportData.length - 1, c: 5 } }
                         ];
 
                         // Number formats
                         for (let r = 8; r < exportData.length - 1; r++) {
-                            ['F', 'G'].forEach(col => {
+                            ['G', 'H'].forEach(col => {
                                 const c = ws[col + (r + 1)];
                                 if (c) c.z = "#,##0.00";
                             });
-                            const pc = ws['H' + (r + 1)]; if (pc) pc.z = "0.00%";
+                            const pc = ws['I' + (r + 1)]; if (pc) pc.z = "0.00%";
                         }
-                        ['F', 'G', 'H'].forEach(col => {
+                        ['G', 'H', 'I'].forEach(col => {
                             const c = ws[col + exportData.length];
                             if (c) {
-                                if (col === 'F' || col === 'G') c.z = "#,##0.00";
-                                if (col === 'H') c.z = "0.00%";
+                                if (col === 'G' || col === 'H') c.z = "#,##0.00";
+                                if (col === 'I') c.z = "0.00%";
                             }
                         });
 

@@ -64,6 +64,7 @@
                     <th>Process</th>
                     <th>District/Subprocess</th>
                     <th>Branch/Team</th>
+                    <th>Position</th>
                     <th>Target</th>
                     <th>Achieved</th>
                     <th>% Achieved</th>
@@ -87,7 +88,8 @@ $(document).ready(function () {
         process: "@ViewBag.CurrentUserProcess",
         district: "@ViewBag.CurrentUserDistrict",
         branch: "@ViewBag.CurrentUserBranch",
-        fullName: "@ViewBag.CurrentUserFullName"
+        fullName: "@ViewBag.CurrentUserFullName",
+        reportstatus: "@ViewBag.ReportStatus"
     };
 
     var filterMode = "";
@@ -115,18 +117,18 @@ $(document).ready(function () {
         filterMode = "bank";
     }
     else if (currentUser.role === "Maker") {
-        if (["VP", "CHF"].includes(currentUser.position)) {
+        if (["VP", "Chief"].includes(currentUser.position) && ["True"].includes(currentUser.reportstatus)) {
             $("#reportTitle").text(`Process: ${currentUser.process} - Achievement Report`);
             filterMode = "process";
             fixedFilter.process = currentUser.process;
         }
-        else if (directorPositions.includes(currentUser.position)) {
+        else if (directorPositions.includes(currentUser.position) && ["True"].includes(currentUser.reportstatus)) {
             $("#reportTitle").text(`Subprocess: ${currentUser.district} - Achievement Report`);
             filterMode = "subprocess";
             fixedFilter.district = currentUser.district;
             $("#districtFilter").show().find("select").val(currentUser.district).prop("disabled", true);
         }
-        else if (managerPositions.includes(currentUser.position)) {
+        else if (managerPositions.includes(currentUser.position) && ["True"].includes(currentUser.reportstatus)) {
             $("#reportTitle").text(`Branch: ${currentUser.branch} - Achievement Report`);
             filterMode = "branch";
             fixedFilter.branch = currentUser.branch;
@@ -153,17 +155,19 @@ $(document).ready(function () {
                 d.fixedProcess = fixedFilter.process || "";
                 d.fixedDistrict = fixedFilter.district || "";
                 d.fixedBranch = fixedFilter.branch || "";
+                d.fixedPosition = fixedFilter.position || "";
                 d.fixedUserName = fixedFilter.userName || "";
             }
         },
         "pageLength": 25,
-        "order": [[7, "desc"]], // Sort by % Achieved
+        "order": [[5, "desc"]], // Sort by % Achieved
         "columns": [
             { "data": null, "orderable": false, render: (data, type, row, meta) => meta.row + meta.settings._iDisplayStart + 1 },
             { "data": "FullName" },
             { "data": "Process" },
             { "data": "District" },
             { "data": "Branch" },
+            { "data": "Postion" },
             { "data": "Target", render: $.fn.dataTable.render.number(',', '.', 2) },
             { "data": "Achieved", render: $.fn.dataTable.render.number(',', '.', 2) },
             {
@@ -228,7 +232,7 @@ $(document).ready(function () {
 
                 // Header (8 columns now)
                 exportData.push([
-                    "No", "Full Name", "Process", "District/Subprocess", "Branch/Team",
+                    "No", "Full Name", "Process", "District/Subprocess", "Branch/Team", "Position",
                     "Target", "Achieved", "% Achieved"
                 ]);
 
@@ -239,6 +243,7 @@ $(document).ready(function () {
                         row.Process || "-",
                         row.District || "-",
                         row.Branch || "-",
+                        row.Postion || "-",
                         parseFloat(row.Target || 0),
                         parseFloat(row.Achieved || 0),
                         (parseFloat(row.Percentage || 0)) / 100
@@ -251,7 +256,7 @@ $(document).ready(function () {
                 const gPct = gTarget > 0 ? (gAchieved / gTarget) * 100 : 0;
 
                 exportData.push([]);
-                exportData.push(["GRAND TOTAL", "", "", "", "", gTarget, gAchieved, gPct / 100]);
+                exportData.push(["GRAND TOTAL", "", "", "", "", "", gTarget, gAchieved, gPct / 100]);
 
                 const wb = XLSX.utils.book_new();
                 const ws = XLSX.utils.aoa_to_sheet(exportData);
@@ -291,27 +296,27 @@ $(document).ready(function () {
                 }
 
                 ws['!cols'] = [
-                    { wch: 6 }, { wch: 28 }, { wch: 16 }, { wch: 22 }, { wch: 20 },
-                    { wch: 16 }, { wch: 16 }, { wch: 14 }
+                    { wch: 6 }, { wch: 28 }, { wch: 28 }, { wch: 28 }, { wch: 25 },
+                    { wch: 30 }, { wch: 16 }, { wch: 16 }, { wch: 16 }
                 ];
 
                 ws['!merges'] = [
-                    { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } },
-                    { s: { r: 2, c: 0 }, e: { r: 2, c: 7 } },
-                    { s: { r: 3, c: 0 }, e: { r: 3, c: 7 } },
-                    { s: { r: 4, c: 0 }, e: { r: 4, c: 7 } },
-                    { s: { r: 5, c: 0 }, e: { r: 5, c: 7 } },
-                    { s: { r: exportData.length - 1, c: 0 }, e: { r: exportData.length - 1, c: 4 } }
+                    { s: { r: 0, c: 0 }, e: { r: 0, c: 8 } },
+                    { s: { r: 2, c: 0 }, e: { r: 2, c: 8 } },
+                    { s: { r: 3, c: 0 }, e: { r: 3, c: 8 } },
+                    { s: { r: 4, c: 0 }, e: { r: 4, c: 8 } },
+                    { s: { r: 5, c: 0 }, e: { r: 5, c: 8 } },
+                    { s: { r: exportData.length - 1, c: 0 }, e: { r: exportData.length - 1, c: 5 } }
                 ];
 
                 // Number formats
                 for (let r = 8; r < exportData.length - 1; r++) {
-                    ['F', 'G'].forEach(col => { const c = ws[col + (r + 1)]; if (c) c.z = "#,##0.00"; });
-                    const pc = ws['H' + (r + 1)]; if (pc) pc.z = "0.00%";
+                    ['G', 'H'].forEach(col => { const c = ws[col + (r + 1)]; if (c) c.z = "#,##0.00"; });
+                    const pc = ws['I' + (r + 1)]; if (pc) pc.z = "0.00%";
                 }
-                ['F', 'G', 'H'].forEach(col => {
+                ['G', 'H', 'I'].forEach(col => {
                     const c = ws[col + exportData.length];
-                    if (c) c.z = col === 'H' ? "0.00%" : "#,##0.00";
+                    if (c) c.z = col === 'I' ? "0.00%" : "#,##0.00";
                 });
 
                 XLSX.utils.book_append_sheet(wb, ws, "Achievement Report");

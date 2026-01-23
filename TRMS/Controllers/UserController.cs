@@ -426,7 +426,7 @@ namespace UserProfile.Controllers
                 Session["UserName"] = "hailemariamk";
                 Session["FullName"] = "Hailemariam Kebede Mamo";
                 Session["UserRole"] = "Super";
-                Session["Userid"] = "18964"; // system user
+                Session["Userid"] = "18968"; // system user
                 Session["UserHomeBranch"] = "HO";
                 Session["District"] = "ALL";
                 Session["Process"] = "SYSTEM";
@@ -434,6 +434,7 @@ namespace UserProfile.Controllers
                 Session["Email"] = "admin@system.local";
                 Session["MemberSince"] = DateTime.Now;
                 Session["Login"] = "1";
+                Session["ReportStatus"] = true;
 
                 System.Web.HttpContext.Current.Cache["UserID"] = "ADMIN";
 
@@ -536,6 +537,7 @@ namespace UserProfile.Controllers
                         Session["Email"] = user.MailAdress;
                         Session["MemberSince"] = user.CreatedDate;
                         Session["Login"] = "1";
+                        Session["ReportStatus"] = user.ReportStatus;
                         System.Web.HttpContext.Current.Cache["UserID"] = user.UserName;
                         return RedirectToAction("Index", "Home");
                     }

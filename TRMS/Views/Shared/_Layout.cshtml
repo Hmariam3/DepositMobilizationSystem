@@ -85,54 +85,54 @@
                 <!-- Right Side: User Dropdown -->
                 <ul class="navbar-nav ms-auto">
                     @*<ul class="navbar-nav ms-auto">
-                        <li class="nav-item dropdown">
-                            <button class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center"
-                                    id="bd-theme"
-                                    type="button"
-                                    aria-expanded="false"
-                                    data-bs-toggle="dropdown"
-                                    data-bs-display="static">
-                                <span class="theme-icon-active">
-                                    <i class="my-1"></i>
-                                </span>
-                                <span class="d-lg-none ms-2" id="bd-theme-text">Toggle theme</span>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end"
-                                aria-labelledby="bd-theme-text"
-                                style="--bs-dropdown-min-width: 8rem;">
-                                <li>
-                                    <button type="button"
-                                            class="dropdown-item d-flex align-items-center active"
-                                            data-bs-theme-value="light"
-                                            aria-pressed="false">
-                                        <i class="bi bi-sun-fill me-2"></i>
-                                        Light
-                                        <i class="bi bi-check-lg ms-auto d-none"></i>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button type="button"
-                                            class="dropdown-item d-flex align-items-center"
-                                            data-bs-theme-value="dark"
-                                            aria-pressed="false">
-                                        <i class="bi bi-moon-fill me-2"></i>
-                                        Dark
-                                        <i class="bi bi-check-lg ms-auto d-none"></i>
-                                    </button>
-                                </li>
-                                <li>
-                                    <button type="button"
-                                            class="dropdown-item d-flex align-items-center"
-                                            data-bs-theme-value="auto"
-                                            aria-pressed="true">
-                                        <i class="bi bi-circle-fill-half-stroke me-2"></i>
-                                        Auto
-                                        <i class="bi bi-check-lg ms-auto d-none"></i>
-                                    </button>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>*@
+                            <li class="nav-item dropdown">
+                                <button class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center"
+                                        id="bd-theme"
+                                        type="button"
+                                        aria-expanded="false"
+                                        data-bs-toggle="dropdown"
+                                        data-bs-display="static">
+                                    <span class="theme-icon-active">
+                                        <i class="my-1"></i>
+                                    </span>
+                                    <span class="d-lg-none ms-2" id="bd-theme-text">Toggle theme</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end"
+                                    aria-labelledby="bd-theme-text"
+                                    style="--bs-dropdown-min-width: 8rem;">
+                                    <li>
+                                        <button type="button"
+                                                class="dropdown-item d-flex align-items-center active"
+                                                data-bs-theme-value="light"
+                                                aria-pressed="false">
+                                            <i class="bi bi-sun-fill me-2"></i>
+                                            Light
+                                            <i class="bi bi-check-lg ms-auto d-none"></i>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button type="button"
+                                                class="dropdown-item d-flex align-items-center"
+                                                data-bs-theme-value="dark"
+                                                aria-pressed="false">
+                                            <i class="bi bi-moon-fill me-2"></i>
+                                            Dark
+                                            <i class="bi bi-check-lg ms-auto d-none"></i>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button type="button"
+                                                class="dropdown-item d-flex align-items-center"
+                                                data-bs-theme-value="auto"
+                                                aria-pressed="true">
+                                            <i class="bi bi-circle-fill-half-stroke me-2"></i>
+                                            Auto
+                                            <i class="bi bi-check-lg ms-auto d-none"></i>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>*@
                     <li class="nav-item dropdown user-menu">
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                             <img src="~/dist/assets/img/FREE-PROFILE-AVATARS.jpg" class="user-image rounded-circle shadow" alt="User Image" />
@@ -227,11 +227,11 @@
                                 </a>
                                 <ul class="nav nav-treeview">
                                     @*<li class="nav-item">
-                        <a href="~/Home/BankSummary" class="nav-link">
-                            <i class="fas fa-home"></i>
-                            <p>Bank Summary</p>
-                        </a>
-                    </li>*@
+                                            <a href="~/Home/BankSummary" class="nav-link">
+                                                <i class="fas fa-home"></i>
+                                                <p>Bank Summary</p>
+                                            </a>
+                                        </li>*@
                                     <li class="nav-item">
                                         <a href="~/Home/Dashboard" class="nav-link">
                                             <i class="fas fa-home"></i>
@@ -254,7 +254,7 @@
                                 <a href="#" class="nav-link">
                                     <i class="fa fa-money"></i>
                                     <p>
-                                       Account Reserve
+                                        Account Reserve
                                         <i class="nav-arrow bi bi-chevron-right"></i>
                                     </p>
                                 </a>
@@ -609,7 +609,9 @@
     <script src="~/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
     <script src="~/dist/assets/adminlte.min.js"></script>
     <script src="~/dist/js/moment.min.js"></script>
-    <script src="~/dist/js/xlsx.full.min.js"></script>
+    @*<script src="~/dist/js/xlsx.full.min.js"></script>*@
+    <script src="~/dist/js/xlsx.bundle.js"></script>
+
 
     <!-- Scripts -->
     <script>
@@ -651,87 +653,87 @@
         });
     </script>
     @*<script>
-        // Color Mode Toggler
-        (() => {
-            "use strict";
+            // Color Mode Toggler
+            (() => {
+                "use strict";
 
-            const storedTheme = localStorage.getItem("theme");
+                const storedTheme = localStorage.getItem("theme");
 
-            const getPreferredTheme = () => {
-                if (storedTheme) {
-                    return storedTheme;
-                }
+                const getPreferredTheme = () => {
+                    if (storedTheme) {
+                        return storedTheme;
+                    }
 
-                return window.matchMedia("(prefers-color-scheme: light)").matches
-                    ? "dark"
-                    : "light";
-            };
+                    return window.matchMedia("(prefers-color-scheme: light)").matches
+                        ? "dark"
+                        : "light";
+                };
 
-            const setTheme = function (theme) {
-                if (
-                    theme === "auto" &&
-                    window.matchMedia("(prefers-color-scheme: dark)").matches
-                ) {
-                    document.documentElement.setAttribute("data-bs-theme", "dark");
-                } else {
-                    document.documentElement.setAttribute("data-bs-theme", theme);
-                }
-            };
+                const setTheme = function (theme) {
+                    if (
+                        theme === "auto" &&
+                        window.matchMedia("(prefers-color-scheme: dark)").matches
+                    ) {
+                        document.documentElement.setAttribute("data-bs-theme", "dark");
+                    } else {
+                        document.documentElement.setAttribute("data-bs-theme", theme);
+                    }
+                };
 
-            setTheme(getPreferredTheme());
+                setTheme(getPreferredTheme());
 
-            const showActiveTheme = (theme, focus = false) => {
-                const themeSwitcher = document.querySelector("#bd-theme");
+                const showActiveTheme = (theme, focus = false) => {
+                    const themeSwitcher = document.querySelector("#bd-theme");
 
-                if (!themeSwitcher) {
-                    return;
-                }
+                    if (!themeSwitcher) {
+                        return;
+                    }
 
-                const themeSwitcherText = document.querySelector("#bd-theme-text");
-                const activeThemeIcon = document.querySelector(".theme-icon-active i");
-                const btnToActive = document.querySelector(
-                    `[data-bs-theme-value="${theme}"]`
-                );
-                const svgOfActiveBtn = btnToActive.querySelector("i").getAttribute("class");
+                    const themeSwitcherText = document.querySelector("#bd-theme-text");
+                    const activeThemeIcon = document.querySelector(".theme-icon-active i");
+                    const btnToActive = document.querySelector(
+                        `[data-bs-theme-value="${theme}"]`
+                    );
+                    const svgOfActiveBtn = btnToActive.querySelector("i").getAttribute("class");
 
-                for (const element of document.querySelectorAll("[data-bs-theme-value]")) {
-                    element.classList.remove("active");
-                    element.setAttribute("aria-pressed", "false");
-                }
+                    for (const element of document.querySelectorAll("[data-bs-theme-value]")) {
+                        element.classList.remove("active");
+                        element.setAttribute("aria-pressed", "false");
+                    }
 
-                btnToActive.classList.add("active");
-                btnToActive.setAttribute("aria-pressed", "true");
-                activeThemeIcon.setAttribute("class", svgOfActiveBtn);
-                const themeSwitcherLabel = `${themeSwitcherText.textContent} (${btnToActive.dataset.bsThemeValue})`;
-                themeSwitcher.setAttribute("aria-label", themeSwitcherLabel);
+                    btnToActive.classList.add("active");
+                    btnToActive.setAttribute("aria-pressed", "true");
+                    activeThemeIcon.setAttribute("class", svgOfActiveBtn);
+                    const themeSwitcherLabel = `${themeSwitcherText.textContent} (${btnToActive.dataset.bsThemeValue})`;
+                    themeSwitcher.setAttribute("aria-label", themeSwitcherLabel);
 
-                if (focus) {
-                    themeSwitcher.focus();
-                }
-            };
+                    if (focus) {
+                        themeSwitcher.focus();
+                    }
+                };
 
-            window
-                .matchMedia("(prefers-color-scheme: light)")
-                .addEventListener("change", () => {
-                    if (storedTheme !== "light" || storedTheme !== "dark") {
-                        setTheme(getPreferredTheme());
+                window
+                    .matchMedia("(prefers-color-scheme: light)")
+                    .addEventListener("change", () => {
+                        if (storedTheme !== "light" || storedTheme !== "dark") {
+                            setTheme(getPreferredTheme());
+                        }
+                    });
+
+                window.addEventListener("DOMContentLoaded", () => {
+                    showActiveTheme(getPreferredTheme());
+
+                    for (const toggle of document.querySelectorAll("[data-bs-theme-value]")) {
+                        toggle.addEventListener("click", () => {
+                            const theme = toggle.getAttribute("data-bs-theme-value");
+                            localStorage.setItem("theme", theme);
+                            setTheme(theme);
+                            showActiveTheme(theme, true);
+                        });
                     }
                 });
-
-            window.addEventListener("DOMContentLoaded", () => {
-                showActiveTheme(getPreferredTheme());
-
-                for (const toggle of document.querySelectorAll("[data-bs-theme-value]")) {
-                    toggle.addEventListener("click", () => {
-                        const theme = toggle.getAttribute("data-bs-theme-value");
-                        localStorage.setItem("theme", theme);
-                        setTheme(theme);
-                        showActiveTheme(theme, true);
-                    });
-                }
-            });
-        })();
-    </script>*@
+            })();
+        </script>*@
     <script src="~/dist/js/apexchart.js"></script>
     @RenderSection("scripts", required: false)
 
