@@ -507,6 +507,43 @@ namespace TRMS.Controllers
                     ViewBag.TransactionReference = txnRef;
                     ViewBag.TXNDATE = txnDate;
 
+                    // ✅ Sync AccountReserve balance BEFORE previous balance call
+                    if (ViewBag.ReferenceExists == true && TempData["AccountMismatch"]?.ToString() != "True")
+                    {
+                        try
+                        {
+                            decimal workingBalDecimal = 0;
+                            decimal.TryParse(workingBalance, out workingBalDecimal);
+
+                            var reserves = db.AccountReserves
+                                             .Where(x => x.AccountNumber == accountNo)
+                                             .ToList();
+
+                            foreach (var r in reserves)
+                            {
+                                if (!string.IsNullOrWhiteSpace(r.MMACC) && r.MMBAL.HasValue && r.MMBAL > 0)
+                                {
+                                    r.AccountBalance = workingBalDecimal + r.MMBAL.Value;
+                                }
+                                else
+                                {
+                                    r.AccountBalance = workingBalDecimal;
+                                }
+                            }
+
+                            db.SaveChanges();
+                        }
+                        catch (Exception ex)
+                        {
+                            // DO NOT block deposit validation
+                            System.Diagnostics.Debug.WriteLine(
+                                $"AccountReserve update failed for {accountNo}: {ex.Message}"
+                            );
+                        }
+                    }
+
+
+
                     // Fetch previous balance (string JSON)
                     string json = callbyReference.GetPreviousBalance(depositPlan.AccountNumber, depositPlan.ReferenceNumber);
                     decimal opening = 0;
