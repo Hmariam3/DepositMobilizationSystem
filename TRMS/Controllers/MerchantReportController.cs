@@ -192,7 +192,7 @@ namespace TRMS.Controllers
             var length = int.Parse(Request.Form["length"] ?? "10");
 
             var query = db.MerchantAchieveds
-                .Where(ma => ma.UserTarget > 0 && !string.IsNullOrEmpty(ma.Process))
+                .Where(ma => ma.UserTarget >= 0 && !string.IsNullOrEmpty(ma.Process))
                 .GroupBy(ma => ma.Process.Trim())
                 .Select(g => new
                 {
@@ -267,10 +267,12 @@ namespace TRMS.Controllers
 
             var data = db.MerchantAchieveds
                 .Where(ma =>
-                    ma.UserTarget > 0 &&
-                    ma.Process == "Operation Management Office" &&
+                    ma.UserTarget >= 0 &&
+                    ma.Process == "Growth and Operation" &&
                     !string.IsNullOrEmpty(ma.District) &&
-                    ma.District.Trim() != "")
+                    ma.District.Contains("District") &&                    // LIKE '%District%'
+                    ma.District != "District Follow Up" &&                  // NOT IN
+                    ma.District != "District Support")
                 .GroupBy(ma => ma.District.Trim())
                 .Select(g => new
                 {
@@ -295,10 +297,14 @@ namespace TRMS.Controllers
 
             var data = db.MerchantAchieveds
                 .Where(ma =>
-                    ma.UserTarget > 0 &&
-                    ma.Process != "Operation Management Office" &&
+                    ma.UserTarget >= 0 &&
                     !string.IsNullOrEmpty(ma.District) &&
-                    ma.District.Trim() != "")
+                        (
+                            !ma.District.Contains("District") ||      // NOT a real district
+                            ma.District == "District Follow Up" ||     // Explicit subprocess
+                            ma.District == "District Support"
+                        )
+                    )
                 .GroupBy(ma => ma.District.Trim())
                 .Select(g => new
                 {

@@ -206,7 +206,7 @@ namespace TRMS.Controllers
 
             // Base query: Group by Process
             var query = db.UserAchieveds
-                .Where(ua => ua.UserTarget > 0 && !string.IsNullOrEmpty(ua.Process))
+                .Where(ua => ua.UserTarget >= 0 && !string.IsNullOrEmpty(ua.Process))
                 .GroupBy(ua => ua.Process.Trim())
                 .Select(g => new
                 {
@@ -290,20 +290,22 @@ namespace TRMS.Controllers
 
             var districtData = db.UserAchieveds
                 .Where(ua =>
-                    ua.UserTarget > 0 &&
-                    ua.Process == "Operation Management Office" &&   // Only real districts
+                    ua.UserTarget >= 0 &&
+                    ua.Process == "Growth and Operation" &&
                     !string.IsNullOrEmpty(ua.District) &&
-                    ua.District.Trim() != "")
+                    ua.District.Contains("District") &&                    // LIKE '%District%'
+                    ua.District != "District Follow Up" &&                  // NOT IN
+                    ua.District != "District Support")
                 .GroupBy(ua => ua.District.Trim())
                 .Select(g => new
                 {
                     District = g.Key,
                     TotalTarget = g.Sum(x => x.UserTarget ?? 0),
-                    //TotalDeposited = g.Sum(x => x.CollectedAmount ?? 0),
                     TotalAchieved = g.Sum(x => x.AchievedAmount ?? 0)
                 })
                 .OrderBy(x => x.District)
                 .ToList();
+
 
             return BuildAchievementResponse(
                 draw: draw,
@@ -324,20 +326,24 @@ namespace TRMS.Controllers
 
             var subprocessData = db.UserAchieveds
                 .Where(ua =>
-                    ua.UserTarget > 0 &&
-                    ua.Process != "Operation Management Office" &&   // Only Head Office subprocesses
+                    ua.UserTarget >= 0 &&
                     !string.IsNullOrEmpty(ua.District) &&
-                    ua.District.Trim() != "")
+                    (
+                        !ua.District.Contains("District") ||      // NOT a real district
+                        ua.District == "District Follow Up" ||     // Explicit subprocess
+                        ua.District == "District Support"
+                    )
+                )
                 .GroupBy(ua => ua.District.Trim())
                 .Select(g => new
                 {
-                    District = g.Key,  // This field is reused for Subprocess name
-            TotalTarget = g.Sum(x => x.UserTarget ?? 0),
-                    //TotalDeposited = g.Sum(x => x.CollectedAmount ?? 0),
+                    District = g.Key,   // reused as Subprocess name
+                    TotalTarget = g.Sum(x => x.UserTarget ?? 0),
                     TotalAchieved = g.Sum(x => x.AchievedAmount ?? 0)
                 })
                 .OrderBy(x => x.District)
                 .ToList();
+
 
             return BuildAchievementResponse(
                 draw: draw,

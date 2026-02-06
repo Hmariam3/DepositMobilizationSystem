@@ -261,9 +261,11 @@ namespace TRMS.Controllers
             var length = int.Parse(Request.Form["length"] ?? "10");
 
             var data = db.Users
-                .Where(u => u.Process == "Operation Management Office" &&
+                .Where(u => u.Process == "Growth and Operation" &&                    
                     !string.IsNullOrEmpty(u.District) &&
-                    u.District.Trim() != "")
+                    u.District.Contains("District") &&                    // LIKE '%District%'
+                    u.District != "District Follow Up" &&                  // NOT IN
+                    u.District != "District Support")
                 .GroupBy(u => u.District.Trim())
                 .Select(g => new
                 {
@@ -286,9 +288,13 @@ namespace TRMS.Controllers
             var length = int.Parse(Request.Form["length"] ?? "10");
 
             var data = db.Users
-                .Where(u => u.Process != "Operation Management Office" &&
-                    !string.IsNullOrEmpty(u.District) &&
-                    u.District.Trim() != "")
+                .Where(u => !string.IsNullOrEmpty(u.District) &&
+                            (
+                                !u.District.Contains("District") ||      // NOT a real district
+                                u.District == "District Follow Up" ||     // Explicit subprocess
+                                u.District == "District Support"
+                            )                   
+                    )
                 .GroupBy(u => u.District.Trim())
                 .Select(g => new
                 {
