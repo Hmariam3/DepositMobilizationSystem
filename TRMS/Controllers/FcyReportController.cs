@@ -104,7 +104,7 @@ namespace TRMS.Controllers
                     AchievedPercent = ma.UserTarget > 0
                         ? Math.Round((ma.AchievedAmount / ma.UserTarget) * 100m, 2)
                         : 0m   // or you can use null / "-" later in view if preferred
-    })
+                })
                 .AsQueryable();
 
             // Role-based fixed filters

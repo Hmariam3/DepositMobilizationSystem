@@ -432,6 +432,7 @@ namespace UserProfile.Controllers
                 Session["Process"] = "SYSTEM";
                 Session["Position"] = "Back Office Applications Administrator";
                 Session["Email"] = "admin@system.local";
+                Session["OrgUnit"] = "Branch";
                 Session["MemberSince"] = DateTime.Now;
                 Session["Login"] = "1";
                 Session["ReportStatus"] = true;
@@ -536,6 +537,7 @@ namespace UserProfile.Controllers
                         Session["Position"] = user.Postion;
                         Session["Email"] = user.MailAdress;
                         Session["MemberSince"] = user.CreatedDate;
+                        Session["OrgUnit"] = user.OrganizatinalUnit;
                         Session["Login"] = "1";
                         Session["ReportStatus"] = user.ReportStatus;
                         System.Web.HttpContext.Current.Cache["UserID"] = user.UserName;

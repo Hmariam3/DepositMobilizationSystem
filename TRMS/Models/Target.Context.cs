@@ -25,6 +25,7 @@ namespace TRMS.Models
             throw new UnintentionalCodeFirstException();
         }
     
+        public virtual DbSet<AccountMapping> AccountMappings { get; set; }
         public virtual DbSet<AccountReserve> AccountReserves { get; set; }
         public virtual DbSet<Branch> Branches { get; set; }
         public virtual DbSet<BranchTarget> BranchTargets { get; set; }

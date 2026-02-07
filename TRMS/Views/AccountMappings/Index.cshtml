@@ -1,0 +1,288 @@
+﻿@model IEnumerable<TRMS.Models.AccountMapping>
+@{
+    ViewBag.Title = "Account Mappings";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    :root {
+        --primary: #00AEEF;
+        --primary-dark: #008cc7;
+        --primary-gradient: linear-gradient(135deg, #00AEEF, #0077b6);
+        --success: #198754;
+        --danger: #dc3545;
+        --warning: #ffc107;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --gray: #6c757d;
+        --border-radius: 1rem;
+        --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .index-container {
+        width: 100%;
+        margin: 0;
+        padding: 0 1rem 2rem;
+    }
+
+    .toolbar-card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        margin-bottom: 1.5rem;
+        padding: 1rem 1.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+        .page-header h1 {
+            font-weight: 800;
+            font-size: 2.2rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 0.5px;
+            margin: 0;
+        }
+
+    .data-card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+        .data-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+    .card-header {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 0.5rem 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-weight: 600;
+        font-size: 1.3rem;
+    }
+
+        .card-header .btn-create {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+            .card-header .btn-create:hover {
+                background: white;
+                color: var(--primary);
+                transform: translateY(-2px);
+            }
+
+    .table {
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+        .table thead {
+            background: #f1f3f5;
+        }
+
+            .table thead th {
+                border: none;
+                font-weight: 600;
+                color: var(--dark);
+                text-transform: uppercase;
+                font-size: 0.8rem;
+                letter-spacing: 0.5px;
+                padding: 1rem;
+            }
+
+        .table tbody td {
+            padding: 0.9rem 1rem;
+            vertical-align: middle;
+            border-color: #e9ecef;
+        }
+
+        .table tbody tr:hover {
+            background: rgba(0, 174, 239, 0.05);
+        }
+
+    .btn-action {
+        padding: 0.35rem 0.75rem;
+        font-size: 0.85rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .btn-edit {
+        background: #0d6efd;
+        color: white;
+    }
+
+        .btn-edit:hover {
+            background: #0b5ed7;
+        }
+
+    .btn-details {
+        background: #0dcaf0;
+        color: white;
+    }
+
+        .btn-details:hover {
+            background: #0aa8c7;
+        }
+
+    .btn-delete {
+        background: var(--danger);
+        color: white;
+    }
+
+        .btn-delete:hover {
+            background: #c82333;
+        }
+
+    .dataTables_wrapper .dataTables_length select,
+    .dataTables_wrapper .dataTables_filter input {
+        border-radius: 0.5rem;
+        border: 1px solid #ced4da;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.9rem;
+    }
+</style>
+
+<div class="index-container">
+
+    <!-- Messages -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Error!</strong> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle me-2"></i>
+            <strong>Success!</strong> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Main Data Card -->
+    <div class="data-card mt-5">
+        <div class="card-header">
+            <div>
+                <i class="fas fa-table"></i> Account Mappings
+            </div>
+            <a href="@Url.Action("Create", "AccountMappings")" class="btn-create">
+                <i class="fas fa-plus-circle me-1"></i> New Account Mapping
+            </a>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table id="accountMappingTable" class="table table-striped table-hover" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Account Number</th>
+                            <th>Account Holder</th>
+                            <th>Beginning Balance</th>
+                            <th>Current Balance</th>
+                            <th>District</th>
+                            <th>Branch</th>
+                            <th>Username</th>
+                            <th>Created Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td><code>@Html.DisplayFor(m => item.AccountNumber)</code></td>
+                                <td class="fw-medium">@Html.DisplayFor(m => item.AccountHolder)</td>
+                                <td class="text-end">@String.Format("{0:N2}", item.BegginingBalance)</td>
+                                <td class="text-end">@String.Format("{0:N2}", item.CurrentBalance)</td>
+                                <td>@Html.DisplayFor(m => item.District)</td>
+                                <td>@Html.DisplayFor(m => item.Branch)</td>
+                                <td>@Html.DisplayFor(m => item.UserName)</td>
+                                <td>@Html.DisplayFor(m => item.CreatedDate, "{0:yyyy-MM-dd}")</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                       @* @Html.ActionLink("Edit", "Edit", new { id = item.Acc_ID }, new { @class = "btn btn-edit btn-action" })*@
+                                        @Html.ActionLink("Details", "Details", new { id = item.Acc_ID }, new { @class = "btn btn-details btn-action" })
+                                      @*  @Html.ActionLink("Delete", "Delete", new { id = item.Acc_ID }, new { @class = "btn btn-delete btn-action" })*@
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var table = $('#accountMappingTable').DataTable({
+                responsive: true,
+                paging: true,
+                searching: true,
+                ordering: true,
+                info: true,
+                lengthMenu: [10, 25, 50, 100],
+                pageLength: 10,
+                dom: 'rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+                buttons: [
+                    { extend: 'copy', title: 'Account Mappings' },
+                    { extend: 'csv', title: 'Account Mappings' },
+                    { extend: 'excel', title: 'Account Mappings' },
+                    { extend: 'pdf', title: 'Account Mappings' },
+                    { extend: 'print', title: 'Account Mappings' }
+                ],
+                language: {
+                    search: "",
+                    searchPlaceholder: "Search mappings...",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ mappings",
+                    paginate: {
+                        next: '<i class="fas fa-chevron-right"></i>',
+                        previous: '<i class="fas fa-chevron-left"></i>'
+                    }
+                },
+                columnDefs: [
+                    { targets: 0, className: 'text-monospace' },          // Account Number
+                    { targets: [2, 3], className: 'text-end fw-medium' }, // Balances
+                    { targets: -1, orderable: false, className: 'text-center' } // Actions
+                ],
+                order: [[7, 'desc']]  // Default sort by CreatedDate descending
+            });
+
+            // Optional: If you later want to add custom buttons like in the reserve page
+            // var dtButtons = table.buttons().container().find('button');
+            // ... (same logic as in AccountReserves)
+        });
+    </script>
+}

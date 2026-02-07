@@ -34,6 +34,7 @@ namespace TRMS.Models
         public string OrganizatinalUnit { get; set; }
         public string Postion { get; set; }
         public string Role { get; set; }
+        public Nullable<bool> ReportStatus { get; set; }
         public string PhoneNumber { get; set; }
         public Nullable<decimal> DepositTargetAmount { get; set; }
         public Nullable<int> MerchantTarget { get; set; }
@@ -42,7 +43,6 @@ namespace TRMS.Models
         public Nullable<decimal> BranchDepositTarget { get; set; }
         public Nullable<int> BranchMerchantTarget { get; set; }
         public Nullable<decimal> BranchFcyTarget { get; set; }
-        public Nullable<bool> ReportStatus { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<CheckInCheckOut> CheckInCheckOuts { get; set; }

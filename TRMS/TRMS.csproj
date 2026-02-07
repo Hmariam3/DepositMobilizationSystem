@@ -196,7 +196,9 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\AccountMappingsController.cs" />
     <Compile Include="Controllers\AccountReservesController.cs" />
+    <Compile Include="Controllers\AccountVariationReportController.cs" />
     <Compile Include="Controllers\DepositBankReportController.cs" />
     <Compile Include="Controllers\DepositDistrictReportController.cs" />
     <Compile Include="Controllers\DepositFCiesController.cs" />
@@ -220,6 +222,9 @@
     <Compile Include="Controllers\UserEngagementsController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Models\AccountMapping.cs">
+      <DependentUpon>Target.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\AccountReserve.cs">
       <DependentUpon>Target.tt</DependentUpon>
@@ -9623,6 +9628,14 @@
     <Content Include="Views\AccountReserves\Details.cshtml" />
     <Content Include="Views\AccountReserves\Edit.cshtml" />
     <Content Include="Views\AccountReserves\Index.cshtml" />
+    <Content Include="Views\AccountMappings\Create.cshtml" />
+    <Content Include="Views\AccountMappings\Delete.cshtml" />
+    <Content Include="Views\AccountMappings\Details.cshtml" />
+    <Content Include="Views\AccountMappings\Edit.cshtml" />
+    <Content Include="Views\AccountMappings\Index.cshtml" />
+    <Content Include="Views\AccountVariationReport\UserVariationReport.cshtml" />
+    <Content Include="Views\AccountVariationReport\BranchVariationReport.cshtml" />
+    <Content Include="Views\AccountVariationReport\DistrictVariationReport.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

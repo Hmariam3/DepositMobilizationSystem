@@ -16,25 +16,25 @@ namespace TRMS.Security
         {
             var url = "http://10.1.126.12:8040/TWSTXNDETAIL/services";
             string soapXml = $@"<?xml version=""1.0"" encoding=""utf-8""?>
-    <soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:tws=""http://temenos.com/TWSTXNDETAIL"">
-       <soapenv:Header/>
-       <soapenv:Body>
-          <tws:CBOTXNDETAIL>
-             <WebRequestCommon>
-                <company></company>
-                <password>BAPPT@1234</password>
-                <userName>BACKOFAP</userName>
-             </WebRequestCommon>
-             <FTTTTXNDETAILType>
-                <enquiryInputCollection>
-                   <columnName>TXN.REF</columnName>
-                   <criteriaValue>{referenceNumber}</criteriaValue>
-                   <operand>EQ</operand>
-                </enquiryInputCollection>
-             </FTTTTXNDETAILType>
-          </tws:CBOTXNDETAIL>
-       </soapenv:Body>
-    </soapenv:Envelope>";
+                <soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:tws=""http://temenos.com/TWSTXNDETAIL"">
+                   <soapenv:Header/>
+                   <soapenv:Body>
+                      <tws:CBOTXNDETAIL>
+                         <WebRequestCommon>
+                            <company></company>
+                            <password>BAPPT@1234</password>
+                            <userName>BACKOFAP</userName>
+                         </WebRequestCommon>
+                         <FTTTTXNDETAILType>
+                            <enquiryInputCollection>
+                               <columnName>TXN.REF</columnName>
+                               <criteriaValue>{referenceNumber}</criteriaValue>
+                               <operand>EQ</operand>
+                            </enquiryInputCollection>
+                         </FTTTTXNDETAILType>
+                      </tws:CBOTXNDETAIL>
+                   </soapenv:Body>
+                </soapenv:Envelope>";
 
             using (var client = new HttpClient())
             {
@@ -74,6 +74,27 @@ namespace TRMS.Security
             }
         }
 
+
+        public string GetBeginningBalance(string accountNumber)
+        {
+            // Build URL with parameters
+            string url = $"http://10.1.130.17:5108/api/balance?contractCode={accountNumber}";
+
+            using (var client = new HttpClient())
+            {
+                var request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri(url),
+                    Method = HttpMethod.Get
+                };
+
+                // Send the request synchronously (same as your old code)
+                var response = client.SendAsync(request).GetAwaiter().GetResult();
+                var responseContent = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+
+                return responseContent;
+            }
+        } 
 
 
         public List<BankBalanceSummary> GetBankBalanceSummary()

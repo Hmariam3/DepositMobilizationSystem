@@ -4,7 +4,21 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="TRMSModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+      <Schema Namespace="TRMSModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="AccountMapping">
+          <Key>
+            <PropertyRef Name="Acc_ID" />
+          </Key>
+          <Property Name="Acc_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="AccountNumber" Type="nvarchar" MaxLength="100" />
+          <Property Name="AccountHolder" Type="nvarchar" MaxLength="100" />
+          <Property Name="BegginingBalance" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="CurrentBalance" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="District" Type="nvarchar" MaxLength="100" />
+          <Property Name="Branch" Type="nvarchar" MaxLength="100" />
+          <Property Name="UserName" Type="nvarchar" MaxLength="100" />
+          <Property Name="CreatedDate" Type="date" />
+        </EntityType>
         <EntityType Name="AccountReserve">
           <Key>
             <PropertyRef Name="ACC_ID" />
@@ -460,6 +474,7 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
           </ReferentialConstraint>
         </Association>
         <EntityContainer Name="TRMSModelStoreContainer">
+          <EntitySet Name="AccountMapping" EntityType="Self.AccountMapping" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AccountReserve" EntityType="Self.AccountReserve" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Branch" EntityType="Self.Branch" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="BranchTarget" EntityType="Self.BranchTarget" Schema="dbo" store:Type="Tables" />
@@ -559,10 +574,25 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
             <End Role="DepositPlan" EntitySet="DepositPlan" />
           </AssociationSet>
         </EntityContainer>
-      </Schema></edmx:StorageModels>
+      </Schema>
+    </edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="TRMSModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="AccountMapping">
+          <Key>
+            <PropertyRef Name="Acc_ID" />
+          </Key>
+          <Property Name="Acc_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="AccountNumber" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="AccountHolder" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="BegginingBalance" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="CurrentBalance" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="District" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Branch" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="UserName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedDate" Type="DateTime" Precision="0" />
+        </EntityType>
         <EntityType Name="AccountReserve">
           <Key>
             <PropertyRef Name="ACC_ID" />
@@ -843,6 +873,7 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
           <Property Name="OrganizatinalUnit" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Postion" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="Role" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ReportStatus" Type="Boolean" />
           <Property Name="PhoneNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="DepositTargetAmount" Type="Decimal" Precision="18" Scale="2" />
           <Property Name="MerchantTarget" Type="Int32" />
@@ -855,7 +886,6 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
           <NavigationProperty Name="DepositFCies" Relationship="Self.FK_DepositFCY_Users" FromRole="Users" ToRole="DepositFCY" />
           <NavigationProperty Name="DepositMerchantAgenets" Relationship="Self.FK_DepositMerchantAgenet_Users" FromRole="Users" ToRole="DepositMerchantAgenet" />
           <NavigationProperty Name="DepositPlans" Relationship="Self.FK_DepositPlan_Users" FromRole="Users" ToRole="DepositPlan" />
-          <Property Name="ReportStatus" Type="Boolean" />
         </EntityType>
         <EntityType Name="DepositPlan_bkp">
           <Key>
@@ -1010,6 +1040,7 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
           </ReferentialConstraint>
         </Association>
         <EntityContainer Name="TRMSEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="AccountMappings" EntityType="Self.AccountMapping" />
           <EntitySet Name="AccountReserves" EntityType="Self.AccountReserve" />
           <EntitySet Name="Branches" EntityType="Self.Branch" />
           <EntitySet Name="BranchTargets" EntityType="Self.BranchTarget" />
@@ -1067,6 +1098,21 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="TRMSModelStoreContainer" CdmEntityContainer="TRMSEntities">
+          <EntitySetMapping Name="AccountMappings">
+            <EntityTypeMapping TypeName="TRMSModel.AccountMapping">
+              <MappingFragment StoreEntitySet="AccountMapping">
+                <ScalarProperty Name="Acc_ID" ColumnName="Acc_ID" />
+                <ScalarProperty Name="AccountNumber" ColumnName="AccountNumber" />
+                <ScalarProperty Name="AccountHolder" ColumnName="AccountHolder" />
+                <ScalarProperty Name="BegginingBalance" ColumnName="BegginingBalance" />
+                <ScalarProperty Name="CurrentBalance" ColumnName="CurrentBalance" />
+                <ScalarProperty Name="District" ColumnName="District" />
+                <ScalarProperty Name="Branch" ColumnName="Branch" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="AccountReserves">
             <EntityTypeMapping TypeName="TRMSModel.AccountReserve">
               <MappingFragment StoreEntitySet="AccountReserve">
@@ -1343,7 +1389,6 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
           <EntitySetMapping Name="Users">
             <EntityTypeMapping TypeName="TRMSModel.User">
               <MappingFragment StoreEntitySet="Users">
-                <ScalarProperty Name="ReportStatus" ColumnName="ReportStatus" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="UserName" ColumnName="UserName" />
                 <ScalarProperty Name="FullName" ColumnName="FullName" />
@@ -1355,6 +1400,7 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
                 <ScalarProperty Name="OrganizatinalUnit" ColumnName="OrganizatinalUnit" />
                 <ScalarProperty Name="Postion" ColumnName="Postion" />
                 <ScalarProperty Name="Role" ColumnName="Role" />
+                <ScalarProperty Name="ReportStatus" ColumnName="ReportStatus" />
                 <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
                 <ScalarProperty Name="DepositTargetAmount" ColumnName="DepositTargetAmount" />
                 <ScalarProperty Name="MerchantTarget" ColumnName="MerchantTarget" />

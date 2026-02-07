@@ -227,11 +227,11 @@
                                 </a>
                                 <ul class="nav nav-treeview">
                                     @*<li class="nav-item">
-                                            <a href="~/Home/BankSummary" class="nav-link">
-                                                <i class="fas fa-home"></i>
-                                                <p>Bank Summary</p>
-                                            </a>
-                                        </li>*@
+                        <a href="~/Home/BankSummary" class="nav-link">
+                            <i class="fas fa-home"></i>
+                            <p>Bank Summary</p>
+                        </a>
+                    </li>*@
                                     <li class="nav-item">
                                         <a href="~/Home/Dashboard" class="nav-link">
                                             <i class="fas fa-home"></i>
@@ -248,6 +248,7 @@
                                     </li>
                                 </ul>
                             </li>
+
 
                             <!-- Account Reserve -->
                             <li class="nav-item">
@@ -358,6 +359,26 @@
                                     </li>
                                 </ul>
                             </li>
+
+                            if ((Session["OrgUnit"]?.ToString() ?? "") == "Branch")
+                            {
+                                <li class="nav-header" style="font-weight:600; letter-spacing:1px;">Account Mapping</li>
+                                <!-- Account Mapping -->
+
+                                <li class="nav-item">
+                                    <a href="~/AccountMappings/Create" class="nav-link">
+                                        <i class="fa fa-plus-circle"></i>
+                                        <p>Mapp Account</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="~/AccountMappings/Index" class="nav-link">
+                                        <i class="fa fa-list-alt"></i>
+                                        <p>View Account</p>
+                                    </a>
+                                </li>
+
+                            }
 
                             <li class="nav-header" style="font-weight:600; letter-spacing:1px;">REPORT</li>
 
@@ -511,6 +532,47 @@
                                     }
                                 </ul>
                             </li>
+
+                            <!-- ============================== -->
+                            <!--       Account Variation REPORTS        -->
+                            <!-- ============================== -->
+                            <li class="nav-item has-treeview">
+                                <a href="#" class="nav-link">
+                                    <i class="bi bi-graph-up-arrow"></i>
+                                    <p>
+                                        Account Variation
+                                        <i class="nav-arrow bi bi-chevron-right"></i>
+                                    </p>
+                                </a>
+
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="~/AccountVariationReport/UserVariationReport" class="nav-link">
+                                            <i class="far fa-circle nav-icon"></i>
+                                            <p>User Variation</p>
+                                        </a>
+                                    </li>
+
+                                    @if (Session["UserRole"].ToString() == "Super" || Session["UserRole"].ToString() == "SuperMerchant")
+                                    {
+                                        <li class="nav-item">
+                                            <a href="~/AccountVariationReport/BranchVariationReport" class="nav-link">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>By Branch Report</p>
+                                            </a>
+                                        </li>
+
+                                        <li class="nav-item">
+                                            <a href="~/AccountVariationReport/DistrictVariationReport" class="nav-link">
+                                                <i class="far fa-circle nav-icon"></i>
+                                                <p>By District Report</p>
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            </li>
+
+
 
 
                             if (Session["UserRole"].ToString() == "SuperMerchant")

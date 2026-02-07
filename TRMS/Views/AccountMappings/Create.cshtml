@@ -1,0 +1,189 @@
+﻿@model TRMS.Models.AccountMapping
+@{
+    ViewBag.Title = "Create Account Mapping";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style type="text/css">
+    :root {
+        --primary: #00AEEF;
+        --primary-dark: #008cc7;
+        --primary-gradient: linear-gradient(135deg, #00AEEF, #0077b6);
+        --success: #198754;
+        --danger: #dc3545;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --gray: #6c757d;
+        --border-radius: 1rem;
+        --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 1.25rem 2rem;
+        text-align: center;
+        font-weight: 600;
+        font-size: 1.35rem;
+        letter-spacing: 0.4px;
+        border-radius: var(--border-radius) var(--border-radius) 0 0;
+    }
+
+        .card-header i {
+            margin-right: 0.6rem;
+        }
+
+    hr {
+        height: 2px;
+        background: var(--primary);
+        border: none;
+        margin: 1.5rem 0;
+        opacity: 0.7;
+    }
+
+    .form-floating > .form-control:focus ~ label,
+    .form-floating > .form-control:not(:placeholder-shown) ~ label {
+        color: var(--primary);
+    }
+
+    .btn-save {
+        background: var(--primary-gradient);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 0.65rem 2.5rem;
+    }
+
+    .btn-back {
+        color: var(--dark);
+    }
+
+    .text-primary-brand {
+        color: var(--primary);
+    }
+</style>
+
+<div class="container-fluid px-4">
+    <div class="card shadow-sm border-0 mt-4" style="border-radius: var(--border-radius); overflow: hidden;">
+        <div class="card-header">
+            <i class="fas fa-plus-circle"></i> Create New Account Mapping
+        </div>
+        <div class="card-body p-4 p-md-5">
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">
+                    @Html.Raw(TempData["ErrorMessage"])
+                </div>
+            }
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">
+                    <strong>Success!</strong> @TempData["SuccessMessage"]
+                </div>
+            }
+
+            @using (Html.BeginForm("Create", "AccountMappings", FormMethod.Post, new { @class = "needs-validation" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "text-danger mb-4 fw-bold" })
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            @Html.EditorFor(model => model.AccountNumber, new { htmlAttributes = new { @class = "form-control", placeholder = "Account Number" } })
+                            @Html.LabelFor(model => model.AccountNumber, "Account Number")
+                            @Html.ValidationMessageFor(model => model.AccountNumber, "", new { @class = "text-danger small mt-1" })
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            @Html.EditorFor(model => model.AccountHolder, new { htmlAttributes = new { @class = "form-control", placeholder = "Account Holder", @Value = ViewBag.AccountHolder, @readonly = "readonly" } })
+                            @Html.LabelFor(model => model.AccountHolder, "Account Holder")
+                            @Html.ValidationMessageFor(model => model.AccountHolder, "", new { @class = "text-danger small mt-1" })
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <input type="submit" name="submit" value="Validate" class="btn btn-outline-primary btn-sm px-4" />
+                    </div>
+                    <!-- Row 2 -->
+
+
+                    <div class="col-md-6" style="display: none;">
+                        <div class="form-floating">
+                            @Html.EditorFor(model => model.BegginingBalance, new { htmlAttributes = new { @class = "form-control", placeholder = "0.00", @Value = ViewBag.BeginningBalance, type = "number", step = "0.01", @readonly = "readonly" } })
+                            @Html.LabelFor(model => model.BegginingBalance, "Beginning Balance")
+                            @Html.ValidationMessageFor(model => model.BegginingBalance, "", new { @class = "text-danger small mt-1" })
+                        </div>
+                    </div>
+
+                    <div class="col-md-6" style="display: none;">
+                        <div class="form-floating">
+                            @Html.EditorFor(model => model.CurrentBalance, new { htmlAttributes = new { @class = "form-control", placeholder = "0.00", @Value = ViewBag.CurrentBalance, type = "number", step = "0.01", @readonly = "readonly" } })
+                            @Html.LabelFor(model => model.CurrentBalance, "Current Balance")
+                            @Html.ValidationMessageFor(model => model.CurrentBalance, "", new { @class = "text-danger small mt-1" })
+                        </div>
+                    </div>
+
+                    @*<div class="col-md-6">
+                        <div class="form-floating">
+                            @Html.EditorFor(model => model.District, new { htmlAttributes = new { @class = "form-control", placeholder = "District" } })
+                            @Html.LabelFor(model => model.District, "District")
+                            @Html.ValidationMessageFor(model => model.District, "", new { @class = "text-danger small mt-1" })
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            @Html.EditorFor(model => model.Branch, new { htmlAttributes = new { @class = "form-control", placeholder = "Branch" } })
+                            @Html.LabelFor(model => model.Branch, "Branch")
+                            @Html.ValidationMessageFor(model => model.Branch, "", new { @class = "text-danger small mt-1" })
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            @Html.EditorFor(model => model.UserName, new { htmlAttributes = new { @class = "form-control", placeholder = "Username" } })
+                            @Html.LabelFor(model => model.UserName, "Username")
+                            @Html.ValidationMessageFor(model => model.UserName, "", new { @class = "text-danger small mt-1" })
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            @Html.EditorFor(model => model.CreatedDate, new { htmlAttributes = new { @class = "form-control", placeholder = "Created Date", type = "date" } })
+                            @Html.LabelFor(model => model.CreatedDate, "Created Date")
+                            @Html.ValidationMessageFor(model => model.CreatedDate, "", new { @class = "text-danger small mt-1" })
+                        </div>
+                    </div>*@
+                </div>
+
+                <hr />
+
+                <div class="mt-4 text-end">
+                    <input  type="submit" name="submit" value="Map" class="btn btn-save px-5" />
+                    @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-outline-secondary ms-2" })
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Bootstrap client-side validation
+        (function () {
+            'use strict';
+            var forms = document.querySelectorAll('.needs-validation');
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
+    </script>
+}
