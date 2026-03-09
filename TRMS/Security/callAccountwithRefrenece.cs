@@ -78,7 +78,7 @@ namespace TRMS.Security
         public string GetBeginningBalance(string accountNumber)
         {
             // Build URL with parameters
-            string url = $"http://10.1.130.17:5108/api/balance?contractCode={accountNumber}";
+            string url = $"http://10.1.130.17:5108/api/balance/by-contract?contractCode={accountNumber}";
 
             using (var client = new HttpClient())
             {

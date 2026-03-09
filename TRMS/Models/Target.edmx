@@ -14,6 +14,8 @@
           <Property Name="AccountHolder" Type="nvarchar" MaxLength="100" />
           <Property Name="BegginingBalance" Type="decimal" Precision="18" Scale="2" />
           <Property Name="CurrentBalance" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="MMACC" Type="nvarchar" MaxLength="100" />
+          <Property Name="MMBAL" Type="decimal" Precision="18" Scale="2" />
           <Property Name="District" Type="nvarchar" MaxLength="100" />
           <Property Name="Branch" Type="nvarchar" MaxLength="100" />
           <Property Name="UserName" Type="nvarchar" MaxLength="100" />
@@ -389,7 +391,25 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
           <Property Name="BranchMerchantTarget" Type="int" />
           <Property Name="BranchFcyTarget" Type="decimal" Precision="18" Scale="2" />
         </EntityType>
-        <Association Name="FK__Branch__SubProce__72C60C4A">
+        <EntityType Name="VariationReport">
+          <Key>
+            <PropertyRef Name="Var_ID" />
+          </Key>
+          <Property Name="Var_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserID" Type="int" />
+          <Property Name="UserName" Type="nvarchar" MaxLength="100" />
+          <Property Name="Process" Type="nvarchar(max)" />
+          <Property Name="District" Type="nvarchar(max)" />
+          <Property Name="Branch" Type="nvarchar(max)" />
+          <Property Name="Position" Type="nvarchar(max)" />
+          <Property Name="Accounts" Type="nvarchar(max)" />
+          <Property Name="BeginningBalance" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="CurrentBalance" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="Variation" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="Change" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="UpdatedDate" Type="date" />
+        </EntityType>
+        <Association Name="FK__Branch__SubProce__74AE54BC">
           <End Role="Subprocess" Type="Self.Subprocess" Multiplicity="0..1" />
           <End Role="Branch" Type="Self.Branch" Multiplicity="*" />
           <ReferentialConstraint>
@@ -401,7 +421,7 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__Subproces__proce__787EE5A0">
+        <Association Name="FK__Subproces__proce__7A672E12">
           <End Role="Process" Type="Self.Process" Multiplicity="0..1" />
           <End Role="Subprocess" Type="Self.Subprocess" Multiplicity="*" />
           <ReferentialConstraint>
@@ -494,6 +514,7 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
           <EntitySet Name="UserAchieved" EntityType="Self.UserAchieved" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UserEngagement" EntityType="Self.UserEngagement" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="VariationReport" EntityType="Self.VariationReport" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DepositPlan_bkp" EntityType="Self.DepositPlan_bkp" store:Type="Tables" store:Schema="dbo">
             <DefiningQuery>SELECT 
     [DepositPlan_bkp].[DID] AS [DID], 
@@ -545,11 +566,11 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
     [mnemonicccsv].[AccountBalance] AS [AccountBalance]
     FROM [dbo].[mnemonicccsv] AS [mnemonicccsv]</DefiningQuery>
           </EntitySet>
-          <AssociationSet Name="FK__Branch__SubProce__72C60C4A" Association="Self.FK__Branch__SubProce__72C60C4A">
+          <AssociationSet Name="FK__Branch__SubProce__74AE54BC" Association="Self.FK__Branch__SubProce__74AE54BC">
             <End Role="Subprocess" EntitySet="Subprocess" />
             <End Role="Branch" EntitySet="Branch" />
           </AssociationSet>
-          <AssociationSet Name="FK__Subproces__proce__787EE5A0" Association="Self.FK__Subproces__proce__787EE5A0">
+          <AssociationSet Name="FK__Subproces__proce__7A672E12" Association="Self.FK__Subproces__proce__7A672E12">
             <End Role="Process" EntitySet="Process" />
             <End Role="Subprocess" EntitySet="Subprocess" />
           </AssociationSet>
@@ -588,6 +609,8 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
           <Property Name="AccountHolder" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="BegginingBalance" Type="Decimal" Precision="18" Scale="2" />
           <Property Name="CurrentBalance" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="MMACC" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="MMBAL" Type="Decimal" Precision="18" Scale="2" />
           <Property Name="District" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="Branch" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="UserName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
@@ -614,7 +637,7 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
           <Property Name="BranchCode" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="BranchName" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="SubProcess_id" Type="Int32" />
-          <NavigationProperty Name="Subprocess" Relationship="Self.FK__Branch__SubProce__72C60C4A" FromRole="Branch" ToRole="Subprocess" />
+          <NavigationProperty Name="Subprocess" Relationship="Self.FK__Branch__SubProce__74AE54BC" FromRole="Branch" ToRole="Subprocess" />
         </EntityType>
         <EntityType Name="BranchTarget">
           <Key>
@@ -789,7 +812,7 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
           <Property Name="proces_Id" Type="Int32" Nullable="false" />
           <Property Name="process_name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="process_acrnm" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
-          <NavigationProperty Name="Subprocesses" Relationship="Self.FK__Subproces__proce__787EE5A0" FromRole="Process" ToRole="Subprocess" />
+          <NavigationProperty Name="Subprocesses" Relationship="Self.FK__Subproces__proce__7A672E12" FromRole="Process" ToRole="Subprocess" />
         </EntityType>
         <EntityType Name="Subprocess">
           <Key>
@@ -799,8 +822,8 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
           <Property Name="subprocess_name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="sunprocess_acrnm" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="process_Id" Type="Int32" />
-          <NavigationProperty Name="Branches" Relationship="Self.FK__Branch__SubProce__72C60C4A" FromRole="Subprocess" ToRole="Branch" />
-          <NavigationProperty Name="Process" Relationship="Self.FK__Subproces__proce__787EE5A0" FromRole="Subprocess" ToRole="Process" />
+          <NavigationProperty Name="Branches" Relationship="Self.FK__Branch__SubProce__74AE54BC" FromRole="Subprocess" ToRole="Branch" />
+          <NavigationProperty Name="Process" Relationship="Self.FK__Subproces__proce__7A672E12" FromRole="Subprocess" ToRole="Process" />
         </EntityType>
         <EntityType Name="Transaction">
           <Key>
@@ -887,6 +910,24 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
           <NavigationProperty Name="DepositMerchantAgenets" Relationship="Self.FK_DepositMerchantAgenet_Users" FromRole="Users" ToRole="DepositMerchantAgenet" />
           <NavigationProperty Name="DepositPlans" Relationship="Self.FK_DepositPlan_Users" FromRole="Users" ToRole="DepositPlan" />
         </EntityType>
+        <EntityType Name="VariationReport">
+          <Key>
+            <PropertyRef Name="Var_ID" />
+          </Key>
+          <Property Name="Var_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserID" Type="Int32" />
+          <Property Name="UserName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Process" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="District" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Branch" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Position" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Accounts" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="BeginningBalance" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="CurrentBalance" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="Variation" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="Change" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="UpdatedDate" Type="DateTime" Precision="0" />
+        </EntityType>
         <EntityType Name="DepositPlan_bkp">
           <Key>
             <PropertyRef Name="DID" />
@@ -955,7 +996,7 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
           <Property Name="MNEMONIC" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="AccountBalance" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
         </EntityType>
-        <Association Name="FK__Branch__SubProce__72C60C4A">
+        <Association Name="FK__Branch__SubProce__74AE54BC">
           <End Role="Subprocess" Type="Self.Subprocess" Multiplicity="0..1" />
           <End Role="Branch" Type="Self.Branch" Multiplicity="*" />
           <ReferentialConstraint>
@@ -1027,7 +1068,7 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__Subproces__proce__787EE5A0">
+        <Association Name="FK__Subproces__proce__7A672E12">
           <End Role="Process" Type="Self.Process" Multiplicity="0..1" />
           <End Role="Subprocess" Type="Self.Subprocess" Multiplicity="*" />
           <ReferentialConstraint>
@@ -1060,10 +1101,11 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
           <EntitySet Name="UserAchieveds" EntityType="Self.UserAchieved" />
           <EntitySet Name="UserEngagements" EntityType="Self.UserEngagement" />
           <EntitySet Name="Users" EntityType="Self.User" />
+          <EntitySet Name="VariationReports" EntityType="Self.VariationReport" />
           <EntitySet Name="DepositPlan_bkp" EntityType="Self.DepositPlan_bkp" />
           <EntitySet Name="DepositPlanFinals" EntityType="Self.DepositPlanFinal" />
           <EntitySet Name="mnemonicccsvs" EntityType="Self.mnemonicccsv" />
-          <AssociationSet Name="FK__Branch__SubProce__72C60C4A" Association="Self.FK__Branch__SubProce__72C60C4A">
+          <AssociationSet Name="FK__Branch__SubProce__74AE54BC" Association="Self.FK__Branch__SubProce__74AE54BC">
             <End Role="Subprocess" EntitySet="Subprocesses" />
             <End Role="Branch" EntitySet="Branches" />
           </AssociationSet>
@@ -1087,7 +1129,7 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
             <End Role="Users" EntitySet="Users" />
             <End Role="DepositPlan" EntitySet="DepositPlans" />
           </AssociationSet>
-          <AssociationSet Name="FK__Subproces__proce__787EE5A0" Association="Self.FK__Subproces__proce__787EE5A0">
+          <AssociationSet Name="FK__Subproces__proce__7A672E12" Association="Self.FK__Subproces__proce__7A672E12">
             <End Role="Process" EntitySet="Processes" />
             <End Role="Subprocess" EntitySet="Subprocesses" />
           </AssociationSet>
@@ -1106,6 +1148,8 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
                 <ScalarProperty Name="AccountHolder" ColumnName="AccountHolder" />
                 <ScalarProperty Name="BegginingBalance" ColumnName="BegginingBalance" />
                 <ScalarProperty Name="CurrentBalance" ColumnName="CurrentBalance" />
+                <ScalarProperty Name="MMACC" ColumnName="MMACC" />
+                <ScalarProperty Name="MMBAL" ColumnName="MMBAL" />
                 <ScalarProperty Name="District" ColumnName="District" />
                 <ScalarProperty Name="Branch" ColumnName="Branch" />
                 <ScalarProperty Name="UserName" ColumnName="UserName" />
@@ -1409,6 +1453,25 @@ warning 6013: The table/view 'TRMS.dbo.ReverseReference' does not have a primary
                 <ScalarProperty Name="BranchDepositTarget" ColumnName="BranchDepositTarget" />
                 <ScalarProperty Name="BranchMerchantTarget" ColumnName="BranchMerchantTarget" />
                 <ScalarProperty Name="BranchFcyTarget" ColumnName="BranchFcyTarget" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="VariationReports">
+            <EntityTypeMapping TypeName="TRMSModel.VariationReport">
+              <MappingFragment StoreEntitySet="VariationReport">
+                <ScalarProperty Name="Var_ID" ColumnName="Var_ID" />
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+                <ScalarProperty Name="Process" ColumnName="Process" />
+                <ScalarProperty Name="District" ColumnName="District" />
+                <ScalarProperty Name="Branch" ColumnName="Branch" />
+                <ScalarProperty Name="Position" ColumnName="Position" />
+                <ScalarProperty Name="Accounts" ColumnName="Accounts" />
+                <ScalarProperty Name="BeginningBalance" ColumnName="BeginningBalance" />
+                <ScalarProperty Name="CurrentBalance" ColumnName="CurrentBalance" />
+                <ScalarProperty Name="Variation" ColumnName="Variation" />
+                <ScalarProperty Name="Change" ColumnName="Change" />
+                <ScalarProperty Name="UpdatedDate" ColumnName="UpdatedDate" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

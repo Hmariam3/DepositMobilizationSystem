@@ -131,6 +131,7 @@ namespace TRMS.Controllers
                     ViewBag.CurrentBalance = workingBalance;
 
                     // Fetch previous balance (string JSON)
+                    // Fetch previous balance (string JSON or error message)
                     string json = callbyReference.GetBeginningBalance(accountMapping.AccountNumber);
 
                     decimal Beginning = 0;
@@ -140,6 +141,7 @@ namespace TRMS.Controllers
                     {
                         try
                         {
+                            // Try parse as JSON first
                             JObject obj = JObject.Parse(json);
 
                             if (obj["lcyClosingBalance"] != null &&
@@ -148,16 +150,35 @@ namespace TRMS.Controllers
                                 Beginning = parsedValue;
                                 hasValidOpeningBalance = true;
                             }
+                        }
+                        catch (JsonException)
+                        {
+                            // Not JSON → maybe "Account not found"
+                            if (json.Contains("not found"))
+                            {
+                                // Use already available workingBalance variable
+                                if (!string.IsNullOrEmpty(workingBalance) &&
+                                    workingBalance != null &&
+                                    decimal.TryParse(workingBalance, out decimal parsedWorkingBalance))
+                                {
+                                    // New account → no January 31 balance → set to 0
+                                    Beginning = 0;
+                                    hasValidOpeningBalance = true;
+
+                                    System.Diagnostics.Debug.WriteLine(
+                                        $"New account detected: {accountMapping.AccountNumber}, Beginning balance set to 0");
+                                }
+                                else
+                                {
+                                    System.Diagnostics.Debug.WriteLine(
+                                        $"Account not found AND no valid working balance for {accountMapping.AccountNumber}");
+                                }
+                            }
                             else
                             {
                                 System.Diagnostics.Debug.WriteLine(
-                                    $"Closing balance missing or invalid for account {accountMapping.AccountNumber}");
+                                    $"Unexpected response for account {accountMapping.AccountNumber}: {json}");
                             }
-                        }
-                        catch (JsonException ex)
-                        {
-                            System.Diagnostics.Debug.WriteLine(
-                                $"JSON parse error for account {accountMapping.AccountNumber}: {ex.Message}");
                         }
                     }
                     else
@@ -167,17 +188,17 @@ namespace TRMS.Controllers
                     }
 
 
-                    // Now decide what to show in UI
+                    // UI Decision
                     if (hasValidOpeningBalance)
                     {
                         ViewBag.BeginningBalance = Beginning;
-                        ViewBag.BeginningBalanceStatus = "success"; // optional - for UI coloring
+                        ViewBag.BeginningBalanceStatus = "success";
                     }
                     else
                     {
-                        ViewBag.BeginningBalance = null;                  // or "-" or string.Empty
-                        ViewBag.BeginningBalanceStatus = "error";         // optional
-                        ViewBag.BeginningBalanceError = "Unable to load Beginning balance"; // optional message
+                        ViewBag.BeginningBalance = null;
+                        ViewBag.BeginningBalanceStatus = "error";
+                        ViewBag.BeginningBalanceError = "Unable to load Beginning balance";
                     }
 
 
@@ -342,6 +363,78 @@ namespace TRMS.Controllers
             db.AccountMappings.Remove(accountMapping);
             db.SaveChanges();
             return RedirectToAction("Index");
+        }
+
+        // GET: AccountMappings/Transfer
+        public ActionResult Transfer()
+        {
+            if (Session["UserName"] == null)
+            {
+                return RedirectToAction("login", "User");
+            }
+            return View();
+        }
+
+        [HttpGet]
+        public JsonResult GetUserInfo(string username)
+        {
+            var user = db.Users.FirstOrDefault(u => u.UserName == username);
+            if (user != null)
+            {
+                return Json(new { success = true, fullName = user.FullName, branch = user.Branch, district = user.District }, JsonRequestBehavior.AllowGet);
+            }
+            return Json(new { success = false, message = "User not found." }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public JsonResult GetUserAccounts(string username)
+        {
+            var accounts = db.AccountMappings
+                .Where(am => am.UserName == username)
+                .Select(am => new
+                {
+                    am.AccountNumber,
+                    am.AccountHolder,
+                    am.Branch,
+                    am.District,
+                    am.CurrentBalance
+                }).ToList();
+
+            return Json(new { success = true, accounts = accounts }, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult ExecuteBatchTransfer(string fromUserName, string toUserName)
+        {
+            try
+            {
+                var targetUser = db.Users.FirstOrDefault(u => u.UserName == toUserName);
+                if (targetUser == null)
+                {
+                    return Json(new { success = false, message = "Target user not found." });
+                }
+
+                var accountsToTransfer = db.AccountMappings.Where(am => am.UserName == fromUserName).ToList();
+                if (!accountsToTransfer.Any())
+                {
+                    return Json(new { success = false, message = "No accounts found for the source user." });
+                }
+
+                foreach (var account in accountsToTransfer)
+                {
+                    account.UserName = toUserName;
+                    account.Branch = targetUser.Branch;
+                    account.District = targetUser.District;
+                    db.Entry(account).State = EntityState.Modified;
+                }
+
+                db.SaveChanges();
+                return Json(new { success = true, message = $"{accountsToTransfer.Count} accounts transferred successfully to {targetUser.FullName}." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "An error occurred: " + ex.Message });
+            }
         }
 
         protected override void Dispose(bool disposing)

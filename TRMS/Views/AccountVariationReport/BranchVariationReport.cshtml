@@ -66,6 +66,7 @@
                 <tr>
                     <th style="width:60px">No</th>
                     <th>Branch</th>
+                    <th>District</th>
                     <th># Accounts</th>
                     <th>Beginning Balance</th>
                     <th>Current Balance</th>
@@ -163,6 +164,7 @@
                         }
                     },
                     { "data": "Branch" },
+                    { "data": "District" },
                     { "data": "CountAccounts", className: "text-center" },
                     {
                         "data": "Beginning",
@@ -253,7 +255,7 @@
 
                         // Columns
                         exportData.push([
-                            "No", "Branch", "Accounts", "Beginning Balance", "Current Balance",
+                            "No", "Branch", "District", "Accounts", "Beginning Balance", "Current Balance",
                             "Variation", "% Change"
                         ]);
 
@@ -274,6 +276,7 @@
                             exportData.push([
                                 i + 1,
                                 row.Branch || '-',
+                                row.District || '-',
                                 row.CountAccounts || 0,
                                 beg,
                                 cur,
@@ -288,6 +291,7 @@
                         exportData.push([]);
                         exportData.push([
                             "TOTAL", "",
+                            "",
                             "",
                             totalBeginning,
                             totalCurrent,
@@ -320,11 +324,11 @@
                                     cell.s = {
                                         font: { bold: isTotal },
                                         fill: isTotal ? { fgColor: { rgb: "D9E2F3" } } : undefined,
-                                        alignment: { horizontal: C >= 3 ? "right" : "left" },
+                                        alignment: { horizontal: C >= 4 ? "right" : "left" },
                                         border: { top: { style: "thin" }, bottom: { style: isTotal ? "double" : "thin" }, left: { style: "thin" }, right: { style: "thin" } }
                                     };
                                     
-                                    if (C === 6 && !isTotal) { // % Change
+                                    if (C === 7 && !isTotal) { // % Change
                                         const val = (cell.v || 0) * 100;
                                         const color = val > 0 ? "27AE60" : val < 0 ? "E74C3C" : "555555";
                                         cell.s.font = { bold: true, color: { rgb: color } };
@@ -334,23 +338,40 @@
                         }
 
                         ws['!cols'] = [
-                            { wch: 6 }, { wch: 30 }, { wch: 12 }, { wch: 18 },
-                            { wch: 18 }, { wch: 16 }, { wch: 12 }
+                            { wch: 6 },  // A: No
+                            { wch: 30 }, // B: Branch
+                            { wch: 25 }, // C: District (Maximized)
+                            { wch: 12 }, // D: Accounts
+                            { wch: 18 }, // E: Beginning Balance
+                            { wch: 18 }, // F: Current Balance
+                            { wch: 18 }, // G: Variation
+                            { wch: 12 }  // H: % Change
                         ];
                         
                         ws['!merges'] = [
-                            { s: { r: 0, c: 0 }, e: { r: 0, c: 6 } },
-                            { s: { r: exportData.length - 1, c: 0 }, e: { r: exportData.length - 1, c: 1 } }
+                            { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } },
+                            { s: { r: exportData.length - 1, c: 0 }, e: { r: exportData.length - 1, c: 3 } }
                         ];
 
                         // Number formats
                         for (let r = 7; r < exportData.length - 1; r++) {
-                            ['D','E','F'].forEach(col => { const c = ws[col + (r+1)]; if (c) c.z = "#,##0.00"; });
-                            const pc = ws['G' + (r+1)]; if (pc) pc.z = "0.00%";
+                            // Accounts (Col D) - Integer
+                            const ac = ws['D' + (r+1)]; if (ac) ac.z = "#,##0";
+                            
+                            // Money columns (E, F, G)
+                            ['E','F','G'].forEach(col => { 
+                                const c = ws[col + (r+1)]; 
+                                if (c) c.z = "#,##0.00"; 
+                            });
+                            
+                            // % Change (Col H)
+                            const pc = ws['H' + (r+1)]; if (pc) pc.z = "0.00%";
                         }
-                        ['D','E','F','G'].forEach(col => {
+
+                        // Totals Row
+                        ['E','F','G','H'].forEach(col => {
                             const c = ws[col + exportData.length];
-                            if (c) c.z = col === 'G' ? "0.00%" : "#,##0.00";
+                            if (c) c.z = col === 'H' ? "0.00%" : "#,##0.00";
                         });
 
                         XLSX.utils.book_append_sheet(wb, ws, "Branch Variation");

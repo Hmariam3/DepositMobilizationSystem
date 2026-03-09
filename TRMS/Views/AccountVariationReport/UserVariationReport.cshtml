@@ -61,7 +61,6 @@
                 <tr>
                     <th style="width:60px">No</th>
                     <th>Full Name</th>
-                    <th>Accounts</th>
                     <th># Accounts</th>
                     <th>Branch</th>
                     <th>District</th>
@@ -69,8 +68,8 @@
                     <th>Current Balance</th>
                     <th>Variation</th>
                     <th>% Change</th>
-                </tr>
-            </thead>
+                                </tr>
+                            </thead>
             <tbody></tbody>
         </table>
     </div>
@@ -162,14 +161,6 @@
                     },
                     { "data": "FullName" },
                     {
-                        "data": "AccountsList",
-                        "render": function (data) {
-                            if (!data || data.length === 0) return "-";
-                            return '<div style="max-width:300px; white-space:normal; word-wrap:break-word;">' + data.join(", ") + '</div>';
-                        },
-                        "className": "small text-muted"
-                    },
-                    {
                         "data": "AccountCount",
                         "className": "text-center fw-bold"
                     },
@@ -260,7 +251,7 @@
 
                         // 3. Column Headers
                         exportData.push([
-                            "No", "Full Name", "Accounts", "# Accounts", "Branch", "District",
+                            "No", "Full Name", "# Accounts", "Branch", "District",
                             "Beginning Balance", "Current Balance", "Variation", "% Change"
                         ]);
 
@@ -270,7 +261,6 @@
                         let totalVariation = 0;
 
                         allData.forEach((row, i) => {
-                            const accounts = (row.AccountsList && row.AccountsList.length > 0) ? row.AccountsList.join(", ") : "-";
                             const beg = parseFloat(row.Beginning || 0);
                             const cur = parseFloat(row.Current || 0);
                             const vari = parseFloat(row.Variation || 0);
@@ -282,7 +272,6 @@
                             exportData.push([
                                 i + 1,
                                 row.FullName || "N/A",
-                                accounts,
                                 row.AccountCount || 0,
                                 row.Branch || "-",
                                 row.District || "-",
@@ -299,7 +288,7 @@
 
                         exportData.push([]);
                         exportData.push([
-                            "GRAND TOTAL", "", "", "",
+                            "GRAND TOTAL", "", "",
                             "", "",
                             totalBeginning,
                             totalCurrent,
@@ -338,17 +327,15 @@
                                         font: { bold: isTotal },
                                         fill: isTotal ? { fgColor: { rgb: "D9E2F3" } } : undefined,
                                         alignment: { 
-                                            horizontal: C >= 6 ? "right" : (C === 3 ? "center" : "left"), // Center #Accounts (C=3)
-                                            vertical: "top", // Top align for wrapped text
-                                            wrapText: C === 2 // Wrap text for Accounts (C=2)
+                                            horizontal: C >= 5 ? "right" : (C === 2 ? "center" : "left"), // Right align numbers, center #Accounts
+                                            vertical: "top"
                                         },
                                         border: { top: { style: "thin" }, bottom: { style: isTotal ? "double" : "thin" }, left: { style: "thin" }, right: { style: "thin" } }
                                     };
                                     
-                                    // Conditional Formatting for % Change (Col Index 9 / Col J)
-                                    if (C === 9 && !isTotal) { 
-                                        const val = (cell.v || 0) * 100;
-                                        // Green for positive, Red for negative (Variation Logic)
+                                    // Conditional Formatting for Variation (Col H - index 7) and % Change (Col I - index 8)
+                                    if ((C === 7 || C === 8) && !isTotal) { 
+                                        const val = parseFloat(cell.v || 0);
                                         const color = val > 0 ? "27AE60" : val < 0 ? "E74C3C" : "555555"; 
                                         cell.s.font = { bold: true, color: { rgb: color } };
                                     }
@@ -358,30 +345,33 @@
 
                         // Col Widths
                         ws['!cols'] = [
-                            { wch: 6 }, { wch: 28 }, { wch: 40 }, { wch: 12 },
+                            { wch: 6 }, { wch: 28 }, { wch: 12 },
                             { wch: 20 }, { wch: 20 }, { wch: 18 }, { wch: 18 },
-                            { wch: 16 }, { wch: 12 }
+                            { wch: 18 }, { wch: 12 }
                         ];
 
                         // Merges
                         ws['!merges'] = [
-                            { s: { r: 0, c: 0 }, e: { r: 0, c: 9 } }, // Title
-                            { s: { r: exportData.length - 1, c: 0 }, e: { r: exportData.length - 1, c: 5 } } // Total Label
+                            { s: { r: 0, c: 0 }, e: { r: 0, c: 8 } }, // Title
+                            { s: { r: exportData.length - 1, c: 0 }, e: { r: exportData.length - 1, c: 4 } } // Total Label
                         ];
 
                         // Number Formats
                         for (let r = 8; r < exportData.length - 1; r++) {
-                            ['G', 'H', 'I'].forEach(col => {
+                            // Accounts (Col C) - Integer
+                            const ac = ws['C' + (r + 1)]; if (ac) ac.z = "#,##0";
+
+                            ['F', 'G', 'H'].forEach(col => {
                                 const c = ws[col + (r + 1)];
                                 if (c) c.z = "#,##0.00";
                             });
-                            const pc = ws['J' + (r + 1)];
+                            const pc = ws['I' + (r + 1)];
                             if (pc) pc.z = "0.00%";
                         }
 
-                        ['G', 'H', 'I', 'J'].forEach(col => {
+                        ['F', 'G', 'H', 'I'].forEach(col => {
                             const c = ws[col + exportData.length];
-                            if (c) c.z = col === 'J' ? "0.00%" : "#,##0.00";
+                            if (c) c.z = col === 'I' ? "0.00%" : "#,##0.00";
                         });
 
                         XLSX.utils.book_append_sheet(wb, ws, "User Variation");

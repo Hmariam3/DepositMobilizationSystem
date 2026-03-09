@@ -85,54 +85,54 @@
                 <!-- Right Side: User Dropdown -->
                 <ul class="navbar-nav ms-auto">
                     @*<ul class="navbar-nav ms-auto">
-                            <li class="nav-item dropdown">
-                                <button class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center"
-                                        id="bd-theme"
-                                        type="button"
-                                        aria-expanded="false"
-                                        data-bs-toggle="dropdown"
-                                        data-bs-display="static">
-                                    <span class="theme-icon-active">
-                                        <i class="my-1"></i>
-                                    </span>
-                                    <span class="d-lg-none ms-2" id="bd-theme-text">Toggle theme</span>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end"
-                                    aria-labelledby="bd-theme-text"
-                                    style="--bs-dropdown-min-width: 8rem;">
-                                    <li>
-                                        <button type="button"
-                                                class="dropdown-item d-flex align-items-center active"
-                                                data-bs-theme-value="light"
-                                                aria-pressed="false">
-                                            <i class="bi bi-sun-fill me-2"></i>
-                                            Light
-                                            <i class="bi bi-check-lg ms-auto d-none"></i>
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button type="button"
-                                                class="dropdown-item d-flex align-items-center"
-                                                data-bs-theme-value="dark"
-                                                aria-pressed="false">
-                                            <i class="bi bi-moon-fill me-2"></i>
-                                            Dark
-                                            <i class="bi bi-check-lg ms-auto d-none"></i>
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button type="button"
-                                                class="dropdown-item d-flex align-items-center"
-                                                data-bs-theme-value="auto"
-                                                aria-pressed="true">
-                                            <i class="bi bi-circle-fill-half-stroke me-2"></i>
-                                            Auto
-                                            <i class="bi bi-check-lg ms-auto d-none"></i>
-                                        </button>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>*@
+                        <li class="nav-item dropdown">
+                            <button class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center"
+                                    id="bd-theme"
+                                    type="button"
+                                    aria-expanded="false"
+                                    data-bs-toggle="dropdown"
+                                    data-bs-display="static">
+                                <span class="theme-icon-active">
+                                    <i class="my-1"></i>
+                                </span>
+                                <span class="d-lg-none ms-2" id="bd-theme-text">Toggle theme</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end"
+                                aria-labelledby="bd-theme-text"
+                                style="--bs-dropdown-min-width: 8rem;">
+                                <li>
+                                    <button type="button"
+                                            class="dropdown-item d-flex align-items-center active"
+                                            data-bs-theme-value="light"
+                                            aria-pressed="false">
+                                        <i class="bi bi-sun-fill me-2"></i>
+                                        Light
+                                        <i class="bi bi-check-lg ms-auto d-none"></i>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button type="button"
+                                            class="dropdown-item d-flex align-items-center"
+                                            data-bs-theme-value="dark"
+                                            aria-pressed="false">
+                                        <i class="bi bi-moon-fill me-2"></i>
+                                        Dark
+                                        <i class="bi bi-check-lg ms-auto d-none"></i>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button type="button"
+                                            class="dropdown-item d-flex align-items-center"
+                                            data-bs-theme-value="auto"
+                                            aria-pressed="true">
+                                        <i class="bi bi-circle-fill-half-stroke me-2"></i>
+                                        Auto
+                                        <i class="bi bi-check-lg ms-auto d-none"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>*@
                     <li class="nav-item dropdown user-menu">
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                             <img src="~/dist/assets/img/FREE-PROFILE-AVATARS.jpg" class="user-image rounded-circle shadow" alt="User Image" />
@@ -249,13 +249,12 @@
                                 </ul>
                             </li>
 
-
                             <!-- Account Reserve -->
                             <li class="nav-item">
                                 <a href="#" class="nav-link">
                                     <i class="fa fa-money"></i>
                                     <p>
-                                        Account Reserve
+                                       Account Reserve
                                         <i class="nav-arrow bi bi-chevron-right"></i>
                                     </p>
                                 </a>
@@ -359,27 +358,43 @@
                                     </li>
                                 </ul>
                             </li>
-
-                            if ((Session["OrgUnit"]?.ToString() ?? "") == "Branch")
+                            if ((Session["OrgUnit"]?.ToString() ?? "") == "Branch" || (Session["username"]?.ToString() ?? "") == "hailemariamk")                         
                             {
-                                <li class="nav-header" style="font-weight:600; letter-spacing:1px;">Account Mapping</li>
+                                <li class="nav-header" style="font-weight:600; letter-spacing:1px;">ACCOUNT MAPPING</li>
                                 <!-- Account Mapping -->
-
                                 <li class="nav-item">
-                                    <a href="~/AccountMappings/Create" class="nav-link">
-                                        <i class="fa fa-plus-circle"></i>
-                                        <p>Mapp Account</p>
+                                    <a href="#" class="nav-link">
+                                        <i class="fa fa-money"></i>
+                                        <p>
+                                            Account Mapping
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
                                     </a>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/AccountMappings/Create" class="nav-link">
+                                                <i class="fa fa-plus-circle"></i>
+                                                <p>Map Account</p>
+                                            </a>
+                                        </li>
+                                        @if ((Session["username"]?.ToString() ?? "") == "hailemariamk")
+                                        {
+                                            <li class="nav-item">
+                                                <a href="~/AccountMappings/Transfer" class="nav-link">
+                                                    <i class="fa fa-exchange-alt"></i>
+                                                    <p>Transfer Account</p>
+                                                </a>
+                                            </li>
+                                        }
+                                            <li class="nav-item">
+                                                <a href="~/AccountMappings/Index" class="nav-link">
+                                                    <i class="fa fa-list-alt"></i>
+                                                    <p>View Account</p>
+                                                </a>
+                                            </li>
+                                        </ul>
                                 </li>
-                                <li class="nav-item">
-                                    <a href="~/AccountMappings/Index" class="nav-link">
-                                        <i class="fa fa-list-alt"></i>
-                                        <p>View Account</p>
-                                    </a>
-                                </li>
-
                             }
-
                             <li class="nav-header" style="font-weight:600; letter-spacing:1px;">REPORT</li>
 
                             <!-- ============================== -->
@@ -507,7 +522,7 @@
                                         </a>
                                     </li>
 
-                                    @if (Session["UserRole"].ToString() == "Super" || Session["UserRole"].ToString() == "SuperMerchant")
+                                    @if (Session["UserRole"].ToString() == "Super")
                                     {
                                         <li class="nav-item">
                                             <a href="~/FcyReport/FcyProcessReport" class="nav-link">
@@ -533,49 +548,49 @@
                                 </ul>
                             </li>
 
-                            <!-- ============================== -->
-                            <!--       Account Variation REPORTS        -->
-                            <!-- ============================== -->
-                            <li class="nav-item has-treeview">
-                                <a href="#" class="nav-link">
-                                    <i class="bi bi-graph-up-arrow"></i>
-                                    <p>
-                                        Account Variation
-                                        <i class="nav-arrow bi bi-chevron-right"></i>
-                                    </p>
-                                </a>
+                            if((Session["UserRole"]?.ToString() ?? "") == "Super" || (Session["OrgUnit"]?.ToString() ?? "") == "Branch" || (Session["OrgUnit"]?.ToString() ?? "") == "District")
+                            {
+                                <!-- ============================== -->
+                                <!--       Account Variation REPORTS        -->
+                                <!-- ============================== -->
+                                <li class="nav-item has-treeview">
+                                    <a href="#" class="nav-link">
+                                        <i class="bi bi-graph-up-arrow"></i>
+                                        <p>
+                                            Account Variation
+                                            <i class="nav-arrow bi bi-chevron-right"></i>
+                                        </p>
+                                    </a>
 
-                                <ul class="nav nav-treeview">
-                                    <li class="nav-item">
-                                        <a href="~/AccountVariationReport/UserVariationReport" class="nav-link">
-                                            <i class="far fa-circle nav-icon"></i>
-                                            <p>User Variation</p>
-                                        </a>
-                                    </li>
-
-                                    @if (Session["UserRole"].ToString() == "Super" || Session["UserRole"].ToString() == "SuperMerchant")
-                                    {
+                                    <ul class="nav nav-treeview">
                                         <li class="nav-item">
-                                            <a href="~/AccountVariationReport/BranchVariationReport" class="nav-link">
+                                            <a href="~/AccountVariationReport/UserVariationReport" class="nav-link">
                                                 <i class="far fa-circle nav-icon"></i>
-                                                <p>By Branch Report</p>
+                                                <p>User Variation</p>
                                             </a>
                                         </li>
 
-                                        <li class="nav-item">
-                                            <a href="~/AccountVariationReport/DistrictVariationReport" class="nav-link">
-                                                <i class="far fa-circle nav-icon"></i>
-                                                <p>By District Report</p>
-                                            </a>
-                                        </li>
-                                    }
-                                </ul>
-                            </li>
+                                        @if (Session["UserRole"].ToString() == "Super")
+                                        {
+                                            <li class="nav-item">
+                                                <a href="~/AccountVariationReport/BranchVariationReport" class="nav-link">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>By Branch Report</p>
+                                                </a>
+                                            </li>
 
+                                            <li class="nav-item">
+                                                <a href="~/AccountVariationReport/DistrictVariationReport" class="nav-link">
+                                                    <i class="far fa-circle nav-icon"></i>
+                                                    <p>By District Report</p>
+                                                </a>
+                                            </li>
+                                        }
+                                    </ul>
+                                </li>
+                            }
 
-
-
-                            if (Session["UserRole"].ToString() == "SuperMerchant")
+                            if (Session["UserRole"].ToString() == "SuperMerchant" || (Session["username"]?.ToString() ?? "") == "gedions")
                             {
                                 <li class="nav-item">
                                     <a href="#" class="nav-link">
@@ -674,7 +689,6 @@
     @*<script src="~/dist/js/xlsx.full.min.js"></script>*@
     <script src="~/dist/js/xlsx.bundle.js"></script>
 
-
     <!-- Scripts -->
     <script>
         // OverlayScrollbars
@@ -715,87 +729,87 @@
         });
     </script>
     @*<script>
-            // Color Mode Toggler
-            (() => {
-                "use strict";
+        // Color Mode Toggler
+        (() => {
+            "use strict";
 
-                const storedTheme = localStorage.getItem("theme");
+            const storedTheme = localStorage.getItem("theme");
 
-                const getPreferredTheme = () => {
-                    if (storedTheme) {
-                        return storedTheme;
-                    }
+            const getPreferredTheme = () => {
+                if (storedTheme) {
+                    return storedTheme;
+                }
 
-                    return window.matchMedia("(prefers-color-scheme: light)").matches
-                        ? "dark"
-                        : "light";
-                };
+                return window.matchMedia("(prefers-color-scheme: light)").matches
+                    ? "dark"
+                    : "light";
+            };
 
-                const setTheme = function (theme) {
-                    if (
-                        theme === "auto" &&
-                        window.matchMedia("(prefers-color-scheme: dark)").matches
-                    ) {
-                        document.documentElement.setAttribute("data-bs-theme", "dark");
-                    } else {
-                        document.documentElement.setAttribute("data-bs-theme", theme);
-                    }
-                };
+            const setTheme = function (theme) {
+                if (
+                    theme === "auto" &&
+                    window.matchMedia("(prefers-color-scheme: dark)").matches
+                ) {
+                    document.documentElement.setAttribute("data-bs-theme", "dark");
+                } else {
+                    document.documentElement.setAttribute("data-bs-theme", theme);
+                }
+            };
 
-                setTheme(getPreferredTheme());
+            setTheme(getPreferredTheme());
 
-                const showActiveTheme = (theme, focus = false) => {
-                    const themeSwitcher = document.querySelector("#bd-theme");
+            const showActiveTheme = (theme, focus = false) => {
+                const themeSwitcher = document.querySelector("#bd-theme");
 
-                    if (!themeSwitcher) {
-                        return;
-                    }
+                if (!themeSwitcher) {
+                    return;
+                }
 
-                    const themeSwitcherText = document.querySelector("#bd-theme-text");
-                    const activeThemeIcon = document.querySelector(".theme-icon-active i");
-                    const btnToActive = document.querySelector(
-                        `[data-bs-theme-value="${theme}"]`
-                    );
-                    const svgOfActiveBtn = btnToActive.querySelector("i").getAttribute("class");
+                const themeSwitcherText = document.querySelector("#bd-theme-text");
+                const activeThemeIcon = document.querySelector(".theme-icon-active i");
+                const btnToActive = document.querySelector(
+                    `[data-bs-theme-value="${theme}"]`
+                );
+                const svgOfActiveBtn = btnToActive.querySelector("i").getAttribute("class");
 
-                    for (const element of document.querySelectorAll("[data-bs-theme-value]")) {
-                        element.classList.remove("active");
-                        element.setAttribute("aria-pressed", "false");
-                    }
+                for (const element of document.querySelectorAll("[data-bs-theme-value]")) {
+                    element.classList.remove("active");
+                    element.setAttribute("aria-pressed", "false");
+                }
 
-                    btnToActive.classList.add("active");
-                    btnToActive.setAttribute("aria-pressed", "true");
-                    activeThemeIcon.setAttribute("class", svgOfActiveBtn);
-                    const themeSwitcherLabel = `${themeSwitcherText.textContent} (${btnToActive.dataset.bsThemeValue})`;
-                    themeSwitcher.setAttribute("aria-label", themeSwitcherLabel);
+                btnToActive.classList.add("active");
+                btnToActive.setAttribute("aria-pressed", "true");
+                activeThemeIcon.setAttribute("class", svgOfActiveBtn);
+                const themeSwitcherLabel = `${themeSwitcherText.textContent} (${btnToActive.dataset.bsThemeValue})`;
+                themeSwitcher.setAttribute("aria-label", themeSwitcherLabel);
 
-                    if (focus) {
-                        themeSwitcher.focus();
-                    }
-                };
+                if (focus) {
+                    themeSwitcher.focus();
+                }
+            };
 
-                window
-                    .matchMedia("(prefers-color-scheme: light)")
-                    .addEventListener("change", () => {
-                        if (storedTheme !== "light" || storedTheme !== "dark") {
-                            setTheme(getPreferredTheme());
-                        }
-                    });
-
-                window.addEventListener("DOMContentLoaded", () => {
-                    showActiveTheme(getPreferredTheme());
-
-                    for (const toggle of document.querySelectorAll("[data-bs-theme-value]")) {
-                        toggle.addEventListener("click", () => {
-                            const theme = toggle.getAttribute("data-bs-theme-value");
-                            localStorage.setItem("theme", theme);
-                            setTheme(theme);
-                            showActiveTheme(theme, true);
-                        });
+            window
+                .matchMedia("(prefers-color-scheme: light)")
+                .addEventListener("change", () => {
+                    if (storedTheme !== "light" || storedTheme !== "dark") {
+                        setTheme(getPreferredTheme());
                     }
                 });
-            })();
-        </script>*@
+
+            window.addEventListener("DOMContentLoaded", () => {
+                showActiveTheme(getPreferredTheme());
+
+                for (const toggle of document.querySelectorAll("[data-bs-theme-value]")) {
+                    toggle.addEventListener("click", () => {
+                        const theme = toggle.getAttribute("data-bs-theme-value");
+                        localStorage.setItem("theme", theme);
+                        setTheme(theme);
+                        showActiveTheme(theme, true);
+                    });
+                }
+            });
+        })();
+    </script>*@
     <script src="~/dist/js/apexchart.js"></script>
     @RenderSection("scripts", required: false)
 

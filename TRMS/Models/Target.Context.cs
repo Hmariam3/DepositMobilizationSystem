@@ -45,6 +45,7 @@ namespace TRMS.Models
         public virtual DbSet<UserAchieved> UserAchieveds { get; set; }
         public virtual DbSet<UserEngagement> UserEngagements { get; set; }
         public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<VariationReport> VariationReports { get; set; }
         public virtual DbSet<DepositPlan_bkp> DepositPlan_bkp { get; set; }
         public virtual DbSet<DepositPlanFinal> DepositPlanFinals { get; set; }
         public virtual DbSet<mnemonicccsv> mnemonicccsvs { get; set; }

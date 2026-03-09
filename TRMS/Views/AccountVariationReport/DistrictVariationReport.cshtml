@@ -336,11 +336,14 @@
                         
                         ws['!merges'] = [
                             { s: { r: 0, c: 0 }, e: { r: 0, c: 6 } }, // Match new col count (7 cols: 0-6)
-                            { s: { r: exportData.length - 1, c: 0 }, e: { r: exportData.length - 1, c: 1 } } // Merge Total label (Cols 0-1)
+                            { s: { r: exportData.length - 1, c: 0 }, e: { r: exportData.length - 1, c: 2 } } // Merge Total label (Cols 0-2)
                         ];
 
                         // Number formats
                         for (let r = 7; r < exportData.length - 1; r++) {
+                            // Accounts (Col C) - Integer
+                            const ac = ws['C' + (r + 1)]; if (ac) ac.z = "#,##0";
+
                             ['D','E','F'].forEach(col => { const c = ws[col + (r+1)]; if (c) c.z = "#,##0.00"; });
                             const pc = ws['G' + (r+1)]; if (pc) pc.z = "0.00%";
                         }

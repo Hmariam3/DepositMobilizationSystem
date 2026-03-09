@@ -19,6 +19,8 @@ namespace TRMS.Models
         public string AccountHolder { get; set; }
         public Nullable<decimal> BegginingBalance { get; set; }
         public Nullable<decimal> CurrentBalance { get; set; }
+        public string MMACC { get; set; }
+        public Nullable<decimal> MMBAL { get; set; }
         public string District { get; set; }
         public string Branch { get; set; }
         public string UserName { get; set; }

@@ -325,6 +325,9 @@
     <Compile Include="Models\UserEngagement.cs">
       <DependentUpon>Target.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\VariationReport.cs">
+      <DependentUpon>Target.tt</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Security\AuthorizeRolesAdminAttribute.cs" />
     <Compile Include="Security\AuthorizeRolesAttribute.cs" />
