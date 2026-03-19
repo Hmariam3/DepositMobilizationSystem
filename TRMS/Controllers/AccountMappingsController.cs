@@ -77,9 +77,9 @@ namespace TRMS.Controllers
             }
 
             // Validate input model
-            if (accountMapping.AccountNumber.Length < 5)
+            if (accountMapping.AccountNumber.Length < 7 || accountMapping.AccountNumber.Length  > 13)
             {
-                TempData["ErrorMessage"] = "The Minimum Length for Account Number is 5";
+                TempData["ErrorMessage"] = "Please enter a valid account number.";
                 return View(accountMapping);
             }
 
@@ -283,6 +283,26 @@ namespace TRMS.Controllers
                 if (accountMapping == null)
                 {
                     TempData["ErrorMessage"] = "Data is missing.";
+                    return View(accountMapping);
+                }
+                // Check if account number contains only digits
+                if (!accountMapping.AccountNumber.All(char.IsDigit))
+                {
+                    TempData["ErrorMessage"] = "Account number must contain digits only.";
+                    return View(accountMapping);
+                }
+
+                // Validate input model
+                if (accountMapping.AccountNumber.Length < 7 || accountMapping.AccountNumber.Length > 13)
+                {
+                    TempData["ErrorMessage"] = "Please enter a valid account number.";
+                    return View(accountMapping);
+                }
+
+                // Validate input model
+                if (accountMapping.BegginingBalance < 0 || accountMapping.CurrentBalance < 0)
+                {
+                    TempData["ErrorMessage"] = "You can not register an OD account.";
                     return View(accountMapping);
                 }
 

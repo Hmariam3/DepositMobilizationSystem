@@ -12,7 +12,11 @@ namespace TRMS
         public static void RegisterRoutes(RouteCollection routes)
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
-
+            routes.MapRoute(
+                    name: "Metrics",
+                    url: "metrics",
+                    defaults: new { controller = "Metrics", action = "Index" }
+                );
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
