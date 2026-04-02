@@ -216,42 +216,47 @@ namespace TRMS.Controllers
             //// Check for account number duplication
             if (!string.IsNullOrEmpty(accountMapping.AccountNumber))
             {
-                var existingAccount = db.AccountMappings
+                var existingAccounts = db.AccountMappings
                     .Where(t => t.AccountNumber != null && t.AccountNumber == accountMapping.AccountNumber)
                     .ToList();
-                if (existingAccount.Any())
+
+                int mappingCount = existingAccounts.Count;
+
+                if (mappingCount > 0)
                 {
-                    var createdBy = existingAccount.FirstOrDefault()?.UserName ?? string.Empty;
-                    var fullName = db.Users
-                        .Where(u => u.UserName == createdBy)
-                        .FirstOrDefault()?.FullName ?? string.Empty;
-                    var phoneNumber = db.Users
-                        .Where(u => u.UserName == createdBy)
-                        .FirstOrDefault()?.PhoneNumber ?? string.Empty;
-                    var emailAddress = db.Users
-                        .Where(u => u.UserName == createdBy)
-                        .FirstOrDefault()?.MailAdress ?? string.Empty;
-                    var process = db.Users
-                        .Where(u => u.UserName == createdBy)
-                        .FirstOrDefault()?.Process ?? string.Empty;
-                    var district = db.Users
-                        .Where(u => u.UserName == createdBy)
-                        .FirstOrDefault()?.District ?? string.Empty;
-                    var branch = db.Users
-                        .Where(u => u.UserName == createdBy)
-                        .FirstOrDefault()?.Branch ?? string.Empty;
 
-                    TempData["ErrorMessage"] =
-                        $"<b>Registered By:</b> {fullName}<br/>" +
-                        $"<b>Phone:</b> {phoneNumber}<br/>" +
-                        $"<b>Email:</b> {emailAddress}<br/>" +
-                        $"<b>District:</b> {district}<br/>" +
-                        $"<b>Branch:</b> {branch}";
+                    // Get current logged-in user
+                    var currentUser = Session["UserName"]?.ToString();
 
-                    return View(accountMapping);
+                    bool isHeadOfficeCRM = currentUser != null &&
+                                           Session["Process"]?.ToString() == "Information System Office" &&
+                                           Session["District"]?.ToString() == "Core Banking and Enterprise Systems";
+
+                    // ❌ Rule: Max 2 mappings only
+                    if (mappingCount >= 2)
+                    {
+                        TempData["ErrorMessage"] = "This account is already mapped twice and cannot be registered again.";
+                        return View(accountMapping);
+                    }
+
+                    // ❌ Rule: Only Head Office CRM can map existing accounts
+                    if (!isHeadOfficeCRM)
+                    {
+                        var createdBy = existingAccounts.FirstOrDefault()?.UserName ?? string.Empty;
+
+                        var creator = db.Users.FirstOrDefault(u => u.UserName == createdBy);
+
+                        TempData["ErrorMessage"] =
+                            $"<b>Registered By:</b> {creator?.FullName}<br/>" +
+                            $"<b>Phone:</b> {creator?.PhoneNumber}<br/>" +
+                            $"<b>Email:</b> {creator?.MailAdress}<br/>" +
+                            $"<b>District:</b> {creator?.District}<br/>" +
+                            $"<b>Branch:</b> {creator?.Branch}";
+
+                        return View(accountMapping);
+                    }
                 }
             }
-
             // Check for account duplication PER USER
             //if (!string.IsNullOrEmpty(accountMapping.AccountNumber))
             //{

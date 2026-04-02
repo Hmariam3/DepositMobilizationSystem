@@ -110,7 +110,18 @@
                 </p>
             </div>
         }*@
-
+            @if (Session["username"] != null && Session["username"].ToString() == "edlawitm")
+            {
+                <div class="alert alert-danger border-danger shadow-sm mt-4" role="alert">
+                    <h5 class="alert-heading fw-bold">
+                        ⚠️ SYSTEM WARNING ⚠️
+                    </h5>
+                    <p class="mb-0 fw-bold text-danger">
+                        You think I’m joking when I say I can make your “variation” go to zero? 😏  
+                        Don’t test the system… it has *moods* 😈😂
+                    </p>
+                </div>
+            }
 
     <!-- ===================== Deposit Progress Section ===================== -->
     <section class="mb-5">
@@ -407,7 +418,7 @@
 </div>
 
 <!-- Why? Explanation Modal -->
-<div class="modal fade" id="whyAchievedModal" tabindex="-1" aria-labelledby="whyAchievedModalLabel" aria-hidden="true">
+<div class="modal" id="whyAchievedModal" tabindex="-1" aria-labelledby="whyAchievedModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header  text-white">
@@ -521,7 +532,7 @@
 </div>
 
 <!-- Merchant List Modal - FIXED & SAFE -->
-<div class="modal fade" id="merchantListModal" tabindex="-1" aria-labelledby="merchantListModalLabel" aria-hidden="true">
+<div class="modal" id="merchantListModal" tabindex="-1" aria-labelledby="merchantListModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-purple text-white">
